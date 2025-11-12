@@ -1,17 +1,20 @@
-# AI Prompts Log
+o# AI Prompts Log
 
 This document tracks all AI prompts used throughout the BMAD development process for the Smart Budget Application.
 
 ---
 
 ## Session 1 - Project Initialization
+
 **Date**: 2025-11-10
 
 ### Prompt 1: BMAD Dev Assistant Activation
+
 **Phase**: Initialization
 **Purpose**: Activate BMAD Dev Assistant and establish project context
 
 **Prompt**:
+
 ```
 BMAD Dev Assistant (Short Version)
 
@@ -38,16 +41,19 @@ Your Responsibilities:
 ---
 
 ### Prompt 2: Create Documentation Files
+
 **Phase**: Initialization
 **Purpose**: Create prompts.md and summary.md for tracking AI usage
 
 **Prompt**:
+
 ```
 Create the md files
 ```
 
 **Task**: Create prompts.md and summary.md
 **Output**:
+
 - [prompts.md](prompts.md) - AI prompts tracking document
 - [summary.md](summary.md) - AI usage summary document
 - Git commit: `bmad/init: Create project documentation tracking files`
@@ -55,10 +61,12 @@ Create the md files
 ---
 
 ### Prompt 3: Confirm Project Name
+
 **Phase**: Workflow Initialization
 **Purpose**: Confirm project name during workflow-init process
 
 **Prompt**:
+
 ```
 correct
 ```
@@ -69,10 +77,12 @@ correct
 ---
 
 ### Prompt 4: Detailed Project Description & Prompt Tracking Reminder
+
 **Phase**: Workflow Initialization
 **Purpose**: Provide comprehensive project description and establish prompt tracking requirement
 
 **Prompt**:
+
 ```
 I'm working on a Smart Budget Application, which is a personal finance management tool. The goal is to help users track their income and expenses, categorize transactions (like Rent, Salary, Transport), and visualize their spending through summaries and charts. Optionally, the app may provide AI-based suggestions for optimizing budgets.
 
@@ -84,6 +94,7 @@ Reminder: Save all my prompts in the prompts.md file. The file should contain al
 **Task**: Store project description and establish prompt tracking workflow
 **Output**: Project description captured; prompts.md updated with complete chronological history
 **Notes**:
+
 - Project goal: Personal finance management with income/expense tracking, categorization, and visualization
 - Optional: AI-based budget suggestions
 - Demonstrates BMAD methodology in practice
@@ -92,16 +103,19 @@ Reminder: Save all my prompts in the prompts.md file. The file should contain al
 ---
 
 ### Prompt 5: Skip Discovery Workflows
+
 **Phase**: Workflow Initialization
 **Purpose**: Decline optional brainstorming and research workflows
 
 **Prompt**:
+
 ```
 d
 ```
 
 **Task**: Skip discovery phase (brainstorm and research)
 **Output**:
+
 - brainstorm_requested = false
 - research_requested = false
 - Proceeding to track selection
@@ -109,16 +123,19 @@ d
 ---
 
 ### Prompt 6: Select BMad Method Track
+
 **Phase**: Workflow Initialization
 **Purpose**: Choose planning approach for the project
 
 **Prompt**:
+
 ```
 2
 ```
 
 **Task**: Select BMad Method (full product planning)
 **Output**:
+
 - selected_track = "method"
 - Will include: PRD + UX Design + Architecture + Sprint Planning + Story Development
 - Planning time: 1-3 days
@@ -127,16 +144,19 @@ d
 ---
 
 ### Prompt 7: Include Product Brief
+
 **Phase**: Workflow Initialization
 **Purpose**: Decide whether to include Product Brief workflow
 
 **Prompt**:
+
 ```
 a
 ```
 
 **Task**: Include Product Brief in workflow path
 **Output**:
+
 - product_brief_requested = true
 - Product Brief will be first workflow in Phase 1 (Planning)
 - Proceeding to generate workflow path
@@ -144,10 +164,12 @@ a
 ---
 
 ### Prompt 8: Create Workflow Tracking File
+
 **Phase**: Workflow Initialization
 **Purpose**: Confirm creation of workflow status tracking file
 
 **Prompt**:
+
 ```
 y
 ```
@@ -159,10 +181,12 @@ y
 ---
 
 ### Prompt 9: Start Product Brief Workflow
+
 **Phase**: Discovery/Planning
 **Purpose**: Begin Product Brief workflow to define strategic product vision
 
 **Prompt**:
+
 ```
 1
 ```
@@ -174,10 +198,12 @@ y
 ---
 
 ### Prompt 10: Product Brief Discovery - Initial Vision
+
 **Phase**: Discovery/Product Brief
 **Purpose**: Capture what sparked the idea and core problem context
 
 **Prompt**:
+
 ```
 What sparked this specific idea? - The desire to create a simple tool which makes budgeting easier.
 Who is this primarily for? - A broader audience of everyday users who want to track and optimize their personal finances.
@@ -187,6 +213,7 @@ What about existing budgeting tools frustrated you or your potential users? - Ex
 **Task**: Capture initial vision, problem context, and target audience
 **Output**: Updating product brief with executive summary and initial vision
 **Notes**:
+
 - Spark: Simplicity in budgeting
 - Target: Everyday users (broader audience)
 - Gap: Existing tools too complex, lack visual insights, feel tedious
@@ -194,10 +221,12 @@ What about existing budgeting tools frustrated you or your potential users? - Ex
 ---
 
 ### Prompt 11: Continue Product Brief
+
 **Phase**: Discovery/Product Brief
 **Purpose**: Approve executive summary and continue to problem discovery
 
 **Prompt**:
+
 ```
 c
 ```
@@ -208,10 +237,12 @@ c
 ---
 
 ### Prompt 12: Problem Discovery Deep Dive
+
 **Phase**: Discovery/Product Brief
 **Purpose**: Capture detailed problem statement, pain points, and impact
 
 **Prompt**:
+
 ```
 Current process: Users track income/expenses manually or with complex apps and spreadsheets.
 
@@ -227,6 +258,7 @@ Deeper impact: Users feel stressed, lose control over finances, and often give u
 **Task**: Capture comprehensive problem statement and impact analysis
 **Output**: Updating product brief with problem statement and problem impact sections
 **Notes**:
+
 - Current state: Manual tracking or complex tools/spreadsheets
 - Key frustrations: Hard navigation, time-consuming, difficult categorization, confusing charts, feature bloat, slow updates
 - Measurable costs: Overspending, missed savings, financial anxiety, wasted time
@@ -235,10 +267,12 @@ Deeper impact: Users feel stressed, lose control over finances, and often give u
 ---
 
 ### Prompt 13: Continue to Solution Vision
+
 **Phase**: Discovery/Product Brief
 **Purpose**: Approve problem statement and move to solution exploration
 
 **Prompt**:
+
 ```
 c
 ```
@@ -249,10 +283,12 @@ c
 ---
 
 ### Prompt 14: Solution Vision and Differentiation
+
 **Phase**: Discovery/Product Brief
 **Purpose**: Capture proposed solution, unique approach, and competitive differentiation
 
 **Prompt**:
+
 ```
 Magic moment: Users log a transaction and instantly see a clear, visual summary of their spending — everything clicks.
 
@@ -271,6 +307,7 @@ Why simplicity: Users need quick, clear insights to reduce stress and make budge
 **Task**: Capture proposed solution and key differentiators
 **Output**: Updating product brief with proposed solution and key differentiators sections
 **Notes**:
+
 - Magic moment: Instant visual feedback on transaction entry
 - Easy categorization: Auto-suggestions + drag/drop interface
 - Clean visuals: Minimal charts with actionable insights
@@ -282,10 +319,12 @@ Why simplicity: Users need quick, clear insights to reduce stress and make budge
 ---
 
 ### Prompt 15: Continue to Target Users
+
 **Phase**: Discovery/Product Brief
 **Purpose**: Approve solution vision and move to target user exploration
 
 **Prompt**:
+
 ```
 c
 ```
@@ -296,10 +335,12 @@ c
 ---
 
 ### Prompt 16: Target User Discovery
+
 **Phase**: Discovery/Product Brief
 **Purpose**: Capture primary user segments, behaviors, and what they value
 
 **Prompt**:
+
 ```
 Ideal first user: A young professional with irregular spending who wants to track and save but feels overwhelmed by complex apps or spreadsheets.
 
@@ -325,6 +366,7 @@ Values: Clarity, simplicity, minimal setup, and actionable visual feedback.
 **Task**: Capture primary and potential secondary user segments
 **Output**: Updating product brief with primary users (young professionals/beginners) and secondary users (families/experienced users)
 **Notes**:
+
 - Primary: Young professionals with irregular spending, overwhelmed by complex tools
 - Current state: Messy spreadsheets or abandoned apps
 - Magic moment: Transaction → instant visual summary
@@ -335,10 +377,12 @@ Values: Clarity, simplicity, minimal setup, and actionable visual feedback.
 ---
 
 ### Prompt 17: Continue to MVP Scope
+
 **Phase**: Discovery/Product Brief
 **Purpose**: Approve target users and move to MVP feature scoping
 
 **Prompt**:
+
 ```
 c
 ```
@@ -349,10 +393,12 @@ c
 ---
 
 ### Prompt 18: MVP Scope Definition
+
 **Phase**: Discovery/Product Brief
 **Purpose**: Define core MVP features vs. future enhancements
 
 **Prompt**:
+
 ```
 Absolute must-have: Users can log transactions and see them categorized.
 
@@ -380,6 +426,7 @@ MVP line: Focus on simplicity, clarity, and immediate visual insight; everything
 **Task**: Capture core MVP features and out-of-scope items
 **Output**: Updating product brief with core features, out of scope, and MVP success criteria
 **Notes**:
+
 - Core MVP: Transaction entry + categorization + visual summaries/charts
 - Out of scope: AI suggestions, multi-user, export, recurring transactions
 - Success metric: Young professionals logging, categorizing, and getting actionable insights
@@ -388,10 +435,12 @@ MVP line: Focus on simplicity, clarity, and immediate visual insight; everything
 ---
 
 ### Prompt 19: Review and Finalize Product Brief
+
 **Phase**: Discovery/Product Brief
 **Purpose**: Review completed product brief and finalize document
 
 **Prompt**:
+
 ```
 2
 ```
@@ -403,16 +452,19 @@ MVP line: Focus on simplicity, clarity, and immediate visual insight; everything
 ---
 
 ### Prompt 20: Save and Finalize Product Brief
+
 **Phase**: Discovery/Product Brief
 **Purpose**: Save finalized product brief and complete workflow
 
 **Prompt**:
+
 ```
 save
 ```
 
 **Task**: Finalize and save product brief, update workflow status
 **Output**:
+
 - Product brief finalized at docs/product-brief-SmartBudget-2025-11-10.md
 - Workflow status updated to mark product-brief as completed
 - Ready to proceed to next workflow (PRD)
@@ -422,10 +474,12 @@ save
 ## Template for Future Prompts
 
 ### Prompt [N]: [Brief Title]
+
 **Phase**: [Analysis/Planning/Solutioning/Implementation]
 **Purpose**: [What this prompt aims to achieve]
 
 **Prompt**:
+
 ```
 [Full prompt text here]
 ```
