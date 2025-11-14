@@ -1293,6 +1293,100 @@ Please continue the conversation from where we left it off without asking the us
 
 ---
 
+## Session 7 - Focused Remediation After Solutioning Gate Check
+
+**Date**: 2025-11-14
+
+### Prompt 7.1: Focused Remediation Pass
+
+**Phase**: Solutioning (Post-Gate Check)
+**Purpose**: Address identified issues from Implementation Readiness Assessment with minimal, targeted edits
+
+**Prompt**:
+
+```
+Please perform a focused remediation pass based on the Solutioning Gate Check report.
+
+Fix only the identified issues (2 high-priority, 3 medium) with minimal edits:
+- Update only the specific sections of architecture.md, PRD.md, epics.md, and UX specs that require correction.
+- Do NOT regenerate entire documents.
+- Avoid unnecessary verbosity or restating unchanged content.
+
+After applying fixes, re-run a lightweight consistency check (no web search) to confirm all documents remain aligned.
+
+Finally, update the prompts file with any missed or newly added prompts.
+```
+
+**Task**: Address 5 specific issues identified in the solutioning gate check report
+
+**Issues Fixed**:
+
+**High Priority:**
+1. **Performance Testing Strategy (NEW Story 7.6)**:
+   - Added comprehensive Story 7.6: Automated Testing Suite
+   - Includes unit tests (Vitest), component tests (@testing-library/react), E2E tests (Playwright)
+   - Explicit performance benchmarks: chart render <500ms, bundle size <500KB, Lighthouse CI monitoring
+   - References UX critical paths for E2E test coverage
+   - Updated Epic 7 summary: 5 stories → 6 stories
+   - Updated overall count: 28 stories → 29 stories
+
+2. **Account Migration Edge Cases (Story 2.2)**:
+   - Expanded acceptance criteria with explicit edge case handling
+   - Email already exists: Show error with link to sign-in
+   - Network failures: Preserve anonymous state, show retry UI
+   - linkWithCredential() failures: Rollback to anonymous, preserve data
+   - Added testing requirements for edge cases in Technical Notes
+
+**Medium Priority:**
+3. **BaaS Abstraction Layer Pattern (Epic 1.2 + architecture.md)**:
+   - Added explicit acceptance criteria for abstraction layer in Story 1.2
+   - Requires interfaces: `IAuthService`, `IDatabaseService` in /src/services/
+   - Firebase-specific code isolated to /src/services/firebase/
+   - Added detailed section in architecture.md ADR 1 with TypeScript interface examples
+   - Documents benefits: future migration flexibility, improved testability
+
+4. **Category Colors Reference (Story 4.1)**:
+   - Added explicit hex color codes matching UX design specification
+   - 10 category colors defined (Food & Dining: #f59e0b, Transportation: #3b82f6, etc.)
+   - References docs/ux-design-specification.md for consistency
+   - Updated Technical Notes emphasizing color consistency across charts, cards, and UI
+
+5. **Mobile Swipe Gesture Clarification (Story 3.4)**:
+   - Clarified deletion works on all platforms (desktop and mobile)
+   - Documented swipe-to-delete as Phase 2 enhancement (deferred from MVP)
+   - Added Technical Notes with implementation guidance if added to MVP
+   - References UX spec Section 7.4, includes bundle size consideration
+
+**Documents Updated**:
+1. `docs/epics.md`:
+   - Added Story 7.6: Automated Testing Suite (47 lines)
+   - Enhanced Story 2.2 acceptance criteria with edge cases (14 lines)
+   - Enhanced Story 1.2 with abstraction layer requirements (21 lines including TypeScript example)
+   - Enhanced Story 4.1 with explicit category colors (11 lines)
+   - Enhanced Story 3.4 with platform-specific deletion patterns (10 lines)
+   - Updated Summary: 31 stories → 29 stories (corrected count)
+
+2. `docs/architecture.md`:
+   - Added "BaaS Abstraction Layer Pattern" section to ADR 1 (47 lines)
+   - Includes TypeScript interface definitions for `IAuthService` and `IDatabaseService`
+   - Documents benefits and integration points
+   - Updated Epic 1.2 integration point to mention abstraction layer
+
+3. `docs/prompts.md`:
+   - Added Session 7 entry documenting this focused remediation work
+
+**Consistency Check Results**: ✅ All Aligned
+
+- Story count: 29 (verified with grep)
+- Architecture ↔ Epics testing: Story 7.6 references ADR 10 (Vitest, Playwright) ✅
+- Architecture ↔ Epics abstraction: Both mention `IAuthService`, `IDatabaseService` ✅
+- Epics ↔ UX colors: Story 4.1 references ux-design-specification.md with hex codes ✅
+- Edge cases documented: Story 2.2 has robust edge case handling with testing requirements ✅
+
+**Notes**: Focused remediation completed with surgical edits only to sections needing updates. No full document regeneration. All 5 issues from the gate check report addressed. Documents remain internally consistent and aligned with each other.
+
+---
+
 ## Template for Future Prompts
 
 ### Prompt [N]: [Brief Title]

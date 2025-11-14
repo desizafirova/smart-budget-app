@@ -136,11 +136,59 @@ Options evaluated:
 - Security Rules: Implement user-scoped data access rules
 - Offline persistence: Enable via `enableIndexedDbPersistence()` on app initialization
 
+**BaaS Abstraction Layer Pattern:**
+
+To mitigate vendor lock-in and enable potential future migration to Supabase or custom backend, implement service abstraction interfaces:
+
+```typescript
+// src/services/auth.ts - Interface defining auth operations
+export interface IAuthService {
+  signInAnonymously(): Promise<User>;
+  linkWithEmail(email: string, password: string): Promise<User>;
+  signInWithEmail(email: string, password: string): Promise<User>;
+  signOut(): Promise<void>;
+  getCurrentUser(): User | null;
+  onAuthStateChanged(callback: (user: User | null) => void): () => void;
+}
+
+// src/services/database.ts - Interface defining data operations
+export interface IDatabaseService {
+  createDocument<T>(collection: string, data: T): Promise<string>;
+  getDocument<T>(collection: string, id: string): Promise<T | null>;
+  updateDocument<T>(collection: string, id: string, data: Partial<T>): Promise<void>;
+  deleteDocument(collection: string, id: string): Promise<void>;
+  queryDocuments<T>(collection: string, where?: QueryFilter): Promise<T[]>;
+  subscribeToCollection<T>(collection: string, callback: (docs: T[]) => void): () => void;
+}
+
+// src/services/firebase/firebaseAuth.ts - Firebase-specific implementation
+export class FirebaseAuthService implements IAuthService {
+  private auth: Auth;
+
+  constructor() {
+    this.auth = getAuth(app);
+  }
+
+  async signInAnonymously(): Promise<User> {
+    const result = await signInAnonymously(this.auth);
+    return this.mapFirebaseUser(result.user);
+  }
+
+  // ... other implementations
+}
+```
+
+**Benefits:**
+- Application code depends on interfaces, not Firebase SDK directly
+- Enables future migration with minimal refactoring (swap implementation)
+- Improves testability (mock interfaces in tests)
+- Documents BaaS contract explicitly
+
 **Integration Points:**
 
-- Epic 1.2: Firebase SDK integration, environment configuration
-- Epic 2: Firebase Authentication (Anonymous, Email/Password)
-- Epic 3-4: Firestore for transactions and categories
+- Epic 1.2: Firebase SDK integration, environment configuration, **abstraction layer implementation**
+- Epic 2: Firebase Authentication (Anonymous, Email/Password) via `IAuthService`
+- Epic 3-4: Firestore for transactions and categories via `IDatabaseService`
 - Epic 5: Real-time listeners for dashboard updates
 - Epic 6: Offline persistence and cross-device sync
 - Epic 7.2: Firebase Security Rules implementation

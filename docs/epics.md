@@ -122,14 +122,35 @@ So that I can store user data, handle authentication, and enable real-time sync 
 **And** configuration is secure (API keys not committed to git)
 **And** development and production environments are separated
 
+**And** BaaS integration uses abstraction layer pattern:
+- Create service interfaces: `IAuthService`, `IDatabaseService` in /src/services/
+- Implement Firebase-specific code in /src/services/firebase/
+- Application code depends on interfaces, not Firebase SDK directly
+- This enables potential migration to Supabase or custom backend in future phases
+
 **Prerequisites:** Story 1.1
 
 **Technical Notes:**
 - **Decision Point:** Firebase vs Supabase (Architecture workflow will decide)
 - Firebase: Use Firebase SDK v9+ (modular)
 - Supabase: Use @supabase/supabase-js client
-- Create BaaS service abstraction layer for potential future migration
 - Set up Firebase/Supabase projects: development and production instances
+- **Abstraction layer example:**
+  ```typescript
+  // src/services/auth.ts
+  export interface IAuthService {
+    signInAnonymously(): Promise<User>;
+    linkWithEmail(email: string, password: string): Promise<User>;
+    signInWithEmail(email: string, password: string): Promise<User>;
+    signOut(): Promise<void>;
+  }
+
+  // src/services/firebase/firebaseAuth.ts
+  export class FirebaseAuthService implements IAuthService {
+    // Firebase-specific implementation
+  }
+  ```
+- Benefit: Reduces future migration cost if BaaS needs change
 
 ---
 
@@ -240,6 +261,12 @@ So that my existing data is preserved and I can access it from other devices.
 
 **And** the anonymous user ID is linked to the permanent account
 
+**And** edge case handling is robust:
+- If email already exists: Show error "This email is already registered. Please sign in instead" with link to sign-in screen
+- If network fails during migration: Preserve anonymous state, show retry UI with "Try Again" button, don't lose any data
+- If linkWithCredential() fails: Rollback to anonymous account state, preserve all data, log error for investigation
+- Use Firebase transaction() or atomic operations to ensure all-or-nothing migration (no partial state)
+
 **Prerequisites:** Story 2.1
 
 **Technical Notes:**
@@ -247,8 +274,12 @@ So that my existing data is preserved and I can access it from other devices.
 - Supabase: Create permanent user, migrate data, delete anonymous user
 - Validation: Email format, password minimum 8 characters
 - No email verification required for MVP (reduces friction)
-- Handle edge cases: email already exists, network failures
 - Show loading state during account claim process
+- **Testing edge cases:**
+  - Simulate network failures during linkWithCredential()
+  - Test with existing registered email (should show error)
+  - Verify data integrity after failed migration attempts
+  - Ensure no orphaned data or duplicate transactions
 
 ---
 
@@ -389,14 +420,24 @@ So that I can remove mistakes or irrelevant entries.
 **And** there's a confirmation step to prevent accidental deletion
 **And** deletion is irreversible (no undo in MVP)
 
+**And** deletion works on all platforms:
+- Desktop: Click transaction → detail modal → Delete button → confirmation dialog
+- Mobile: Click transaction → detail modal → Delete button → confirmation dialog
+- OR Mobile (Phase 2 enhancement): Swipe left → delete icon appears → tap icon → confirmation
+
 **Prerequisites:** Stories 3.1, 3.2
 
 **Technical Notes:**
-- Provide delete button/icon on each transaction (swipe-to-delete on mobile, trash icon on desktop)
+- Provide delete button/icon on each transaction
 - Confirmation modal: "Delete this transaction? This cannot be undone."
 - Delete document from BaaS by transaction ID
 - Consider soft delete with deletedAt flag (allows potential future undo feature)
 - Update any dependent data (dashboard will recalculate in Epic 5)
+- **Swipe gesture (optional for MVP, recommended for Phase 2):**
+  - If implementing in MVP: Use react-swipeable or similar library
+  - Check bundle size impact (<500KB budget)
+  - UX spec reference: docs/ux-design-specification.md Section 7.4
+  - Alternative: Defer to Phase 2 as mobile UX enhancement
 
 ---
 
@@ -424,14 +465,27 @@ So that I can immediately organize my transactions without setup work.
 **And** these categories are seeded for all new users
 **And** categories are stored in the user's BaaS account (can be customized later)
 
+**And** category colors match UX design specification (docs/ux-design-specification.md):
+- Food & Dining: #f59e0b (Amber)
+- Transportation: #3b82f6 (Blue)
+- Shopping: #8b5cf6 (Purple)
+- Entertainment: #ec4899 (Pink)
+- Health: #10b981 (Green)
+- Education: #6366f1 (Indigo)
+- Rent/Housing: #ef4444 (Red)
+- Utilities: #f97316 (Orange)
+- Income categories: #10b981 (Green)
+- Other/Uncategorized: #6b7280 (Gray)
+
 **Prerequisites:** Epic 3 complete (transactions working)
 
 **Technical Notes:**
 - Seed default categories on first user sign-in (anonymous or claimed)
-- BaaS schema: {userId, categoryId, name, type, icon, color, isDefault: true}
+- BaaS schema: {userId, categoryId, name, type, icon, color: string (hex), isDefault: true}
 - Icons: Use icon library (FontAwesome, Heroicons) for visual distinction
-- Colors: Distinct colors for each category (aids visual recognition)
+- Colors: Use exact hex codes from UX spec for consistency across charts, cards, and UI
 - Category dropdown in transaction form pulls from this list
+- Color consistency critical for user recognition (same category = same color everywhere)
 
 ---
 
@@ -928,9 +982,55 @@ So that I don't wait long to access my financial data.
 
 ---
 
+### Story 7.6: Automated Testing Suite
+
+As a developer,
+I want comprehensive automated tests covering unit, component, E2E, and performance scenarios,
+So that I can confidently deploy changes without breaking existing functionality.
+
+**Acceptance Criteria:**
+
+**Given** the application is developed
+**When** tests run in CI/CD pipeline
+**Then** all critical paths are covered with automated tests
+**And** test suite passes before deployment is allowed
+**And** performance benchmarks are enforced
+
+**And** unit tests cover utility functions, stores, and business logic (Vitest)
+**And** component tests cover UI components and user interactions (@testing-library/react)
+**And** E2E tests cover critical user journeys (Playwright)
+
+**And** performance benchmarks are automated:
+- Chart update time measured in component tests (target: <500ms using performance.now())
+- Bundle size checked in CI (fail build if >500KB gzipped)
+- Lighthouse scores monitored in CI (LCP <2.5s, FCP <1.5s, TTI <3s)
+- Real device testing on 4G mobile connection (target: <3s page load)
+
+**And** E2E tests cover UX critical paths (reference: docs/ux-design-specification.md Section 5):
+- First-time user onboarding → magic moment (<2 min)
+- Daily transaction logging (<30s transaction entry)
+- Reviewing spending patterns (chart interaction and filtering)
+- Editing/deleting transaction with confirmation
+
+**Prerequisites:** Epics 1-6 complete
+
+**Technical Notes:**
+- **Vitest:** Unit and component tests (see ADR 10 in architecture.md)
+- **Playwright:** E2E tests across Chrome, Firefox, Safari
+- **Performance benchmarks:**
+  - Chart render: `performance.mark()` / `performance.measure()` in tests
+  - Bundle: `bundlesize` or Vite build stats in CI
+  - Lighthouse CI: GitHub Actions integration with budget thresholds
+- **Test coverage:** Target ≥80% for critical business logic
+- **CI pipeline:** All tests must pass before merge to main
+- **Testing Library best practices:** Query by accessible roles/labels (supports a11y)
+- **Mock Firebase:** Use Firebase emulators for deterministic tests
+
+---
+
 ## Summary
 
-SmartBudget's MVP implementation is organized into **7 epics with 31 total stories**:
+SmartBudget's MVP implementation is organized into **7 epics with 29 total stories**:
 
 - **Epic 1: Foundation & Infrastructure** - 4 stories
 - **Epic 2: User Authentication & Zero-Friction Onboarding** - 3 stories
@@ -938,7 +1038,7 @@ SmartBudget's MVP implementation is organized into **7 epics with 31 total stori
 - **Epic 4: Intelligent Categorization** - 4 stories
 - **Epic 5: Visual Dashboard & Insights** ⭐ - 5 stories (THE MAGIC MOMENT)
 - **Epic 6: Cross-Device Sync & Offline Support** - 3 stories
-- **Epic 7: Performance, Security & Accessibility** - 5 stories
+- **Epic 7: Performance, Security & Accessibility** - 6 stories
 
 All functional requirements from the PRD are covered. Each story is vertically sliced, independently valuable, and sized for single-session completion by a dev agent.
 
