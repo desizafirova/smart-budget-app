@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartBudget Design Direction Mockups</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8f9fa;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .controls button {
+            padding: 0.75rem 1.5rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .controls button:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .controls button.secondary {
+            background: #8b5cf6;
+        }
+
+        .controls button.secondary:hover {
+            background: #7c3aed;
+        }
+
+        .mockup-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .mockup-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+            padding: 2rem;
+        }
+
+        .mockup-header h2 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .mockup-header .meta {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .mockup-info {
+            padding: 2rem;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .mockup-info h3 {
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+            color: #111827;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .info-item strong {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .mockup-preview {
+            padding: 2rem;
+            display: none;
+        }
+
+        .mockup-preview.active {
+            display: block;
+        }
+
+        .device-frame {
+            max-width: 375px;
+            margin: 0 auto;
+            background: #111827;
+            border-radius: 32px;
+            padding: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .device-screen {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            height: 667px;
+            position: relative;
+        }
+
+        /* Mockup Styles */
+        .screen-content {
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .topbar {
+            background: white;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        }
+
+        .dashboard-summary {
+            padding: 1.5rem 1rem;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .summary-card h3 {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-card .amount {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .chart-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .chart-card h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #111827;
+        }
+
+        .chart-placeholder {
+            height: 180px;
+            background: linear-gradient(to bottom, #dbeafe, #fae8ff);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .transaction-list {
+            padding: 0 1rem 5rem 1rem;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .list-header h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6b7280;
+        }
+
+        .transaction-item {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-right: 0.75rem;
+        }
+
+        .transaction-details {
+            flex: 1;
+        }
+
+        .transaction-details .title {
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.25rem;
+        }
+
+        .transaction-details .subtitle {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .transaction-amount.expense {
+            color: #ef4444;
+        }
+
+        .transaction-amount.income {
+            color: #10b981;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.5);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .fab:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.6);
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.75rem 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: #3b82f6;
+        }
+
+        .nav-icon {
+            font-size: 1.25rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #6b7280;
+            background: white;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        @media (max-width: 768px) {
+            .mockup-container {
+                border-radius: 0;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 SmartBudget Design Direction Mockups</h1>
+        <p style="color: #6b7280;">Explore 6 different layout approaches for your dashboard</p>
+    </div>
+
+    <div class="controls">
+        <button onclick="showMockup(1)">Direction 1: Chart-First Dashboard</button>
+        <button onclick="showMockup(2)">Direction 2: Summary-First Compact</button>
+        <button onclick="showMockup(3)">Direction 3: List-Focused Minimal</button>
+        <button onclick="showMockup(4)">Direction 4: Card-Based Spacious</button>
+        <button onclick="showMockup(5)">Direction 5: Split-View Dense</button>
+        <button onclick="showMockup(6)">Direction 6: FAB-Centered Simple</button>
+    </div>
+
+    <!-- Direction 1: Chart-First Dashboard -->
+    <div class="mockup-container mockup-1 active">
+        <div class="mockup-header">
+            <h2>Direction 1: Chart-First Dashboard</h2>
+            <p class="meta">Personality: Visual & Empowering | Density: Balanced</p>
+        </div>
+
+        <div class="mockup-info">
+            <h3>Key Characteristics</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>Layout Approach</strong>
+                    <div>Charts dominate above-the-fold, transactions below</div>
+                </div>
+                <div class="info-item">
+                    <strong>Navigation</strong>
+                    <div>Bottom nav + FAB in bottom-right</div>
+                </div>
+                <div class="info-item">
+                    <strong>Visual Hierarchy</strong>
+                    <div>Summary → Charts → Transaction List</div>
+                </div>
+                <div class="info-item">
+                    <strong>Best For</strong>
+                    <div>Users who want instant visual insight</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mockup-preview active">
+            <div class="device-frame">
+                <div class="device-screen">
+                    <div class="screen-content">
+                        <div class="topbar">
+                            <h1>SmartBudget</h1>
+                            <div class="avatar"></div>
+                        </div>
+
+                        <div class="dashboard-summary">
+                            <div class="summary-card">
+                                <h3>This Month's Spending</h3>
+                                <div class="amount">$1,247.50</div>
+                                <div style="margin-top: 0.5rem; opacity: 0.9; font-size: 0.875rem;">
+                                    $252.50 under budget 🎉
+                                </div>
+                            </div>
+
+                            <div class="chart-card">
+                                <h4>Spending by Category</h4>
+                                <div class="chart-placeholder">
+                                    📊 Donut Chart Here<br>
+                                    <500ms Animation
+                                </div>
+                            </div>
+
+                            <div class="chart-card">
+                                <h4>Spending Trend</h4>
+                                <div class="chart-placeholder" style="height: 140px;">
+                                    📈 Line Chart Here<br>
+                                    Last 7 Days
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="transaction-list">
+                            <div class="list-header">
+                                <h4>Recent Transactions</h4>
+                                <span style="font-size: 0.75rem; color: #3b82f6; font-weight: 600; cursor: pointer;">View All</span>
+                            </div>
+
+                            <div class="transaction-item">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="transaction-icon" style="background: #fef3c7;">🍔</div>
+                                    <div class="transaction-details">
+                                        <div class="title">Chipotle</div>
+                                        <div class="subtitle">Food & Dining • Today 12:30 PM</div>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount expense">-$12.50</div>
+                            </div>
+
+                            <div class="transaction-item">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="transaction-icon" style="background: #dbeafe;">🚗</div>
+                                    <div class="transaction-details">
+                                        <div class="title">Gas Station</div>
+                                        <div class="subtitle">Transportation • Today 9:15 AM</div>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount expense">-$45.00</div>
+                            </div>
+                        </div>
+
+                        <div class="bottom-nav">
+                            <div class="nav-item active">
+                                <div class="nav-icon">📊</div>
+                                <div>Dashboard</div>
+                            </div>
+                            <div class="nav-item">
+                                <div class="nav-icon">📝</div>
+                                <div>Transactions</div>
+                            </div>
+                            <div class="nav-item">
+                                <div class="nav-icon">🏷️</div>
+                                <div>Categories</div>
+                            </div>
+                            <div class="nav-item">
+                                <div class="nav-icon">⚙️</div>
+                                <div>Settings</div>
+                            </div>
+                        </div>
+
+                        <div class="fab">+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Direction 2: Summary-First Compact -->
+    <div class="mockup-container mockup-2">
+        <div class="mockup-header">
+            <h2>Direction 2: Summary-First Compact</h2>
+            <p class="meta">Personality: Efficient & Data-Dense | Density: Compact</p>
+        </div>
+
+        <div class="mockup-info">
+            <h3>Key Characteristics</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>Layout Approach</strong>
+                    <div>Numbers first, charts smaller, more transactions visible</div>
+                </div>
+                <div class="info-item">
+                    <strong>Navigation</strong>
+                    <div>Tab bar + FAB</div>
+                </div>
+                <div class="info-item">
+                    <strong>Visual Hierarchy</strong>
+                    <div>Summary Stats → Mini Charts → Long Transaction List</div>
+                </div>
+                <div class="info-item">
+                    <strong>Best For</strong>
+                    <div>Power users who want dense information</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mockup-preview">
+            <div class="device-frame">
+                <div class="device-screen">
+                    <div class="screen-content">
+                        <div class="topbar">
+                            <h1 style="font-size: 1.25rem;">Dashboard</h1>
+                            <div class="avatar"></div>
+                        </div>
+
+                        <div style="padding: 1rem;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                                <div style="background: #dbeafe; padding: 1rem; border-radius: 8px;">
+                                    <div style="font-size: 0.75rem; color: #1e40af; margin-bottom: 0.25rem;">Spent</div>
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: #1e3a8a;">$1,247</div>
+                                </div>
+                                <div style="background: #d1fae5; padding: 1rem; border-radius: 8px;">
+                                    <div style="font-size: 0.75rem; color: #065f46; margin-bottom: 0.25rem;">Remaining</div>
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: #065f46;">$253</div>
+                                </div>
+                            </div>
+
+                            <div class="tabs">
+                                <div class="tab active">This Month</div>
+                                <div class="tab">Last Month</div>
+                            </div>
+
+                            <div class="chart-card" style="margin-bottom: 1rem;">
+                                <div class="chart-placeholder" style="height: 120px;">
+                                    📊 Compact Chart
+                                </div>
+                            </div>
+
+                            <div class="list-header">
+                                <h4>All Transactions</h4>
+                            </div>
+
+                            <div class="transaction-item" style="padding: 0.75rem;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="transaction-icon" style="width: 32px; height: 32px; font-size: 1rem; background: #fef3c7;">🍔</div>
+                                    <div class="transaction-details">
+                                        <div class="title" style="font-size: 0.875rem;">Chipotle</div>
+                                        <div class="subtitle">12:30 PM</div>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount expense" style="font-size: 0.875rem;">-$12.50</div>
+                            </div>
+
+                            <div class="transaction-item" style="padding: 0.75rem;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="transaction-icon" style="width: 32px; height: 32px; font-size: 1rem; background: #dbeafe;">🚗</div>
+                                    <div class="transaction-details">
+                                        <div class="title" style="font-size: 0.875rem;">Gas Station</div>
+                                        <div class="subtitle">9:15 AM</div>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount expense" style="font-size: 0.875rem;">-$45.00</div>
+                            </div>
+
+                            <div class="transaction-item" style="padding: 0.75rem;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="transaction-icon" style="width: 32px; height: 32px; font-size: 1rem; background: #fae8ff;">🛍️</div>
+                                    <div class="transaction-details">
+                                        <div class="title" style="font-size: 0.875rem;">Target</div>
+                                        <div class="subtitle">Yesterday</div>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount expense" style="font-size: 0.875rem;">-$87.32</div>
+                            </div>
+
+                            <div class="transaction-item" style="padding: 0.75rem;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="transaction-icon" style="width: 32px; height: 32px; font-size: 1rem; background: #fee2e2;">💡</div>
+                                    <div class="transaction-details">
+                                        <div class="title" style="font-size: 0.875rem;">Electric Bill</div>
+                                        <div class="subtitle">2 days ago</div>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount expense" style="font-size: 0.875rem;">-$124.50</div>
+                            </div>
+                        </div>
+
+                        <div class="bottom-nav">
+                            <div class="nav-item active">
+                                <div class="nav-icon">📊</div>
+                                <div>Dashboard</div>
+                            </div>
+                            <div class="nav-item">
+                                <div class="nav-icon">📝</div>
+                                <div>Transactions</div>
+                            </div>
+                            <div class="nav-item">
+                                <div class="nav-icon">⚙️</div>
+                                <div>More</div>
+                            </div>
+                        </div>
+
+                        <div class="fab">+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Direction 3: List-Focused Minimal -->
+    <div class="mockup-container mockup-3">
+        <div class="mockup-header">
+            <h2>Direction 3: List-Focused Minimal</h2>
+            <p class="meta">Personality: Clean & Input-Focused | Density: Spacious</p>
+        </div>
+
+        <div class="mockup-info">
+            <h3>Key Characteristics</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>Layout Approach</strong>
+                    <div>Transaction list dominates, chart collapsed/secondary</div>
+                </div>
+                <div class="info-item">
+                    <strong>Navigation</strong>
+                    <div>Top bar only, FAB prominently placed</div>
+                </div>
+                <div class="info-item">
+                    <strong>Visual Hierarchy</strong>
+                    <div>Summary Pill → Transaction List → Charts (Swipe to View)</div>
+                </div>
+                <div class="info-item">
+                    <strong>Best For</strong>
+                    <div>Users focused on logging, not analyzing</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mockup-preview">
+            <div class="device-frame">
+                <div class="device-screen">
+                    <div class="screen-content">
+                        <div class="topbar">
+                            <h1>SmartBudget</h1>
+                            <span class="badge" style="background: #d1fae5; color: #065f46;">$253 left</span>
+                        </div>
+
+                        <div style="padding: 1rem 1rem 5rem 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                                <h2 style="font-size: 1.25rem; font-weight: 700;">November</h2>
+                                <button style="padding: 0.5rem 1rem; background: white; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">
+                                    📊 View Charts
+                                </button>
+                            </div>
+
+                            <div class="transaction-item" style="margin-bottom: 1rem;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="transaction-icon" style="background: #fef3c7;">🍔</div>
+                                    <div class="transaction-details">
+                                        <div class="title">Chipotle</div>
+                                        <div class="subtitle">Food & Dining • Today 12:30 PM</div>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount expense">-$12.50</div>
+                            </div>
+
+                            <div class="transaction-item" style="margin-bottom: 1rem;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="transaction-icon" style="background: #dbeafe;">🚗</div>
+                                    <div class="transaction-details">
+                                        <div class="title">Gas Station</div>
+                                        <div class="subtitle">Transportation • Today 9:15 AM</div>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount expense">-$45.00</div>
+                            </div>
+
+                            <div class="transaction-item" style="margin-bottom: 1rem;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="transaction-icon" style="background: #fae8ff;">🛍️</div>
+                                    <div class="transaction-details">
+                                        <div class="title">Target Shopping</div>
+                                        <div class="subtitle">Shopping • Yesterday 5:45 PM</div>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount expense">-$87.32</div>
+                            </div>
+
+                            <div class="transaction-item" style="margin-bottom: 1rem;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="transaction-icon" style="background: #d1fae5;">💰</div>
+                                    <div class="transaction-details">
+                                        <div class="title">Paycheck</div>
+                                        <div class="subtitle">Income • Nov 1</div>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount income">+$2,500.00</div>
+                            </div>
+
+                            <div class="transaction-item" style="margin-bottom: 1rem;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="transaction-icon" style="background: #fee2e2;">💡</div>
+                                    <div class="transaction-details">
+                                        <div class="title">Electric Bill</div>
+                                        <div class="subtitle">Bills & Utilities • Nov 1</div>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount expense">-$124.50</div>
+                            </div>
+                        </div>
+
+                        <div class="fab" style="width: 64px; height: 64px; font-size: 1.75rem;">+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Direction 4: Card-Based Spacious -->
+    <div class="mockup-container mockup-4">
+        <div class="mockup-header">
+            <h2>Direction 4: Card-Based Spacious</h2>
+            <p class="meta">Personality: Friendly & Approachable | Density: Spacious</p>
+        </div>
+
+        <div class="mockup-info">
+            <h3>Key Characteristics</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>Layout Approach</strong>
+                    <div>Everything in cards, breathing room, rounded</div>
+                </div>
+                <div class="info-item">
+                    <strong>Navigation</strong>
+                    <div>Bottom nav + large FAB</div>
+                </div>
+                <div class="info-item">
+                    <strong>Visual Hierarchy</strong>
+                    <div>Hero Card → Chart Cards → Transaction Cards</div>
+                </div>
+                <div class="info-item">
+                    <strong>Best For</strong>
+                    <div>Beginners who need visual separation and clarity</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mockup-preview">
+            <div class="device-frame">
+                <div class="device-screen">
+                    <div class="screen-content">
+                        <div style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); padding: 2rem 1rem 3rem 1rem; border-radius: 0 0 24px 24px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                                <h1 style="color: white; font-size: 1.5rem;">Hey there! 👋</h1>
+                                <div class="avatar"></div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border-radius: 16px; padding: 1.5rem; color: white;">
+                                <div style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 0.5rem;">You've Spent This Month</div>
+                                <div style="font-size: 2.5rem; font-weight: 700; font-family: 'SF Mono', Monaco, monospace;">$1,247</div>
+                                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.3); font-size: 0.875rem;">
+                                    🎉 $253 under budget!
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="padding: 1rem 1rem 5rem 1rem; margin-top: -1rem;">
+                            <div class="chart-card" style="box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+                                <h4>Where Your Money Went</h4>
+                                <div class="chart-placeholder">
+                                    📊 Donut Chart
+                                </div>
+                            </div>
+
+                            <h4 style="margin-bottom: 1rem; color: #111827;">Recent Activity</h4>
+
+                            <div class="transaction-item" style="box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 0.75rem;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="transaction-icon" style="background: #fef3c7;">🍔</div>
+                                    <div class="transaction-details">
+                                        <div class="title">Chipotle</div>
+                                        <div class="subtitle">Food & Dining</div>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount expense">-$12.50</div>
+                            </div>
+
+                            <div class="transaction-item" style="box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 0.75rem;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="transaction-icon" style="background: #dbeafe;">🚗</div>
+                                    <div class="transaction-details">
+                                        <div class="title">Gas Station</div>
+                                        <div class="subtitle">Transportation</div>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount expense">-$45.00</div>
+                            </div>
+                        </div>
+
+                        <div class="bottom-nav">
+                            <div class="nav-item active">
+                                <div class="nav-icon">🏠</div>
+                                <div>Home</div>
+                            </div>
+                            <div class="nav-item">
+                                <div class="nav-icon">📊</div>
+                                <div>Charts</div>
+                            </div>
+                            <div class="nav-item">
+                                <div class="nav-icon">👤</div>
+                                <div>Profile</div>
+                            </div>
+                        </div>
+
+                        <div class="fab" style="bottom: 80px;">+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Direction 5: Split-View Dense -->
+    <div class="mockup-container mockup-5">
+        <div class="mockup-header">
+            <h2>Direction 5: Split-View Dense</h2>
+            <p class="meta">Personality: Professional & Data-Rich | Density: Dense</p>
+        </div>
+
+        <div class="mockup-info">
+            <h3>Key Characteristics</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>Layout Approach</strong>
+                    <div>Split screen: summary/charts left, transactions right</div>
+                </div>
+                <div class="info-item">
+                    <strong>Navigation</strong>
+                    <div>Sidebar tabs + FAB</div>
+                </div>
+                <div class="info-item">
+                    <strong>Visual Hierarchy</strong>
+                    <div>Side-by-Side: Insights ← → Transactions</div>
+                </div>
+                <div class="info-item">
+                    <strong>Best For</strong>
+                    <div>Power users, tablet/desktop primarily</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mockup-preview">
+            <div class="device-frame">
+                <div class="device-screen">
+                    <div class="screen-content">
+                        <div class="topbar" style="background: #f9fafb;">
+                            <h1 style="font-size: 1.125rem;">SmartBudget Pro</h1>
+                            <div class="avatar"></div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 140px 1fr; height: calc(100% - 60px);">
+                            <div style="background: #f9fafb; border-right: 1px solid #e5e7eb; padding: 1rem 0.5rem;">
+                                <div style="text-align: center; margin-bottom: 1rem;">
+                                    <div style="font-size: 0.625rem; color: #6b7280; margin-bottom: 0.25rem;">SPENT</div>
+                                    <div style="font-size: 1.25rem; font-weight: 700; color: #111827;">$1,247</div>
+                                </div>
+
+                                <div style="text-align: center; margin-bottom: 1rem;">
+                                    <div style="font-size: 0.625rem; color: #6b7280; margin-bottom: 0.25rem;">LEFT</div>
+                                    <div style="font-size: 1.25rem; font-weight: 700; color: #10b981;">$253</div>
+                                </div>
+
+                                <div style="background: white; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.5rem;">
+                                    <div style="font-size: 0.625rem; color: #6b7280; margin-bottom: 0.5rem;">TOP CATEGORY</div>
+                                    <div style="font-size: 0.75rem; font-weight: 600;">🍔 Food</div>
+                                    <div style="font-size: 0.75rem; color: #ef4444;">$487</div>
+                                </div>
+
+                                <div style="background: white; border-radius: 8px; padding: 0.75rem;">
+                                    <div style="font-size: 0.625rem; color: #6b7280; margin-bottom: 0.5rem;">TREND</div>
+                                    <div style="font-size: 0.75rem; font-weight: 600; color: #10b981;">↓ 12%</div>
+                                    <div style="font-size: 0.625rem;">vs last mo</div>
+                                </div>
+                            </div>
+
+                            <div style="padding: 0.75rem; overflow-y: auto;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                    <h4 style="font-size: 0.875rem; font-weight: 600;">Transactions</h4>
+                                    <select style="padding: 0.25rem 0.5rem; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 0.75rem;">
+                                        <option>All</option>
+                                        <option>This Week</option>
+                                        <option>Today</option>
+                                    </select>
+                                </div>
+
+                                <div class="transaction-item" style="padding: 0.625rem; margin-bottom: 0.5rem;">
+                                    <div style="display: flex; align-items: center;">
+                                        <div class="transaction-icon" style="width: 28px; height: 28px; font-size: 0.875rem; background: #fef3c7;">🍔</div>
+                                        <div class="transaction-details">
+                                            <div class="title" style="font-size: 0.75rem;">Chipotle</div>
+                                            <div class="subtitle" style="font-size: 0.625rem;">12:30 PM</div>
+                                        </div>
+                                    </div>
+                                    <div class="transaction-amount expense" style="font-size: 0.75rem;">-$12.50</div>
+                                </div>
+
+                                <div class="transaction-item" style="padding: 0.625rem; margin-bottom: 0.5rem;">
+                                    <div style="display: flex; align-items: center;">
+                                        <div class="transaction-icon" style="width: 28px; height: 28px; font-size: 0.875rem; background: #dbeafe;">🚗</div>
+                                        <div class="transaction-details">
+                                            <div class="title" style="font-size: 0.75rem;">Gas</div>
+                                            <div class="subtitle" style="font-size: 0.625rem;">9:15 AM</div>
+                                        </div>
+                                    </div>
+                                    <div class="transaction-amount expense" style="font-size: 0.75rem;">-$45.00</div>
+                                </div>
+
+                                <div class="transaction-item" style="padding: 0.625rem; margin-bottom: 0.5rem;">
+                                    <div style="display: flex; align-items: center;">
+                                        <div class="transaction-icon" style="width: 28px; height: 28px; font-size: 0.875rem; background: #fae8ff;">🛍️</div>
+                                        <div class="transaction-details">
+                                            <div class="title" style="font-size: 0.75rem;">Target</div>
+                                            <div class="subtitle" style="font-size: 0.625rem;">Yesterday</div>
+                                        </div>
+                                    </div>
+                                    <div class="transaction-amount expense" style="font-size: 0.75rem;">-$87.32</div>
+                                </div>
+
+                                <div class="transaction-item" style="padding: 0.625rem; margin-bottom: 0.5rem;">
+                                    <div style="display: flex; align-items: center;">
+                                        <div class="transaction-icon" style="width: 28px; height: 28px; font-size: 0.875rem; background: #fee2e2;">💡</div>
+                                        <div class="transaction-details">
+                                            <div class="title" style="font-size: 0.75rem;">Electric</div>
+                                            <div class="subtitle" style="font-size: 0.625rem;">2 days ago</div>
+                                        </div>
+                                    </div>
+                                    <div class="transaction-amount expense" style="font-size: 0.75rem;">-$124.50</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="fab" style="width: 48px; height: 48px; font-size: 1.25rem; bottom: 16px; right: 16px;">+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Direction 6: FAB-Centered Simple -->
+    <div class="mockup-container mockup-6">
+        <div class="mockup-header">
+            <h2>Direction 6: FAB-Centered Simple</h2>
+            <p class="meta">Personality: Minimalist & Action-Focused | Density: Minimal</p>
+        </div>
+
+        <div class="mockup-info">
+            <h3>Key Characteristics</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>Layout Approach</strong>
+                    <div>Minimal UI, giant FAB center-bottom, summary at top</div>
+                </div>
+                <div class="info-item">
+                    <strong>Navigation</strong>
+                    <div>Top menu only, FAB dominates</div>
+                </div>
+                <div class="info-item">
+                    <strong>Visual Hierarchy</strong>
+                    <div>Summary → Empty Space → Giant FAB → List Below Fold</div>
+                </div>
+                <div class="info-item">
+                    <strong>Best For</strong>
+                    <div>Ultra input-focused users, emphasizes "Quick Log"</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mockup-preview">
+            <div class="device-frame">
+                <div class="device-screen">
+                    <div class="screen-content">
+                        <div class="topbar">
+                            <div></div>
+                            <h1 style="font-size: 1.25rem;">November</h1>
+                            <div class="avatar"></div>
+                        </div>
+
+                        <div style="padding: 2rem 1rem; text-align: center; min-height: 400px; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">You've Spent</div>
+                                <div style="font-size: 3.5rem; font-weight: 700; color: #111827; font-family: 'SF Mono', Monaco, monospace; margin-bottom: 0.5rem;">$1,247</div>
+                                <div style="font-size: 1.125rem; color: #10b981; font-weight: 600;">$253 under budget</div>
+                            </div>
+
+                            <div style="display: flex; justify-content: center; margin: 2rem 0;">
+                                <div class="fab" style="position: static; width: 80px; height: 80px; font-size: 2.5rem; box-shadow: 0 15px 40px rgba(59, 130, 246, 0.4);">+</div>
+                            </div>
+
+                            <div>
+                                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">Tap to log transaction</div>
+                                <div style="font-size: 0.75rem; color: #9ca3af;">< 30 seconds</div>
+                            </div>
+                        </div>
+
+                        <div style="padding: 1rem; background: #f9fafb; border-top: 1px solid #e5e7eb;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h4 style="font-size: 0.875rem; font-weight: 600; color: #111827;">Recent</h4>
+                                <span style="font-size: 0.75rem; color: #3b82f6; font-weight: 600; cursor: pointer;">View All</span>
+                            </div>
+
+                            <div class="transaction-item" style="background: white; margin-bottom: 0.5rem;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="transaction-icon" style="background: #fef3c7;">🍔</div>
+                                    <div class="transaction-details">
+                                        <div class="title">Chipotle</div>
+                                        <div class="subtitle">Today</div>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount expense">-$12.50</div>
+                            </div>
+
+                            <div class="transaction-item" style="background: white;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="transaction-icon" style="background: #dbeafe;">🚗</div>
+                                    <div class="transaction-details">
+                                        <div class="title">Gas Station</div>
+                                        <div class="subtitle">Today</div>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount expense">-$45.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="max-width: 1400px; margin: 3rem auto; padding: 2rem; background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center;">Which Design Direction Resonates Most?</h2>
+
+        <div style="background: #f9fafb; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1.125rem; margin-bottom: 1rem;">Quick Comparison:</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div>
+                    <strong style="color: #3b82f6;">Direction 1: Chart-First</strong>
+                    <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">Visual empowerment. Charts above the fold. Balanced density. Best for "magic moment" emphasis.</p>
+                </div>
+                <div>
+                    <strong style="color: #3b82f6;">Direction 2: Summary-First</strong>
+                    <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">Data-dense. Numbers first. Compact for power users who want more info visible.</p>
+                </div>
+                <div>
+                    <strong style="color: #3b82f6;">Direction 3: List-Focused</strong>
+                    <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">Input-focused. Transaction list dominant. Charts secondary. For logging-first users.</p>
+                </div>
+                <div>
+                    <strong style="color: #3b82f6;">Direction 4: Card-Based</strong>
+                    <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">Friendly & spacious. Cards everywhere. Breathing room. Best for beginners.</p>
+                </div>
+                <div>
+                    <strong style="color: #3b82f6;">Direction 5: Split-View</strong>
+                    <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">Professional & dense. Side-by-side layout. For power users on tablets/desktop.</p>
+                </div>
+                <div>
+                    <strong style="color: #3b82f6;">Direction 6: FAB-Centered</strong>
+                    <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">Minimalist. Giant FAB. Action-first. Ultra input-focused. Simple & clean.</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="background: #dbeafe; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #3b82f6;">
+            <strong style="color: #1e40af;">💡 Recommendation Based on SmartBudget's Core Experience:</strong>
+            <p style="margin-top: 0.5rem; color: #1e3a8a;">
+                <strong>Direction 1 (Chart-First)</strong> or <strong>Direction 6 (FAB-Centered)</strong>
+            </p>
+            <p style="font-size: 0.875rem; color: #1e3a8a; margin-top: 0.5rem;">
+                • <strong>Direction 1</strong> delivers the "instant visual clarity" magic moment above-the-fold<br>
+                • <strong>Direction 6</strong> maximizes the input-focused experience with minimal distraction<br>
+                • Both emphasize the FAB for persistent quick-add
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function showMockup(num) {
+            // Hide all mockups
+            document.querySelectorAll('.mockup-container').forEach(m => m.classList.remove('active'));
+            document.querySelectorAll('.mockup-preview').forEach(p => p.classList.remove('active'));
+
+            // Show selected mockup
+            document.querySelector(`.mockup-${num}`).classList.add('active');
+            document.querySelector(`.mockup-${num} .mockup-preview`).classList.add('active');
+
+            // Scroll to mockup
+            document.querySelector(`.mockup-${num}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Initialize - show first mockup
+        showMockup(1);
+    </script>
+</body>
+</html>

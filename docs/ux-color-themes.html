@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartBudget Color Theme Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            background: #f8f9fa;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            color: #6b7280;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .theme-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .theme-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .theme-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .theme-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .theme-header .personality {
+            font-size: 0.95rem;
+            color: #6b7280;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .theme-header .best-for {
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+
+        .palette-section {
+            padding: 1.5rem;
+        }
+
+        .palette-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+
+        .color-swatches {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .swatch {
+            text-align: center;
+        }
+
+        .swatch-color {
+            height: 60px;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .swatch-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+
+        .swatch-hex {
+            font-size: 0.7rem;
+            color: #9ca3af;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        .components-section {
+            padding: 1.5rem;
+            background: #f9fafb;
+        }
+
+        .component-row {
+            margin-bottom: 1.5rem;
+        }
+
+        .component-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6b7280;
+            margin-bottom: 0.75rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .card {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .alert {
+            padding: 0.875rem 1.125rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .chart-preview {
+            display: flex;
+            gap: 0.5rem;
+            height: 120px;
+            align-items: flex-end;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s;
+        }
+
+        .chart-bar:hover {
+            opacity: 0.8;
+            transform: translateY(-4px);
+        }
+
+        .comparison-section {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+
+        .comparison-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .comparison-item {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .comparison-item:hover {
+            border-color: #3b82f6;
+            transform: scale(1.05);
+        }
+
+        .comparison-item h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .comparison-item .emoji {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .theme-grid {
+                grid-template-columns: 1fr;
+            }
+            .comparison-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 SmartBudget Color Theme Explorer</h1>
+        <p>Explore 4 carefully crafted color themes designed for "Empowered + Delighted"</p>
+    </div>
+
+    <div class="theme-grid">
+        <!-- THEME 1: Energetic Growth -->
+        <div class="theme-card" id="theme-1">
+            <div class="theme-header">
+                <h2 style="color: #10b981;">💚 Energetic Growth</h2>
+                <p class="personality">Optimistic • Growth-Minded • Friendly</p>
+                <p class="best-for">Best for: Users who see budgeting as empowerment, not restriction</p>
+            </div>
+
+            <div class="palette-section">
+                <div class="palette-title">Primary Colors</div>
+                <div class="color-swatches">
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #10b981;"></div>
+                        <div class="swatch-label">Primary</div>
+                        <div class="swatch-hex">#10b981</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #f97316;"></div>
+                        <div class="swatch-label">Secondary</div>
+                        <div class="swatch-hex">#f97316</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #fbbf24;"></div>
+                        <div class="swatch-label">Accent</div>
+                        <div class="swatch-hex">#fbbf24</div>
+                    </div>
+                </div>
+
+                <div class="palette-title">Semantic Colors</div>
+                <div class="color-swatches">
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #10b981;"></div>
+                        <div class="swatch-label">Success</div>
+                        <div class="swatch-hex">#10b981</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #f59e0b;"></div>
+                        <div class="swatch-label">Warning</div>
+                        <div class="swatch-hex">#f59e0b</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #ef4444;"></div>
+                        <div class="swatch-label">Error</div>
+                        <div class="swatch-hex">#ef4444</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #3b82f6;"></div>
+                        <div class="swatch-label">Info</div>
+                        <div class="swatch-hex">#3b82f6</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="components-section">
+                <div class="component-row">
+                    <div class="component-label">Buttons</div>
+                    <div class="button-group">
+                        <button class="btn" style="background: #10b981; color: white;">Primary</button>
+                        <button class="btn" style="background: #f97316; color: white;">Secondary</button>
+                        <button class="btn" style="background: white; color: #10b981; border: 2px solid #10b981;">Outline</button>
+                    </div>
+                </div>
+
+                <div class="component-row">
+                    <div class="component-label">Form Input</div>
+                    <div class="form-group" style="--primary: #10b981; --primary-light: rgba(16, 185, 129, 0.1);">
+                        <input type="text" class="form-input" placeholder="Transaction amount..." value="$42.50">
+                    </div>
+                </div>
+
+                <div class="component-row">
+                    <div class="component-label">Alerts</div>
+                    <div class="alert" style="background: #d1fae5; color: #065f46; border-left: 4px solid #10b981;">
+                        ✅ Transaction saved successfully!
+                    </div>
+                    <div class="alert" style="background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444;">
+                        ❌ Amount is required
+                    </div>
+                </div>
+
+                <div class="component-row">
+                    <div class="component-label">Chart Colors (Category Spending)</div>
+                    <div class="chart-preview">
+                        <div class="chart-bar" style="background: #10b981; height: 80%;"></div>
+                        <div class="chart-bar" style="background: #f97316; height: 60%;"></div>
+                        <div class="chart-bar" style="background: #fbbf24; height: 90%;"></div>
+                        <div class="chart-bar" style="background: #3b82f6; height: 45%;"></div>
+                        <div class="chart-bar" style="background: #8b5cf6; height: 70%;"></div>
+                        <div class="chart-bar" style="background: #ec4899; height: 55%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- THEME 2: Confident Blue -->
+        <div class="theme-card" id="theme-2">
+            <div class="theme-header">
+                <h2 style="color: #3b82f6;">💙 Confident Blue</h2>
+                <p class="personality">Trustworthy • Calm • Professional Yet Friendly</p>
+                <p class="best-for">Best for: Users who want reliability with a modern touch</p>
+            </div>
+
+            <div class="palette-section">
+                <div class="palette-title">Primary Colors</div>
+                <div class="color-swatches">
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #3b82f6;"></div>
+                        <div class="swatch-label">Primary</div>
+                        <div class="swatch-hex">#3b82f6</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #8b5cf6;"></div>
+                        <div class="swatch-label">Secondary</div>
+                        <div class="swatch-hex">#8b5cf6</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #06b6d4;"></div>
+                        <div class="swatch-label">Accent</div>
+                        <div class="swatch-hex">#06b6d4</div>
+                    </div>
+                </div>
+
+                <div class="palette-title">Semantic Colors</div>
+                <div class="color-swatches">
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #10b981;"></div>
+                        <div class="swatch-label">Success</div>
+                        <div class="swatch-hex">#10b981</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #f59e0b;"></div>
+                        <div class="swatch-label">Warning</div>
+                        <div class="swatch-hex">#f59e0b</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #ef4444;"></div>
+                        <div class="swatch-label">Error</div>
+                        <div class="swatch-hex">#ef4444</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #3b82f6;"></div>
+                        <div class="swatch-label">Info</div>
+                        <div class="swatch-hex">#3b82f6</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="components-section">
+                <div class="component-row">
+                    <div class="component-label">Buttons</div>
+                    <div class="button-group">
+                        <button class="btn" style="background: #3b82f6; color: white;">Primary</button>
+                        <button class="btn" style="background: #8b5cf6; color: white;">Secondary</button>
+                        <button class="btn" style="background: white; color: #3b82f6; border: 2px solid #3b82f6;">Outline</button>
+                    </div>
+                </div>
+
+                <div class="component-row">
+                    <div class="component-label">Form Input</div>
+                    <div class="form-group" style="--primary: #3b82f6; --primary-light: rgba(59, 130, 246, 0.1);">
+                        <input type="text" class="form-input" placeholder="Transaction amount..." value="$42.50">
+                    </div>
+                </div>
+
+                <div class="component-row">
+                    <div class="component-label">Alerts</div>
+                    <div class="alert" style="background: #dbeafe; color: #1e3a8a; border-left: 4px solid #3b82f6;">
+                        💡 Tip: You're under budget this month!
+                    </div>
+                    <div class="alert" style="background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444;">
+                        ❌ Amount is required
+                    </div>
+                </div>
+
+                <div class="component-row">
+                    <div class="component-label">Chart Colors (Category Spending)</div>
+                    <div class="chart-preview">
+                        <div class="chart-bar" style="background: #3b82f6; height: 80%;"></div>
+                        <div class="chart-bar" style="background: #8b5cf6; height: 60%;"></div>
+                        <div class="chart-bar" style="background: #06b6d4; height: 90%;"></div>
+                        <div class="chart-bar" style="background: #10b981; height: 45%;"></div>
+                        <div class="chart-bar" style="background: #f59e0b; height: 70%;"></div>
+                        <div class="chart-bar" style="background: #ec4899; height: 55%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- THEME 3: Playful Purple -->
+        <div class="theme-card" id="theme-3">
+            <div class="theme-header">
+                <h2 style="color: #8b5cf6;">💜 Playful Purple</h2>
+                <p class="personality">Creative • Delightful • Modern • Stands Out</p>
+                <p class="best-for">Best for: Users who want budgeting to feel fun and creative</p>
+            </div>
+
+            <div class="palette-section">
+                <div class="palette-title">Primary Colors</div>
+                <div class="color-swatches">
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #8b5cf6;"></div>
+                        <div class="swatch-label">Primary</div>
+                        <div class="swatch-hex">#8b5cf6</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #ec4899;"></div>
+                        <div class="swatch-label">Secondary</div>
+                        <div class="swatch-hex">#ec4899</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #f59e0b;"></div>
+                        <div class="swatch-label">Accent</div>
+                        <div class="swatch-hex">#f59e0b</div>
+                    </div>
+                </div>
+
+                <div class="palette-title">Semantic Colors</div>
+                <div class="color-swatches">
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #10b981;"></div>
+                        <div class="swatch-label">Success</div>
+                        <div class="swatch-hex">#10b981</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #f59e0b;"></div>
+                        <div class="swatch-label">Warning</div>
+                        <div class="swatch-hex">#f59e0b</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #ef4444;"></div>
+                        <div class="swatch-label">Error</div>
+                        <div class="swatch-hex">#ef4444</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #3b82f6;"></div>
+                        <div class="swatch-label">Info</div>
+                        <div class="swatch-hex">#3b82f6</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="components-section">
+                <div class="component-row">
+                    <div class="component-label">Buttons</div>
+                    <div class="button-group">
+                        <button class="btn" style="background: #8b5cf6; color: white;">Primary</button>
+                        <button class="btn" style="background: #ec4899; color: white;">Secondary</button>
+                        <button class="btn" style="background: white; color: #8b5cf6; border: 2px solid #8b5cf6;">Outline</button>
+                    </div>
+                </div>
+
+                <div class="component-row">
+                    <div class="component-label">Form Input</div>
+                    <div class="form-group" style="--primary: #8b5cf6; --primary-light: rgba(139, 92, 246, 0.1);">
+                        <input type="text" class="form-input" placeholder="Transaction amount..." value="$42.50">
+                    </div>
+                </div>
+
+                <div class="component-row">
+                    <div class="component-label">Alerts</div>
+                    <div class="alert" style="background: #fae8ff; color: #581c87; border-left: 4px solid #8b5cf6;">
+                        🎉 You've logged 7 days in a row!
+                    </div>
+                    <div class="alert" style="background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444;">
+                        ❌ Amount is required
+                    </div>
+                </div>
+
+                <div class="component-row">
+                    <div class="component-label">Chart Colors (Category Spending)</div>
+                    <div class="chart-preview">
+                        <div class="chart-bar" style="background: #8b5cf6; height: 80%;"></div>
+                        <div class="chart-bar" style="background: #ec4899; height: 60%;"></div>
+                        <div class="chart-bar" style="background: #f59e0b; height: 90%;"></div>
+                        <div class="chart-bar" style="background: #06b6d4; height: 45%;"></div>
+                        <div class="chart-bar" style="background: #10b981; height: 70%;"></div>
+                        <div class="chart-bar" style="background: #3b82f6; height: 55%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- THEME 4: Balanced Teal -->
+        <div class="theme-card" id="theme-4">
+            <div class="theme-header">
+                <h2 style="color: #06b6d4;">🩵 Balanced Teal</h2>
+                <p class="personality">Balanced • Modern • Trustworthy with Energy</p>
+                <p class="best-for">Best for: Users who want modern fintech with warmth</p>
+            </div>
+
+            <div class="palette-section">
+                <div class="palette-title">Primary Colors</div>
+                <div class="color-swatches">
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #06b6d4;"></div>
+                        <div class="swatch-label">Primary</div>
+                        <div class="swatch-hex">#06b6d4</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #f59e0b;"></div>
+                        <div class="swatch-label">Secondary</div>
+                        <div class="swatch-hex">#f59e0b</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #8b5cf6;"></div>
+                        <div class="swatch-label">Accent</div>
+                        <div class="swatch-hex">#8b5cf6</div>
+                    </div>
+                </div>
+
+                <div class="palette-title">Semantic Colors</div>
+                <div class="color-swatches">
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #10b981;"></div>
+                        <div class="swatch-label">Success</div>
+                        <div class="swatch-hex">#10b981</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #f59e0b;"></div>
+                        <div class="swatch-label">Warning</div>
+                        <div class="swatch-hex">#f59e0b</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #ef4444;"></div>
+                        <div class="swatch-label">Error</div>
+                        <div class="swatch-hex">#ef4444</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #3b82f6;"></div>
+                        <div class="swatch-label">Info</div>
+                        <div class="swatch-hex">#3b82f6</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="components-section">
+                <div class="component-row">
+                    <div class="component-label">Buttons</div>
+                    <div class="button-group">
+                        <button class="btn" style="background: #06b6d4; color: white;">Primary</button>
+                        <button class="btn" style="background: #f59e0b; color: white;">Secondary</button>
+                        <button class="btn" style="background: white; color: #06b6d4; border: 2px solid #06b6d4;">Outline</button>
+                    </div>
+                </div>
+
+                <div class="component-row">
+                    <div class="component-label">Form Input</div>
+                    <div class="form-group" style="--primary: #06b6d4; --primary-light: rgba(6, 182, 212, 0.1);">
+                        <input type="text" class="form-input" placeholder="Transaction amount..." value="$42.50">
+                    </div>
+                </div>
+
+                <div class="component-row">
+                    <div class="component-label">Alerts</div>
+                    <div class="alert" style="background: #cffafe; color: #164e63; border-left: 4px solid #06b6d4;">
+                        📊 Your spending trend looks great!
+                    </div>
+                    <div class="alert" style="background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444;">
+                        ❌ Amount is required
+                    </div>
+                </div>
+
+                <div class="component-row">
+                    <div class="component-label">Chart Colors (Category Spending)</div>
+                    <div class="chart-preview">
+                        <div class="chart-bar" style="background: #06b6d4; height: 80%;"></div>
+                        <div class="chart-bar" style="background: #f59e0b; height: 60%;"></div>
+                        <div class="chart-bar" style="background: #8b5cf6; height: 90%;"></div>
+                        <div class="chart-bar" style="background: #10b981; height: 45%;"></div>
+                        <div class="chart-bar" style="background: #ec4899; height: 70%;"></div>
+                        <div class="chart-bar" style="background: #3b82f6; height: 55%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="comparison-section">
+        <h2 class="comparison-title">Quick Comparison: Which Theme Feels Right?</h2>
+        <div class="comparison-grid">
+            <div class="comparison-item">
+                <div class="emoji">💚</div>
+                <h3>Energetic Growth</h3>
+                <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">
+                    Optimistic & growth-minded. Brighter than Mint. For users who see budgeting as empowerment.
+                </p>
+            </div>
+            <div class="comparison-item">
+                <div class="emoji">💙</div>
+                <h3>Confident Blue</h3>
+                <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">
+                    Trustworthy & professional. Calm with creative purple accents. Modern fintech feel.
+                </p>
+            </div>
+            <div class="comparison-item">
+                <div class="emoji">💜</div>
+                <h3>Playful Purple</h3>
+                <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">
+                    Unique & delightful. Emphasizes the "fun" in budgeting. Stands out from competitors.
+                </p>
+            </div>
+            <div class="comparison-item">
+                <div class="emoji">🩵</div>
+                <h3>Balanced Teal</h3>
+                <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">
+                    Modern balance. Trustworthy teal + warm amber. Fresher than traditional fintech.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 3rem; padding: 2rem; background: white; border-radius: 12px; text-align: center;">
+        <h3 style="font-size: 1.25rem; margin-bottom: 1rem;">What Speaks to You?</h3>
+        <p style="color: #6b7280; margin-bottom: 1.5rem;">
+            Choose a theme number (1-4), combine elements ("colors from #2 but vibe of #3"),
+            or request variations. This decision sets SmartBudget's visual identity!
+        </p>
+        <p style="font-size: 0.875rem; color: #9ca3af;">
+            💡 Consider: Which theme best captures "Empowered + Delighted"? Which feels trustworthy yet not boring?
+        </p>
+    </div>
+
+    <script>
+        // Add hover effects to chart bars
+        document.querySelectorAll('.chart-bar').forEach(bar => {
+            bar.style.cursor = 'pointer';
+        });
+
+        // Add click to select theme cards
+        document.querySelectorAll('.theme-card').forEach(card => {
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.theme-card').forEach(c => {
+                    c.style.border = 'none';
+                });
+                this.style.border = '3px solid #3b82f6';
+            });
+        });
+    </script>
+</body>
+</html>

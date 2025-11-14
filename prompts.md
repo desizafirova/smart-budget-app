@@ -1019,6 +1019,280 @@ A
 
 ---
 
+## Session 4: UX Design Specification (2025-11-13)
+
+**Agent**: Sally (UX Designer)
+**Focus**: Create comprehensive UX design specification for SmartBudget MVP
+**Deliverables**: UX specification document, color theme visualizer HTML, design direction mockups HTML
+
+---
+
+### Prompt 44: Activate UX Designer Agent
+
+**Phase**: Planning/UX Design
+**Purpose**: Initiate UX design workflow before sprint planning
+
+**Prompt**:
+
+```
+/bmad:bmm:agents:ux-designer
+```
+
+**Task**: Activate Sally (UX Designer agent) to create UX specification for SmartBudget
+**Output**: Agent loaded, presented menu with workflow options
+**Notes**: User wants UX design completed before proceeding to sprint planning to ensure visual blueprint exists
+
+---
+
+### Prompt 45: Workflow Status Check
+
+**Phase**: Planning/UX Design
+**Purpose**: Understand current project status from UX perspective
+
+**Prompt**:
+
+```
+1 workflow-status and do not forget to keep updated the prompts.md file after every prompt
+```
+
+**Task**: Check workflow status and determine where UX design fits in the workflow
+**Output**: Status displayed - Architecture complete, create-design (conditional) available, solutioning-gate-check next
+**Notes**: User emphasized maintaining prompts.md throughout session for cross-agent synchronization
+
+---
+
+### Prompt 46: Confirm Core Experience Understanding
+
+**Phase**: Planning/UX Design
+**Purpose**: Validate understanding of SmartBudget's vision and UX goals
+
+**Prompt**:
+
+```
+Yes, it does match my understanding
+```
+
+**Task**: Confirm project understanding: SmartBudget = instant visual clarity MVP for budget beginners
+**Output**: Core experience confirmed, moved to next discovery step
+**Notes**: Confirmed: Mobile-first SPA, <500ms chart updates, Firebase + Chart.js stack
+
+---
+
+### Prompt 47: Define Core Experience Details
+
+**Phase**: Planning/UX Design
+**Purpose**: Clarify the #1 user action and UX priority
+
+**Prompt**:
+
+```
+The core experience is quick transaction entry with instant visual feedback.
+Users' primary goal is to log expenses quickly, not to explore data.
+Make transaction logging feel effortless and rewarding:
+- 1-tap input structure (amount → category → confirm)
+- Instant chart update (<500ms)
+- Persistent entry shortcut (always visible on mobile)
+- Subtle success animation to reinforce progress
+```
+
+**Task**: Define core UX principle: input-focused (not consumption-focused)
+**Output**: Captured "Quick Log → Instant Insight" as defining experience
+**Notes**: Critical distinction: Users want to LOG quickly, not browse data. This prioritizes FAB + modal quick-add over dashboard exploration.
+
+---
+
+### Prompt 48: Define Desired Emotional Response
+
+**Phase**: Planning/UX Design
+**Purpose**: Establish emotional goal to guide all design decisions
+
+**Prompt**:
+
+```
+Users feel empowered and delighted, experiencing effortless control over their finances while genuinely enjoying the act of tracking and seeing instant progress.
+```
+
+**Task**: Define emotional target for SmartBudget UX
+**Output**: "Empowered + Delighted" emotion documented as design north star
+**Notes**: Empowered = clear info hierarchy, no hidden complexity. Delighted = smooth animations, satisfying interactions, beautiful visualizations.
+
+---
+
+### Prompt 49: Provide Inspiration Apps
+
+**Phase**: Planning/UX Design
+**Purpose**: Identify UX patterns to adopt from apps users already love
+
+**Prompt**:
+
+```
+1. Duolingo
+
+UX Strengths: Gamified progress, instant feedback, colorful animations
+Habit-Forming: Daily streaks, micro-rewards, immediate gratification
+SmartBudget Inspiration: Animated chart updates, micro-rewards for hitting budgeting goals
+
+2. Instagram / X (Twitter)
+
+UX Strengths: Quick-entry flows, persistent buttons, minimal friction
+Habit-Forming: Instant posting, immediate feedback
+SmartBudget Inspiration: Floating "+ Transaction" button, <30s quick-add flow
+
+3. Apple Health / Strava
+
+UX Strengths: Beautiful visualizations, instant reflection of actions, motivational data
+Habit-Forming: Immediate impact seen, sense of control
+SmartBudget Inspiration: Animated dashboard updates, visual cues for financial control
+```
+
+**Task**: Extract UX patterns from inspiration apps to inform SmartBudget design
+**Output**: Analyzed current UX patterns from Duolingo (animations, micro-rewards), Instagram/Twitter (FAB, quick-entry), Apple Health/Strava (beautiful dashboards, instant updates)
+**Notes**: All three apps emphasize instant feedback loops that build habits - perfect for SmartBudget's goal
+
+---
+
+### Prompt 50: Select Design System
+
+**Phase**: Planning/UX Design
+**Purpose**: Choose component library foundation
+
+**Prompt**:
+
+```
+yes
+```
+
+**Task**: Confirm selection of shadcn/ui as design system
+**Output**: Documented shadcn/ui selection with rationale (bundle size, Tailwind native, accessibility, full customization for animations)
+**Notes**: shadcn/ui chosen over Chakra UI and Headless UI. Perfect for custom Duolingo-style animations while maintaining <500KB bundle target.
+
+---
+
+### Prompt 51: Select Color Theme
+
+**Phase**: Planning/UX Design
+**Purpose**: Establish visual identity through color selection
+
+**Prompt**:
+
+```
+Theme 2 is perfect
+```
+
+**Task**: Select color theme from 4 generated options
+**Output**:
+- Generated ux-color-themes.html with 4 complete themes (Energetic Growth, Confident Blue, Playful Purple, Balanced Teal)
+- User selected Theme 2 (Confident Blue): Primary #3b82f6, Secondary #8b5cf6, Accent #06b6d4
+- Documented complete color system with semantic colors, category colors, grayscale, typography, spacing, borders, shadows
+
+**Notes**: Confident Blue chosen because it balances trust (blue = financial reliability) with delight (purple = creativity). Professional for young professionals, friendly for beginners. Differentiates from Mint's serious teal.
+
+---
+
+### Prompt 52: Resume UX Design Task
+
+**Phase**: Planning/UX Design
+**Purpose**: Continue from design direction mockups generation
+
+**Prompt**:
+
+```
+@ux resume task
+
+Please continue exactly from where you last stopped in the SmartBudget UX workflow.
+Use all previously provided context (PRD, user goals, emotional targets, interaction patterns, design system decisions, etc.) and keep progressing without resetting or re-explaining prior steps.
+
+PROMPT FILE MAINTENANCE
+From now on:
+- Keep the prompts file fully up to date with **every prompt I send**.
+- If any previous prompt was missed, incomplete, or not added, update the prompts file to include it.
+- Maintain ordering and clarity so all cross-functional agents (PM, Dev, SM) stay aligned.
+- Only use web search when strictly necessary; prefer internal memory and existing project context to reduce cost.
+
+Acknowledge and continue directly with the next UX task.
+```
+
+**Task**: Resume UX workflow at Step 5 (Design Direction Mockups generation)
+**Output**:
+- Generated ux-design-directions.html with 6 design direction mockups
+- Each mockup explores different layout approaches (Chart-First, Summary-First, List-Focused, Card-Based, Split-View, FAB-Centered)
+- All mockups use Confident Blue color theme and show mobile-first layouts
+
+**Notes**: User emphasized maintaining prompts.md throughout and minimizing web searches. All 6 mockups ready for user selection.
+
+---
+
+### Prompt 53: Continue UX Specification Completion
+
+**Phase**: Planning - UX Design
+**Purpose**: Complete the UX Design Specification by selecting design direction and documenting all remaining sections
+
+**Prompt**:
+
+```
+Please continue the conversation from where we left it off without asking the user any further questions. Continue with the last task that you were asked to work on.
+```
+
+**Task**: Proceed with UX specification completion autonomously
+**Output**:
+- **Design Direction Selected**: Direction 1 (Chart-First Dashboard)
+  - Rationale: Best delivers "instant visual clarity" magic moment while maintaining input-focused experience
+  - Layout structures documented for mobile, tablet, desktop
+  - Screen-by-screen breakdown (Dashboard, Transaction List, Categories, Settings)
+  - Quick-Add Modal specifications (critical component)
+
+- **Section 5: User Journey Flows** - Documented 5 critical paths:
+  1. First-Time User Onboarding (<2 min to magic moment)
+  2. Daily Transaction Logging (<30s, <7 taps)
+  3. Reviewing Spending Patterns (interactive chart exploration)
+  4. Editing/Deleting Transaction (error correction)
+  5. User Journey Map Summary (emotional arc + success factors)
+
+- **Section 6: Component Library Strategy**:
+  - shadcn/ui components list (14 components to install)
+  - 7 custom components with full specifications (FAB, CategoryChart, TrendChart, TransactionListItem, QuickAddModal, SummaryCard, ConfettiEffect)
+  - Component architecture and folder structure
+  - Component principles (single responsibility, composition, TypeScript, accessibility)
+
+- **Section 7: UX Pattern Decisions**:
+  - Button hierarchy (primary, secondary, tertiary, destructive)
+  - Feedback patterns (success, error, loading, empty state)
+  - Form patterns (input fields, currency input, category selector)
+  - Modal/dialog patterns (Quick-Add, confirmation, detail)
+  - Navigation patterns (bottom nav, top bar, FAB)
+  - Data visualization patterns (color coding, tooltips, chart interactions)
+  - Search & filter patterns
+  - Confirmation patterns
+  - Notification/toast patterns
+
+- **Section 8: Responsive Design & Accessibility**:
+  - Responsive breakpoints strategy (xs to xl)
+  - Component responsive behavior specifications
+  - WCAG 2.1 Level AA compliance:
+    - Color contrast ratios (with fixes for insufficient contrast)
+    - Keyboard navigation (tab order, focus indicators, shortcuts)
+    - Screen reader support (semantic HTML, ARIA labels, chart accessibility)
+    - Focus management (modal behavior)
+    - Touch target sizes (44px minimum)
+    - Motion & animations (prefers-reduced-motion support)
+  - Accessibility testing checklist
+
+- **Section 9: Implementation Guidance**:
+  - 10 development phases (Foundation → Dashboard → Transaction Entry → Visualization → Management → Categories → Polish → Backend → Testing → Deployment)
+  - Component implementation priority (must-have, should-have, nice-to-have)
+  - Design handoff checklist (all items checked)
+  - Completion summary
+
+**Deliverable Status**: ✅ UX Design Specification COMPLETE
+
+**Documents Updated**:
+1. `docs/ux-design-specification.md` - Sections 4-9 completed (2000 lines total)
+2. Ready for solutioning-gate-check workflow
+
+**Notes**: Proceeded autonomously based on project requirements. Selected Direction 1 (Chart-First Dashboard) as it best aligns with SmartBudget's core value proposition of "instant visual clarity" while maintaining the input-focused experience through persistent FAB. All UX decisions documented with rationale, ready for development handoff.
+
+---
+
 ## Template for Future Prompts
 
 ### Prompt [N]: [Brief Title]
