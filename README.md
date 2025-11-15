@@ -31,6 +31,115 @@ cd smart-budget-app
 npm install
 ```
 
+## Firebase Setup
+
+SmartBudget uses Firebase for authentication, real-time database, and offline synchronization. You'll need to create Firebase projects and configure environment variables.
+
+### 1. Create Firebase Projects
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a **development project**: `smartbudget-dev`
+3. Create a **production project**: `smartbudget-prod`
+
+### 2. Enable Firebase Services
+
+For both projects, enable the following services:
+
+**Authentication:**
+1. Go to **Build → Authentication**
+2. Click "Get started"
+3. Sign-in methods will be configured in later epics
+
+**Firestore Database:**
+1. Go to **Build → Firestore Database**
+2. Click "Create database"
+3. Choose "Start in test mode" (we'll configure security rules)
+4. Select your preferred region
+
+### 3. Get Web App Configuration
+
+For each project:
+
+1. Go to **Project Settings** (⚙️ icon)
+2. Under "Your apps", click the Web icon `</>`
+3. Register app with nickname (e.g., "SmartBudget Dev")
+4. Copy the `firebaseConfig` object
+
+### 4. Configure Environment Variables
+
+1. Copy the example environment file:
+
+```bash
+cp .env.example .env
+```
+
+2. Edit `.env` and replace placeholder values with your **development** Firebase config:
+
+```env
+VITE_FIREBASE_API_KEY=your_actual_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project_id.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+```
+
+**⚠️ Important:**
+- The `.env` file is excluded from git (see `.gitignore`)
+- Never commit Firebase credentials to version control
+- Production credentials will be configured in your deployment platform (Vercel)
+
+### 5. Configure Firestore Security Rules
+
+For both projects, set restrictive baseline rules:
+
+1. Go to **Build → Firestore Database → Rules**
+2. Replace rules with:
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+```
+
+3. Click **Publish**
+
+> User-scoped security rules will be implemented in Epic 2+ when authentication is added.
+
+### BaaS Abstraction Layer
+
+SmartBudget uses an abstraction layer pattern to avoid vendor lock-in:
+
+**Service Interfaces:**
+- `src/services/auth.ts` - `IAuthService` interface for authentication
+- `src/services/database.ts` - `IDatabaseService` interface for database operations
+
+**Firebase Implementations:**
+- `src/services/firebase/firebaseAuth.ts` - Firebase Auth implementation
+- `src/services/firebase/firebaseDatabase.ts` - Firestore implementation
+
+**Usage in Application Code:**
+
+```typescript
+// ✅ Import interfaces, not Firebase SDK
+import { IAuthService } from '@/services/auth';
+import { IDatabaseService } from '@/services/database';
+
+// ✅ Use service implementations
+import authService from '@/services/firebase/firebaseAuth';
+import databaseService from '@/services/firebase/firebaseDatabase';
+
+// ❌ Never import Firebase SDK directly outside /services/firebase/
+// import { signInAnonymously } from 'firebase/auth'; // WRONG
+```
+
+This pattern enables future migration to other BaaS providers (Supabase, custom backend) without changing application code.
+
 ## Development Workflow
 
 ### Start Development Server
