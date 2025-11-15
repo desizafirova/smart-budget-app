@@ -1,0 +1,255 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1</storyId>
+    <title>Project Initialization & Structure</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-15</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>.bmad-ephemeral/stories/1-1-project-initialization-structure.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a developer</asA>
+    <iWant>to set up the initial project structure with build tooling and dependencies</iWant>
+    <soThat>I have a solid foundation to build SmartBudget features</soThat>
+    <tasks>
+- Task 1: Initialize Vite + React + TypeScript Project (AC: #1, #2, #4)
+  - Run `npm create vite@latest smart-budget-app -- --template react-ts`
+  - Navigate into project directory: `cd smart-budget-app`
+  - Initialize git repository: `git init`
+  - Create `.gitignore` file (include `node_modules/`, `.env`, `dist/`, `.DS_Store`)
+  - Run initial install: `npm install`
+  - Verify dev server works: `npm run dev`
+
+- Task 2: Install All Core Dependencies (AC: #1)
+  - Install production dependencies: react-router@7 firebase@12.4.0 zustand@5.0.8 chart.js@4.5.1 react-chartjs-2@5.3.0 react-hook-form@7.66.0 dayjs@1.11.18 lucide-react@0.553.0
+  - Install development dependencies: tailwindcss@4.1 vitest@2.0 @testing-library/react@16.1 playwright@1.50
+  - Verify all dependencies installed correctly
+
+- Task 3: Configure ESLint and Prettier (AC: #5, #10)
+  - Install ESLint plugins (@typescript-eslint/eslint-plugin, @typescript-eslint/parser, eslint-plugin-react, eslint-plugin-react-hooks)
+  - Create `.eslintrc.cjs` with TypeScript + React configuration
+  - Create `.prettierrc` with formatting rules
+  - Add npm scripts for lint and format
+  - Verify configuration works
+
+- Task 4: Configure TypeScript with Strict Mode (AC: #6)
+  - Update `tsconfig.json` with strict settings
+  - Verify TypeScript compilation
+
+- Task 5: Configure Path Aliases (AC: #7)
+  - Update `tsconfig.json` with path mappings (@/components, @/services, @/stores, @/utils, @/types, @/hooks)
+  - Update `vite.config.ts` to resolve aliases
+  - Test path alias imports
+
+- Task 6: Create Project Folder Structure (AC: #4)
+  - Create feature directories (auth, transactions, dashboard, categories)
+  - Create service directories (firebase)
+  - Create shared directories (stores, components/layout, hooks, utils, types)
+  - Create root-level directories (public, tests, docs)
+  - Add .gitkeep files to preserve empty directories
+
+- Task 7: Create README.md with Setup Instructions (AC: #3)
+  - Write comprehensive README.md with project description, prerequisites, installation, development workflow, project structure, tech stack, and documentation links
+
+- Task 8: Verify Build System (AC: #8, #9)
+  - Verify dev server starts and HMR works
+  - Verify production build completes successfully
+  - Verify bundle is optimized
+
+- Task 9: Create Initial Commit
+  - Stage all files and create initial commit with comprehensive message
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1. Repository contains `package.json` with all core dependencies: React 18.3.1+, React DOM 18.3.1+, React Router v7.0.0, Firebase v12.4.0, Zustand v5.0.8, Chart.js v4.5.1 + react-chartjs-2 v5.3.0, React Hook Form v7.66.0, Day.js v1.11.18, Lucide React v0.553.0, TypeScript v5.6.0+, Vite v6.0.0+, Tailwind CSS v4.1.0, ESLint v9.0.0, Prettier v3.4.0, Vitest v2.0.0, @testing-library/react v16.1.0, Playwright v1.50.0
+
+2. Git repository initialized with `.gitignore` configured (excludes `node_modules/`, `.env`, `dist/`)
+
+3. `README.md` exists with project setup instructions including: Prerequisites (Node.js >= 20.0.0, npm >= 10.0.0), Installation steps (`npm install`), Development server command (`npm run dev`), Build command (`npm run build`), Linting and formatting commands
+
+4. Folder structure matches architecture specification with src/ containing features/, services/, stores/, components/, hooks/, utils/, types/, App.tsx, main.tsx, plus public/, tests/, docs/ directories
+
+5. ESLint and Prettier configured with shared config, extending recommended presets
+
+6. TypeScript `tsconfig.json` configured with: strict: true, target: ES2020, module: ESNext, jsx: react-jsx, Path mapping for absolute imports
+
+7. Path aliases configured in `tsconfig.json` and `vite.config.ts`: @/components, @/services, @/stores, @/utils, @/types, @/hooks
+
+8. `npm run dev` starts development server successfully (default port 5173) - Hot module replacement (HMR) works - Application renders in browser without errors
+
+9. `npm run build` compiles TypeScript and bundles for production: Output directory: `dist/`, Build completes without errors, Production build is optimized (minified, tree-shaken)
+
+10. `npm run lint` and `npm run format` execute without errors
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <!-- Epic Tech Spec -->
+      <artifact>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation & Infrastructure</title>
+        <section>Dependencies and Integrations</section>
+        <snippet>Complete dependency list with exact versions: React 18.3.1+, React Router v7.0.0, Firebase v12.4.0, Zustand v5.0.8, Chart.js v4.5.1, TypeScript 5.6.0+, Vite 6.0.0+, Tailwind CSS v4.1.0, ESLint 9.0.0, Prettier 3.4.0, Vitest 2.0.0, Playwright 1.50.0.</snippet>
+      </artifact>
+      <artifact>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation & Infrastructure</title>
+        <section>Detailed Design - Folder Structure</section>
+        <snippet>Feature-based organization with src/features/ (auth, transactions, dashboard, categories), src/services/ for BaaS abstraction, src/stores/ for Zustand, src/components/, src/hooks/, src/utils/, src/types/, plus public/, tests/, docs/ at root.</snippet>
+      </artifact>
+      <artifact>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation & Infrastructure</title>
+        <section>Non-Functional Requirements - Performance</section>
+        <snippet>Build performance targets: Dev server starts in &lt;3 seconds, HMR updates in &lt;200ms, production build in &lt;60 seconds. Bundle size after Story 1.1: &lt;100KB gzipped (foundation only, no features).</snippet>
+      </artifact>
+
+      <!-- Architecture Decisions -->
+      <artifact>
+        <path>docs/architecture.md</path>
+        <title>SmartBudget - Technical Architecture</title>
+        <section>Decision 1: Backend-as-a-Service Provider</section>
+        <snippet>Firebase JS SDK v12.4.0 (modular API) chosen for anonymous auth, offline persistence, and real-time sync. BaaS abstraction layer pattern recommended to mitigate vendor lock-in (IAuthService, IDatabaseService interfaces).</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/architecture.md</path>
+        <title>SmartBudget - Technical Architecture</title>
+        <section>Decision 2: CSS Framework (Tailwind CSS v4.1)</section>
+        <snippet>Tailwind CSS v4.1 for styling with mobile-first approach. CSS-first configuration using @import "tailwindcss" in main CSS file.</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/architecture.md</path>
+        <title>SmartBudget - Technical Architecture</title>
+        <section>Decision 10: Testing Framework (Vitest)</section>
+        <snippet>Vitest v2.0.0 for unit/component tests, @testing-library/react v16.1.0 for component testing, Playwright v1.50.0 for E2E. Co-located test files: ComponentName.test.tsx next to ComponentName.tsx.</snippet>
+      </artifact>
+
+      <!-- PRD Context -->
+      <artifact>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document - SmartBudget MVP</title>
+        <section>Web Application Specific Requirements - Architecture Pattern</section>
+        <snippet>SPA architecture with Vite build system, React 18+, TypeScript 5+, Firebase/Supabase BaaS. Mobile-first responsive design targeting 320px minimum width to 2560px desktop.</snippet>
+      </artifact>
+
+      <!-- UX Design Reference -->
+      <artifact>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Design System Foundations</section>
+        <snippet>Component library will use Tailwind CSS for styling. Responsive breakpoints: mobile (320px+), tablet (768px+), desktop (1024px+), wide (1440px+).</snippet>
+      </artifact>
+    </docs>
+
+    <code>
+      <!-- No existing code - this is the initialization story -->
+      <note>No existing code artifacts. Story 1.1 creates the initial project structure from scratch using Vite template.</note>
+    </code>
+
+    <dependencies>
+      <node>
+        <package name="react" version="^18.3.1" type="production" />
+        <package name="react-dom" version="^18.3.1" type="production" />
+        <package name="react-router" version="^7.0.0" type="production" />
+        <package name="firebase" version="^12.4.0" type="production" />
+        <package name="zustand" version="^5.0.8" type="production" />
+        <package name="chart.js" version="^4.5.1" type="production" />
+        <package name="react-chartjs-2" version="^5.3.0" type="production" />
+        <package name="react-hook-form" version="^7.66.0" type="production" />
+        <package name="dayjs" version="^1.11.18" type="production" />
+        <package name="lucide-react" version="^0.553.0" type="production" />
+        <package name="@types/react" version="^18.3.1" type="development" />
+        <package name="@types/react-dom" version="^18.3.1" type="development" />
+        <package name="@vitejs/plugin-react" version="^4.3.1" type="development" />
+        <package name="typescript" version="^5.6.0" type="development" />
+        <package name="vite" version="^6.0.0" type="development" />
+        <package name="tailwindcss" version="^4.1.0" type="development" />
+        <package name="eslint" version="^9.0.0" type="development" />
+        <package name="prettier" version="^3.4.0" type="development" />
+        <package name="vitest" version="^2.0.0" type="development" />
+        <package name="@testing-library/react" version="^16.1.0" type="development" />
+        <package name="playwright" version="^1.50.0" type="development" />
+      </node>
+      <environment>
+        <requirement name="Node.js" version="&gt;=20.0.0" />
+        <requirement name="npm" version="&gt;=10.0.0" />
+      </environment>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>TypeScript strict mode enabled (strict: true in tsconfig.json)</constraint>
+    <constraint>ESLint + Prettier enforced for code quality - must pass before commit</constraint>
+    <constraint>Path aliases required: @/components, @/services, @/stores, @/utils, @/types, @/hooks</constraint>
+    <constraint>Feature-based folder organization: src/features/ for domain-specific code</constraint>
+    <constraint>BaaS abstraction layer pattern: interfaces (IAuthService, IDatabaseService) separate from implementations</constraint>
+    <constraint>Mobile-first responsive design: minimum 320px width support</constraint>
+    <constraint>Bundle size budget: &lt;100KB gzipped for foundation (Story 1.1), &lt;500KB gzipped for full MVP</constraint>
+    <constraint>Build performance: Dev server &lt;3s startup, HMR &lt;200ms, production build &lt;60s</constraint>
+    <constraint>Naming conventions: Components PascalCase, utilities kebab-case, stores camelCase+Store suffix, services kebab-case+.service.ts suffix</constraint>
+    <constraint>Git workflow: .gitignore must exclude node_modules/, .env, dist/, .DS_Store</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>IAuthService</name>
+      <kind>Service Interface</kind>
+      <signature>
+export interface IAuthService {
+  signInAnonymously(): Promise&lt;User&gt;;
+  linkWithEmail(email: string, password: string): Promise&lt;User&gt;;
+  signInWithEmail(email: string, password: string): Promise&lt;User&gt;;
+  signOut(): Promise&lt;void&gt;;
+  getCurrentUser(): User | null;
+  onAuthStateChanged(callback: (user: User | null) => void): () => void;
+}
+      </signature>
+      <path>src/services/auth.ts</path>
+      <note>Defined in Epic Tech Spec, created in Story 1.2</note>
+    </interface>
+
+    <interface>
+      <name>IDatabaseService</name>
+      <kind>Service Interface</kind>
+      <signature>
+export interface IDatabaseService {
+  createDocument&lt;T&gt;(collection: string, data: T): Promise&lt;string&gt;;
+  getDocument&lt;T&gt;(collection: string, id: string): Promise&lt;T | null&gt;;
+  updateDocument&lt;T&gt;(collection: string, id: string, data: Partial&lt;T&gt;): Promise&lt;void&gt;;
+  deleteDocument(collection: string, id: string): Promise&lt;void&gt;;
+  queryDocuments&lt;T&gt;(collection: string, where?: QueryFilter[]): Promise&lt;T[]&gt;;
+  subscribeToCollection&lt;T&gt;(collection: string, callback: (docs: T[]) => void): () => void;
+}
+      </signature>
+      <path>src/services/database.ts</path>
+      <note>Defined in Epic Tech Spec, created in Story 1.2</note>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+Vitest v2.0.0 for unit and component tests. @testing-library/react v16.1.0 for component testing utilities. Playwright v1.50.0 for E2E testing (implemented in Epic 7.6). Test files co-located with source files using .test.tsx or .test.ts suffix (e.g., ComponentName.test.tsx next to ComponentName.tsx). ESLint and Prettier configured to run on test files. Tests for Story 1.1 are primarily manual verification of build system and tooling setup.
+    </standards>
+
+    <locations>
+      <location>Tests co-located with source files (*.test.tsx, *.test.ts)</location>
+      <location>tests/ directory for E2E and integration tests (Epic 7.6)</location>
+    </locations>
+
+    <ideas>
+      <idea ac="1">Verify package.json contains all required dependencies with correct version ranges</idea>
+      <idea ac="2">Confirm .gitignore excludes node_modules/, .env, dist/ - verify with git status after adding files</idea>
+      <idea ac="3">Follow README.md setup instructions in clean environment to verify they work for new developer</idea>
+      <idea ac="4">Verify all required directories exist: src/features/, src/services/, src/stores/, src/components/, src/hooks/, src/utils/, src/types/, public/, tests/, docs/</idea>
+      <idea ac="5">Run npm run lint and npm run format, verify no errors and code is properly formatted</idea>
+      <idea ac="6">Check tsconfig.json for strict: true, target: ES2020, module: ESNext, jsx: react-jsx</idea>
+      <idea ac="7">Create test file with @/ alias imports, verify TypeScript and Vite resolve paths correctly</idea>
+      <idea ac="8">Start dev server with npm run dev, verify HMR works by editing a file and seeing instant update in browser</idea>
+      <idea ac="9">Run npm run build, verify dist/ directory created with minified, tree-shaken assets</idea>
+      <idea ac="10">Run npm run lint and npm run format as separate commands, verify both execute successfully</idea>
+    </ideas>
+  </tests>
+</story-context>
