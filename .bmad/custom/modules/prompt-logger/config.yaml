@@ -1,0 +1,19 @@
+# Prompt Logger Module Configuration
+# Runtime configuration for Philip (Chat Logging Specialist)
+
+# Module metadata
+module_code: prompt-logger
+module_name: "Prompt Logger"
+module_version: "1.0.0"
+
+# User configuration (inherits from core BMAD config)
+user_name: "Desi"
+communication_language: "English"
+
+# Logging configuration
+prompts_log_path: "{project-root}/prompts.md"
+log_format: "detailed"
+
+# Session settings
+auto_start_logging: true
+silent_mode: true

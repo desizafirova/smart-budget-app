@@ -1387,6 +1387,388 @@ Finally, update the prompts file with any missed or newly added prompts.
 
 ---
 
+## Session 8 - Prompt Logger Module Creation
+
+**Date**: 2025-11-15
+
+### Prompt 54: Create BMAD Module for Prompt Logging
+
+**Phase**: Module Development
+**Purpose**: Build a custom BMAD module to automate conversation logging to prompts.md
+
+**Prompt**:
+
+```
+/bmad:bmb:workflows:create-module
+```
+
+**Task**: Initiate module creation workflow to build prompt-logger module
+**Output**: Started create-module workflow with module brief and scaffolding workflows
+**Notes**: User wants to automate the manual process of logging conversations to prompts.md
+
+---
+
+### Prompt 55: Skip Brainstorming Phase
+
+**Phase**: Module Development - Discovery
+**Purpose**: Skip optional brainstorming and proceed directly to module planning
+
+**Prompt**:
+
+```
+n
+```
+
+**Task**: Decline brainstorming session
+**Output**: Proceeding to module brief creation step
+**Notes**: User has clear vision for prompt logging module
+
+---
+
+### Prompt 56: Create Module Brief
+
+**Phase**: Module Development - Planning
+**Purpose**: Generate strategic blueprint for prompt-logger module
+
+**Prompt**:
+
+```
+create
+```
+
+**Task**: Create comprehensive module brief document
+**Output**: Module brief workflow initiated, exploring module concept and architecture
+**Notes**: Module brief will define vision, agents, workflows, and technical approach
+
+---
+
+### Prompt 57: Module Concept - Lightweight BMM Workflow Logger
+
+**Phase**: Module Development - Module Brief
+**Purpose**: Define module's core purpose and functionality
+
+**Prompt**:
+
+```
+A lightweight BMAD module that wraps existing BMM workflows and logs every prompt and output into an already created file(prompts.md). Designed to maintain a record of all prompts used in workflows without altering the original workflows.
+```
+
+**Task**: Capture module vision and problem statement
+**Output**: Module concept documented - transparent workflow logging without modifications
+**Notes**: Initial focus on BMM workflow execution logging (later pivoted to chat logging)
+
+---
+
+### Prompt 58: Select Module Code "prompt-logger"
+
+**Phase**: Module Development - Module Brief
+**Purpose**: Choose kebab-case identifier for the module
+
+**Prompt**:
+
+```
+2
+```
+
+**Task**: Select "prompt-logger" as module code
+**Output**: Module identity established - prompt-logger with BMM Prompt Logger as friendly name
+**Notes**: Module will be installed at .bmad/custom/modules/prompt-logger/
+
+---
+
+### Prompt 59-67: Complete Module Brief (Express Mode)
+
+**Phase**: Module Development - Module Brief
+**Purpose**: Rapidly complete module brief through guided questions
+
+**Task**: Answer brief questions about module design
+**Output**: Comprehensive module brief saved to docs/module-brief-prompt-logger-2025-11-15.md
+**Key Decisions**:
+- Module type: Simple (1 agent, minimal workflows)
+- Agent: Philip (Logger agent with professional, minimal personality)
+- Workflow: wrap-workflow (execute BMM workflows with logging)
+- Configuration: Minimal static config (prompts_log_path, log_format)
+- Viability Score: 8/10
+**Notes**: Brief serves as blueprint for implementation
+
+---
+
+### Prompt 68: Proceed to Module Scaffolding
+
+**Phase**: Module Development - Scaffolding
+**Purpose**: Create module directory structure and components
+
+**Prompt**:
+
+```
+1
+```
+
+**Task**: Start create-module workflow using completed module brief
+**Output**: Module scaffolding workflow initiated
+**Notes**: Using module brief to guide automated creation
+
+---
+
+### Prompt 69-73: Create Philip Logger Agent
+
+**Phase**: Module Development - Agent Creation
+**Purpose**: Build the Logger agent with minimal, professional personality
+
+**Task**: Create Philip through create-agent workflow
+**Output**: Philip agent created with:
+- **Name:** Philip
+- **Icon:** 📝
+- **Role:** Workflow Logging Specialist
+- **Personality:** Custom Minimal (ultra-brief communication)
+- **Principles:** Transparency, silence, completeness, accuracy, privacy
+- **Commands:** wrap (execute workflow with logging)
+**Location:** `.bmad/custom/modules/prompt-logger/agents/logger.agent.yaml`
+**Notes**: Philip embodies "silence is golden" - operates invisibly
+
+---
+
+### Prompt 74: Create wrap-workflow
+
+**Phase**: Module Development - Workflow Creation
+**Purpose**: Build workflow to wrap BMM workflows with logging capability
+
+**Prompt**:
+
+```
+y
+```
+
+**Task**: Create wrap-workflow for transparent BMM workflow logging
+**Output**: wrap-workflow created with:
+- **Type:** Action workflow (no template)
+- **Purpose:** Execute target workflow + capture prompts/outputs
+- **Standalone:** false (only accessible via Philip)
+- **Steps:** Initialize logging → Execute with interception → Finalize session
+**Notes**: Initial design assumed workflow engine enhancement for prompt/output interception
+
+---
+
+### Prompt 75: PIVOT - Clarify Logging Scope (Chat vs Workflow)
+
+**Phase**: Module Development - Requirements Clarification
+**Purpose**: Resolve ambiguity between chat conversation logging and workflow execution logging
+
+**Prompt**:
+
+```
+So, does it mean that Philip cannot automatically capture every prompt you send in the chat?
+```
+
+**Task**: Clarify whether module should log chat conversations or internal workflow prompts
+**Output**: Identified two distinct logging types:
+1. **Chat conversation logging** - User messages + AI responses (what user already does manually)
+2. **Workflow execution logging** - Internal BMM workflow prompts (requires engine enhancement)
+**Notes**: Critical pivot point - user wants chat logging (Option A), not workflow logging (Option B)
+
+---
+
+### Prompt 76: Confirm Chat Conversation Logging Focus
+
+**Phase**: Module Development - Scope Pivot
+**Purpose**: Pivot module from workflow logging to automatic chat logging
+
+**Prompt**:
+
+```
+A
+```
+
+**Task**: Select chat conversation logging as module's primary function
+**Output**: Module scope redefined:
+- **Old:** Wrap BMM workflows with execution logging
+- **New:** Automatically log chat conversations to prompts.md
+- **Benefit:** Much simpler, no engine changes needed, immediate value
+**Notes**: This aligns with user's manual logging habit shown in prompts.md selection
+
+---
+
+### Prompt 77: Simplify to Embedded Agent Logic (No Workflow)
+
+**Phase**: Module Development - Architecture Simplification
+**Purpose**: Choose simplest implementation approach for chat logging
+
+**Prompt**:
+
+```
+option 2
+```
+
+**Task**: Skip workflow entirely, use embedded agent logic for chat logging
+**Output**: Design simplified:
+- **Delete:** wrap-workflow (not needed)
+- **Update:** Philip agent with embedded auto-logging prompts
+- **Behavior:** Automatic logging on activation (no commands needed)
+**Notes**: Chat logging is continuous operation, best handled by agent's embedded prompts
+
+---
+
+### Prompt 78: Enable Automatic Logging
+
+**Phase**: Module Development - Agent Enhancement
+**Purpose**: Configure Philip for fully automatic operation
+
+**Prompt**:
+
+```
+A
+```
+
+**Task**: Set Philip to auto-log everything when activated (fully automatic)
+**Output**: Philip updated with:
+- **Critical Actions:** Initialize logging session automatically
+- **Embedded Prompts:** Detailed auto-logging instructions
+- **Logging Format:** Follow existing prompts.md structure
+- **Commands:** status (optional logging status check)
+- **Menu:** Removed wrap command
+**Notes**: "Silence is golden" - Philip operates completely invisibly
+
+---
+
+### Prompt 79-81: Complete Module Installation Configuration
+
+**Phase**: Module Development - Installation Setup
+**Purpose**: Create installer configuration for BMAD module system
+
+**Task**: Create module installer files
+**Output**:
+- **install-config.yaml** created with:
+  - Static configuration (no user questions)
+  - prompts_log_path: `{project-root}/prompts.md`
+  - log_format: detailed
+  - module_version: 1.0.0
+- **installer.js** skipped (not needed)
+**Notes**: Standard installer sufficient, no custom installation logic required
+
+---
+
+### Prompt 82: Create Module Documentation
+
+**Phase**: Module Development - Documentation
+**Purpose**: Create comprehensive README.md for prompt-logger module
+
+**Task**: Generate module documentation
+**Output**: README.md created with:
+- Overview and installation instructions
+- Component descriptions (Philip agent)
+- Quick start guide
+- Module structure
+- Configuration details
+- Use cases
+- Development roadmap (MVP → Enhanced → Advanced)
+**Notes**: Documentation ready for users to understand and install module
+
+---
+
+### Prompt 83: Skip Roadmap TODO.md
+
+**Phase**: Module Development - Finalization
+**Purpose**: Decide whether to create separate TODO.md file
+
+**Prompt**:
+
+```
+2
+```
+
+**Task**: Skip TODO.md creation (roadmap already in README.md)
+**Output**: Skipped - README.md Development Roadmap section is sufficient
+**Notes**: Keeping module documentation minimal and consolidated
+
+---
+
+### Prompt 84: Module Validation Complete
+
+**Phase**: Module Development - Validation
+**Purpose**: Validate complete module structure and readiness
+
+**Task**: Run final validation checks on prompt-logger module
+**Output**: ✅ All validations passed:
+- **Structure:** All required directories created
+- **Components:** Philip agent exists (logger.agent.yaml)
+- **Workflows:** None (by design - embedded logic)
+- **Installer:** install-config.yaml valid
+- **Documentation:** README.md complete
+- **Configuration:** Module code consistent (prompt-logger)
+**Status:** ✅ Complete and ready for installation
+**Next Steps:**
+1. Run BMAD Method installer
+2. Compile agents (logger.agent.yaml → logger.md)
+3. Load Philip
+4. Automatic logging begins
+**Notes**: Module successfully created - from brief to production-ready in single session
+
+---
+
+### Prompt 85: Request Retroactive Logging
+
+**Phase**: Module Development - Session Documentation
+**Purpose**: Log this entire conversation to prompts.md
+
+**Prompt**:
+
+```
+Is it possible now to load Philip and to ask him to log this session into the prompts.md file or I should do it manually since this is already past conversation?
+```
+
+**Task**: Clarify options for logging this past conversation
+**Output**: Explained Philip is not compiled yet (still YAML source)
+**Options Presented:**
+- **A:** I format and append this session now (recommended)
+- **B:** User continues manually
+- **C:** Compile Philip first, then attempt retroactive logging
+**Notes**: User chose Option A - AI to format and append entire session
+
+---
+
+### Prompt 86: Format and Append This Session
+
+**Phase**: Module Development - Documentation
+**Purpose**: Append this entire module creation conversation to prompts.md
+
+**Prompt**:
+
+```
+A
+```
+
+**Task**: Format this conversation following prompts.md established format and append as Session 8
+**Output**: This prompt log entry you're reading right now!
+**Summary of Session 8:**
+- Created prompt-logger BMAD module from scratch
+- Built comprehensive module brief (planning phase)
+- Created Philip agent (Chat Logging Specialist)
+- Pivoted from workflow logging to chat conversation logging
+- Simplified to embedded agent logic (no workflow needed)
+- Completed installer configuration and documentation
+- **Module Status:** ✅ Production-ready, pending compilation
+
+**Key Files Created:**
+1. `.bmad/custom/modules/prompt-logger/agents/logger.agent.yaml` - Philip agent
+2. `.bmad/custom/modules/prompt-logger/_module-installer/install-config.yaml` - Installer config
+3. `.bmad/custom/modules/prompt-logger/README.md` - Module documentation
+4. `docs/module-brief-prompt-logger-2025-11-15.md` - Strategic blueprint
+
+**Module Architecture:**
+- **Type:** Simple module (1 agent, 0 workflows)
+- **Approach:** Embedded agent logic for automatic chat logging
+- **Logging:** Appends to existing prompts.md in established format
+- **Operation:** Silent, automatic, transparent
+
+**Next Actions:**
+1. Run BMAD Method installer to compile Philip
+2. Load Philip to activate automatic logging
+3. All future conversations will be logged automatically
+
+**Notes**: Complete BMAD module created in single session using BMB (BMAD Module Builder) workflows. Demonstrates full module creation lifecycle from brief → agent → installer → documentation → validation.
+
+---
+
 ## Template for Future Prompts
 
 ### Prompt [N]: [Brief Title]
