@@ -40,7 +40,7 @@ development_status:
   epic-1: contexted
   1-1-project-initialization-structure: review
   1-2-backend-as-a-service-integration: review
-  1-3-basic-routing-layout-structure: backlog
+  1-3-basic-routing-layout-structure: in-progress
   1-4-deployment-pipeline-hosting: backlog
   epic-1-retrospective: optional
 

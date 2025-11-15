@@ -1,0 +1,306 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>3</storyId>
+    <title>Basic Routing & Layout Structure</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-15</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>.bmad-ephemeral/stories/1-3-basic-routing-layout-structure.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>to set up client-side routing and a basic layout structure</iWant>
+    <soThat>the application can navigate between pages and has consistent UI structure</soThat>
+    <tasks>
+- **Task 1: Create folder structure for layout and features** (AC: #3, #7)
+  - Create `src/components/layout/` directory
+  - Create `src/features/dashboard/` directory
+  - Create `src/features/transactions/` directory
+  - Create `src/features/categories/` directory
+  - Verify folder structure matches tech spec
+
+- **Task 2: Configure React Router v7** (AC: #1, #2)
+  - Import `createBrowserRouter` and `RouterProvider` from `react-router`
+  - Create router configuration in `src/App.tsx`
+  - Define route structure with path `/`, `/transactions`, `/categories`
+  - Configure Layout as parent route with nested children
+  - Test: Navigate to each route manually in browser, verify URL changes
+
+- **Task 3: Create Layout component with semantic HTML** (AC: #3, #6)
+  - Create `src/components/layout/Layout.tsx` file
+  - Implement `<header>` with `<nav role="navigation">` and placeholder nav links
+  - Implement `<main role="main">` with `<Outlet />` for child routes
+  - Implement `<footer role="contentinfo">` with placeholder text
+  - Add TypeScript interface for Layout props (if needed)
+  - Test: Verify semantic HTML structure with browser DevTools
+
+- **Task 4: Style Layout with Tailwind CSS (mobile-first)** (AC: #4, #7)
+  - Apply mobile-first Tailwind classes to Layout structure
+  - Header: `flex items-center justify-between p-4 bg-white shadow-sm`
+  - Navigation: `flex gap-4` with responsive adjustments (`md:gap-6`)
+  - Main content: `flex-1 container mx-auto p-4 max-w-7xl`
+  - Footer: `p-4 text-center text-sm text-gray-600 border-t`
+  - Test: Resize browser to 320px, 768px, 1024px, 2560px - verify responsive behavior
+
+- **Task 5: Create placeholder page components** (AC: #2, #7)
+  - Create `src/features/dashboard/Dashboard.tsx` placeholder
+  - Create `src/features/transactions/Transactions.tsx` placeholder
+  - Create `src/features/categories/Categories.tsx` placeholder
+  - Add basic content: heading + "Coming in Epic X" message
+  - Apply Tailwind styling: `flex flex-col items-center justify-center min-h-screen`
+  - Test: Navigate to each route, verify placeholder renders
+
+- **Task 6: Implement route-based code splitting** (AC: #7)
+  - Wrap route components with `React.lazy()` imports
+  - Add `<Suspense fallback={<LoadingSpinner />}>` wrapper in router config
+  - Create simple LoadingSpinner component or use "Loading..." text
+  - Test: Check Network tab in DevTools, verify separate chunks for each route
+
+- **Task 7: Implement navigation links in Header** (AC: #5, #6)
+  - Use `<Link>` component from `react-router` for navigation
+  - Create links: "Dashboard" → `/`, "Transactions" → `/transactions`, "Categories" → `/categories`
+  - Add active route highlighting using `useLocation()` hook
+  - Ensure keyboard navigation works (Tab to links, Enter to activate)
+  - Test: Click links, verify URL changes without page refresh
+  - Test: Use browser back/forward buttons, verify routing works
+
+- **Task 8: Verify TypeScript compilation and build** (AC: #8, #9, #10)
+  - Run `npm run dev` - verify no TypeScript errors in console
+  - Run `npm run build` - verify production build succeeds
+  - Check bundle size in `dist/` - should be <140KB gzipped
+  - Test: Visit `http://localhost:5173` (or dev server URL), verify app loads
+
+- **Task 9: Accessibility verification** (AC: #6)
+  - Test keyboard navigation: Tab through all interactive elements
+  - Verify focus indicators visible on nav links
+  - Use browser DevTools accessibility panel to check ARIA landmarks
+  - Test with keyboard only: navigate between routes using Tab + Enter
+  - Verify semantic HTML structure: `<nav>`, `<main>`, `<footer>` present
+</tasks>
+  </story>
+
+  <acceptanceCriteria>
+1. React Router v7 configured with `createBrowserRouter()` and `RouterProvider`
+
+2. Three routes defined:
+   - `/` - Dashboard placeholder (will be built in Epic 5)
+   - `/transactions` - Transaction list placeholder (will be built in Epic 3)
+   - `/categories` - Category management placeholder (will be built in Epic 4)
+
+3. Layout component created at `src/components/layout/Layout.tsx` with:
+   - Header section with navigation placeholders
+   - Main content area using `<Outlet />` for route rendering
+   - Footer section with placeholder content
+
+4. Mobile-responsive layout:
+   - Works on 320px minimum width (mobile)
+   - Scales up to 2560px (desktop)
+   - Uses Tailwind mobile-first utilities
+
+5. Client-side navigation works:
+   - Clicking navigation links changes route without page refresh
+   - URL updates in browser address bar
+   - Browser back/forward buttons work correctly
+
+6. Accessible layout structure:
+   - Uses semantic HTML: `<nav>`, `<main>`, `<footer>`
+   - ARIA landmarks applied: `role="navigation"`, `role="main"`, `role="contentinfo"`
+   - Keyboard navigation functional (Tab key traversal)
+
+7. Route-based code splitting:
+   - Route components lazy-loaded using `React.lazy()`
+   - Loading fallback component shown during route transitions
+
+8. TypeScript compilation successful with no errors
+
+9. Development server runs without console errors
+
+10. Production build succeeds with bundle size <140KB gzipped
+</acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation & Infrastructure</title>
+        <section>Story 1.3: Basic Routing & Layout Structure</section>
+        <snippet>React Router v7 chosen for 15% smaller bundle size vs v6 (~9-10KB gzipped). Route-based code splitting with React.lazy() reduces initial bundle. Use createBrowserRouter() API (not deprecated BrowserRouter component). Mobile-first Tailwind CSS styles applied to layout.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Technical Architecture - ADR 4: React Router v7</title>
+        <section>Routing Decision</section>
+        <snippet>React Router v7 is 15% smaller than v6, built-in TypeScript typegen, Vite-first design. Loader pattern enables optimized data fetching. Same hooks-based API as v6 (useNavigate, useParams, etc.).</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Technical Architecture - ADR 2: Tailwind CSS v4.1</title>
+        <section>CSS/Styling Solution</section>
+        <snippet>Mobile-first utility classes: design for 320px base, scale up with sm:, md:, lg: breakpoints. Zero runtime overhead - pure CSS. Minimal bundle impact: only ships classes actually used (~5-15KB gzipped). Use semantic HTML with Tailwind utilities.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic Breakdown - Epic 1, Story 1.3</title>
+        <section>Story 1.3: Basic Routing & Layout Structure</section>
+        <snippet>Client-side routing configured (React Router), basic layout component with header/main/footer, routes defined (/, /transactions, /categories), mobile-responsive layout, accessible semantic HTML with ARIA landmarks, route-based code splitting.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Design System Choice</section>
+        <snippet>shadcn/ui (v2.0+) with Radix UI primitives selected for bundle size optimization (copy-paste approach), Tailwind CSS v4.1 native alignment, accessibility built-in (WCAG 2.1 Level AA), full customization for animations.</snippet>
+      </doc>
+      <doc>
+        <path>.bmad-ephemeral/stories/1-2-backend-as-a-service-integration.md</path>
+        <title>Previous Story - Backend Integration Learnings</title>
+        <section>Dev Notes</section>
+        <snippet>Folder structure ready: src/services/ exists. Path aliases configured: @/components, @/services, @/stores. TypeScript strict mode: use 'import type' syntax. Firebase initialized in src/main.tsx. Vitest configured with jsdom. Current bundle: 121.50 KB gzipped.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/services/auth.ts</path>
+        <kind>interface</kind>
+        <symbol>IAuthService</symbol>
+        <lines>1-65</lines>
+        <reason>Authentication service abstraction that will be used in Epic 2. Demonstrates BaaS abstraction pattern to follow for all service interactions.</reason>
+      </file>
+      <file>
+        <path>src/services/database.ts</path>
+        <kind>interface</kind>
+        <symbol>IDatabaseService</symbol>
+        <lines>1-77</lines>
+        <reason>Database service abstraction that will be used in Epic 3. Shows pattern for Firebase interactions through abstraction layer.</reason>
+      </file>
+      <file>
+        <path>src/services/firebase/firebaseConfig.ts</path>
+        <kind>config</kind>
+        <symbol>app, auth, db</symbol>
+        <lines>all</lines>
+        <reason>Firebase initialization and exported instances. Already initialized in src/main.tsx - do not duplicate initialization.</reason>
+      </file>
+      <file>
+        <path>src/main.tsx</path>
+        <kind>entry-point</kind>
+        <symbol>main</symbol>
+        <lines>1-14</lines>
+        <reason>App entry point. Firebase already initialized here (line 7). Router will be integrated through App.tsx, not main.tsx.</reason>
+      </file>
+      <file>
+        <path>src/App.tsx</path>
+        <kind>component</kind>
+        <symbol>App</symbol>
+        <lines>1-36</lines>
+        <reason>Current root component with Vite boilerplate. Needs to be replaced with router configuration using createBrowserRouter() and RouterProvider.</reason>
+      </file>
+      <file>
+        <path>package.json</path>
+        <kind>config</kind>
+        <symbol>dependencies</symbol>
+        <lines>14-25</lines>
+        <reason>React Router v7.9.6 already installed. All required dependencies present: react@19.2.0, react-dom@19.2.0, react-router@7.9.6.</reason>
+      </file>
+    </code>
+    <dependencies>
+      <npm>
+        <package name="react-router" version="^7.9.6" installed="true" />
+        <package name="react" version="^19.2.0" installed="true" />
+        <package name="react-dom" version="^19.2.0" installed="true" />
+        <package name="lucide-react" version="^0.553.0" installed="true" note="Icon library for navigation icons" />
+      </npm>
+      <dev-dependencies>
+        <package name="tailwindcss" version="4.1" installed="true" />
+        <package name="typescript" version="~5.9.3" installed="true" />
+        <package name="@types/react" version="^19.2.2" installed="true" />
+        <package name="@types/react-dom" version="^19.2.2" installed="true" />
+        <package name="vite" version="^7.2.2" installed="true" />
+      </dev-dependencies>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Use createBrowserRouter() API, not the deprecated BrowserRouter component wrapper</constraint>
+    <constraint>All route components MUST be lazy-loaded using React.lazy() for code splitting</constraint>
+    <constraint>Layout component MUST use semantic HTML: nav, main, footer with corresponding ARIA landmarks</constraint>
+    <constraint>Mobile-first approach required: base styles for 320px, then use sm:, md:, lg: breakpoints</constraint>
+    <constraint>TypeScript strict mode: use 'import type' syntax for type-only imports (verbatimModuleSyntax enabled)</constraint>
+    <constraint>Path aliases configured: use @/components, @/services, @/stores for imports</constraint>
+    <constraint>Bundle size target after this story: &lt;140KB gzipped (currently 121.50KB, router adds ~10KB)</constraint>
+    <constraint>Do NOT modify src/main.tsx - Firebase already initialized there</constraint>
+    <constraint>Follow BaaS abstraction pattern demonstrated in src/services/ - keep business logic decoupled from Firebase</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>React Router v7 - createBrowserRouter</name>
+      <kind>function</kind>
+      <signature>createBrowserRouter(routes: RouteObject[]): RemixRouter</signature>
+      <path>node_modules/react-router/dist/index.d.ts</path>
+      <usage>Create router configuration with nested routes. Layout as parent with children routes.</usage>
+    </interface>
+    <interface>
+      <name>RouterProvider</name>
+      <kind>component</kind>
+      <signature>&lt;RouterProvider router={router} /&gt;</signature>
+      <path>node_modules/react-router/dist/index.d.ts</path>
+      <usage>Wrap entire App with RouterProvider, passing the router instance created by createBrowserRouter</usage>
+    </interface>
+    <interface>
+      <name>Outlet</name>
+      <kind>component</kind>
+      <signature>&lt;Outlet /&gt;</signature>
+      <path>node_modules/react-router/dist/index.d.ts</path>
+      <usage>Used in Layout component to render child routes in the main content area</usage>
+    </interface>
+    <interface>
+      <name>Link</name>
+      <kind>component</kind>
+      <signature>&lt;Link to="/path"&gt;Label&lt;/Link&gt;</signature>
+      <path>node_modules/react-router/dist/index.d.ts</path>
+      <usage>Client-side navigation without page refresh. Use in header navigation.</usage>
+    </interface>
+    <interface>
+      <name>useLocation</name>
+      <kind>hook</kind>
+      <signature>useLocation(): Location</signature>
+      <path>node_modules/react-router/dist/index.d.ts</path>
+      <usage>Get current location for active route highlighting in navigation</usage>
+    </interface>
+    <interface>
+      <name>React.lazy</name>
+      <kind>function</kind>
+      <signature>React.lazy(() =&gt; import('./Component')): React.LazyExoticComponent</signature>
+      <path>node_modules/@types/react/index.d.ts</path>
+      <usage>Wrap all route components for code splitting. Must be used with Suspense.</usage>
+    </interface>
+    <interface>
+      <name>Suspense</name>
+      <kind>component</kind>
+      <signature>&lt;Suspense fallback={&lt;Loading /&gt;}&gt;{children}&lt;/Suspense&gt;</signature>
+      <path>node_modules/@types/react/index.d.ts</path>
+      <usage>Wrap RouterProvider to show loading fallback during lazy-loaded route transitions</usage>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Manual testing in this story (automated tests deferred to Epic 7.6). Test responsive behavior at 320px, 768px, 1024px, 2560px viewports. Verify keyboard navigation: Tab, Shift+Tab, Enter keys. Check semantic HTML with browser DevTools accessibility panel. Verify route code splitting in Network tab (separate chunks loaded per route).</standards>
+    <locations>
+      <location>tests/ (co-located with src/ for future automated tests)</location>
+      <location>*.test.ts, *.test.tsx (Vitest test files)</location>
+    </locations>
+    <ideas>
+      <test-idea ac="1">Router configuration test: Verify createBrowserRouter and RouterProvider are used, not BrowserRouter</test-idea>
+      <test-idea ac="2">Route definition test: Navigate to /, /transactions, /categories - verify correct components render</test-idea>
+      <test-idea ac="3">Layout component test: Verify Layout.tsx exists with header, main (Outlet), footer sections</test-idea>
+      <test-idea ac="4">Responsive layout test: Resize viewport to 320px, 768px, 1024px, 2560px - check layout adapts correctly</test-idea>
+      <test-idea ac="5">Navigation test: Click Link components, verify URL updates without page refresh (no network request)</test-idea>
+      <test-idea ac="6">Accessibility test: Run axe-core or browser accessibility panel - verify nav/main/footer landmarks present</test-idea>
+      <test-idea ac="7">Code splitting test: Open Network tab, navigate between routes - verify separate JS chunks load for each route</test-idea>
+      <test-idea ac="8">TypeScript test: Run 'npm run build' - verify no compilation errors</test-idea>
+      <test-idea ac="9">Dev server test: Run 'npm run dev' - verify no console errors on startup or navigation</test-idea>
+      <test-idea ac="10">Bundle size test: Run 'npm run build', check dist/ folder size - should be &lt;140KB gzipped</test-idea>
+    </ideas>
+  </tests>
+</story-context>
