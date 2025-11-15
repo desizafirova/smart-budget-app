@@ -1,0 +1,337 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>2</storyId>
+    <title>Backend-as-a-Service Integration</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-15</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>.bmad-ephemeral/stories/1-2-backend-as-a-service-integration.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a developer</asA>
+    <iWant>to integrate Firebase as the backend service</iWant>
+    <soThat>I can store user data, handle authentication, and enable real-time sync without managing servers</soThat>
+    <tasks>
+- Task 1: Create Firebase Projects (AC: #5)
+  - Sign up for Firebase account (if not already registered)
+  - Create development project: `smartbudget-dev`
+  - Create production project: `smartbudget-prod`
+  - Enable Authentication and Firestore services in both projects
+  - Obtain API configuration from Firebase Console
+
+- Task 2: Configure Environment Variables (AC: #4, #5)
+  - Create `.env.example` with placeholder Firebase configuration
+  - Create `.env` with development Firebase configuration (not committed)
+  - Verify `.env` is in `.gitignore` (already added in Story 1.1)
+  - Add production environment variables to Vercel (Story 1.4)
+
+- Task 3: Create TypeScript Type Definitions (AC: #6)
+  - Create `src/services/auth.ts` with User interface and IAuthService interface
+  - Create `src/services/database.ts` with QueryFilter and IDatabaseService interface
+  - Export all types and interfaces for use in application
+
+- Task 4: Implement Firebase Configuration (AC: #1, #2, #3)
+  - Create `src/services/firebase/firebaseConfig.ts`
+  - Import Firebase SDK v12.4.0 modules (initializeApp, getAuth, getFirestore)
+  - Read configuration from import.meta.env variables
+  - Initialize Firebase app instance
+  - Export initialized auth and firestore instances
+
+- Task 5: Implement Firebase Auth Service (AC: #7, #8)
+  - Create `src/services/firebase/firebaseAuth.ts`
+  - Import IAuthService interface from `@/services/auth`
+  - Implement FirebaseAuthService class implementing IAuthService
+  - Convert Firebase User type to application User type
+  - Handle Firebase errors and convert to application-level exceptions
+
+- Task 6: Implement Firebase Database Service (AC: #7, #8)
+  - Create `src/services/firebase/firebaseDatabase.ts`
+  - Import IDatabaseService interface from `@/services/database`
+  - Implement FirebaseDatabaseService class implementing IDatabaseService
+  - Convert QueryFilter to Firestore where clauses
+  - Handle Firestore errors and convert to application-level exceptions
+
+- Task 7: Configure Firebase Security Rules (AC: #9)
+  - Set Firestore Security Rules to deny all access (baseline)
+  - Publish rules to both dev and prod Firebase projects
+  - Document that user-scoped rules will be implemented in Epic 2
+
+- Task 8: Verify Firebase Integration (AC: #10)
+  - Import Firebase config in `src/main.tsx` to initialize SDK
+  - Verify no console errors when running `npm run dev`
+  - Test `auth.currentUser` returns null (no user signed in yet)
+  - Test Firestore instance is accessible
+
+- Task 9: Add Integration Documentation
+  - Update README.md with Firebase setup instructions
+  - Document abstraction layer pattern in Dev Notes
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1. Application can connect to Firebase using API keys from environment variables
+
+2. Firebase SDK v12.4.0 initialized on application startup without errors
+
+3. Access to database (Firestore), authentication (Auth), and storage services available
+
+4. Configuration is secure:
+   - API keys not committed to git
+   - `.env` file in `.gitignore`
+   - `.env.example` template provided with placeholder values
+
+5. Development and production environments separated:
+   - Two Firebase projects created (dev + prod)
+   - Environment-specific configuration loaded at runtime
+
+6. BaaS abstraction layer implemented with service interfaces:
+   - `IAuthService` interface created in `src/services/auth.ts`
+   - `IDatabaseService` interface created in `src/services/database.ts`
+   - TypeScript types for User, QueryFilter defined
+
+7. Firebase-specific implementations created in `src/services/firebase/`:
+   - `firebaseConfig.ts` - Firebase initialization
+   - `firebaseAuth.ts` - Implements IAuthService using Firebase Auth
+   - `firebaseDatabase.ts` - Implements IDatabaseService using Firestore
+
+8. Application code depends on interfaces, not Firebase SDK directly:
+   - Import from `@/services/auth` and `@/services/database`
+   - Firebase SDK imports isolated to `/src/services/firebase/` directory only
+
+9. Firestore Security Rules configured with restrictive defaults (deny all - will be opened in Epic 2+)
+
+10. Firebase connection verified:
+    - SDK initializes without errors
+    - Can call `auth.currentUser` without crashing
+    - Can access Firestore instance
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <!-- Epic Tech Spec -->
+      <artifact>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation & Infrastructure</title>
+        <section>Services and Modules - BaaS Abstraction Interfaces</section>
+        <snippet>Defines IAuthService with methods (signInAnonymously, linkWithEmail, signInWithEmail, signOut, getCurrentUser, onAuthStateChanged) and IDatabaseService with methods (createDocument, getDocument, updateDocument, deleteDocument, queryDocuments, subscribeToCollection). Includes TypeScript interfaces for User and QueryFilter.</snippet>
+      </artifact>
+      <artifact>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation & Infrastructure</title>
+        <section>APIs and Interfaces - Firebase SDK Initialization</section>
+        <snippet>Firebase config pattern using Vite environment variables (import.meta.env.VITE_FIREBASE_*). Initialize app with initializeApp, export getAuth() and getFirestore() instances. Located in src/services/firebase/firebaseConfig.ts.</snippet>
+      </artifact>
+      <artifact>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation & Infrastructure</title>
+        <section>Security - Firebase Security Rules</section>
+        <snippet>Firestore Security Rules start with deny all access (baseline). Rules version 2, match all documents, allow read/write if false. User-scoped rules will be implemented in Epic 2+.</snippet>
+      </artifact>
+      <artifact>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation & Infrastructure</title>
+        <section>Folder Structure</section>
+        <snippet>Service layer organization: src/services/ contains auth.ts (interfaces), database.ts (interfaces), and firebase/ subdirectory for Firebase-specific implementations (firebaseAuth.ts, firebaseDatabase.ts, firebaseConfig.ts).</snippet>
+      </artifact>
+
+      <!-- Architecture Decisions -->
+      <artifact>
+        <path>docs/architecture.md</path>
+        <title>SmartBudget - Technical Architecture</title>
+        <section>Decision 1: Backend-as-a-Service Provider (Firebase)</section>
+        <snippet>Firebase JS SDK v12.4.0 chosen for anonymous auth, offline persistence, and real-time sync. Modular API required for tree-shaking. BaaS abstraction layer pattern recommended to mitigate vendor lock-in with IAuthService and IDatabaseService interfaces.</snippet>
+      </artifact>
+
+      <!-- PRD Context -->
+      <artifact>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document - SmartBudget MVP</title>
+        <section>Functional Requirements - FR1: User Authentication & Data Persistence</section>
+        <snippet>System shall support anonymous authentication for instant access. Users can optionally claim account with email. All data stored securely with Firebase/Supabase. Real-time sync across devices required.</snippet>
+      </artifact>
+
+      <!-- Epic Breakdown -->
+      <artifact>
+        <path>docs/epics.md</path>
+        <title>SmartBudget - Epic Breakdown</title>
+        <section>Epic 1: Foundation & Infrastructure - Story 1.2</section>
+        <snippet>BaaS integration using Firebase or Supabase. Connect to provider using API keys from environment variables. Create abstraction layer (IAuthService, IDatabaseService) in /src/services/ with Firebase-specific implementations in /src/services/firebase/. Enables future migration without changing application code.</snippet>
+      </artifact>
+
+      <!-- Previous Story Learnings -->
+      <artifact>
+        <path>.bmad-ephemeral/stories/1-1-project-initialization-structure.md</path>
+        <title>Story 1.1: Project Initialization & Structure</title>
+        <section>Completion Notes</section>
+        <snippet>Firebase 12.4.0 already installed. Folder structure src/services/firebase/ created with .gitkeep. Path aliases configured (@/services ready). TypeScript strict mode enabled. .gitignore excludes .env file.</snippet>
+      </artifact>
+    </docs>
+
+    <code>
+      <!-- Existing Project Structure from Story 1.1 -->
+      <artifact>
+        <path>src/services/firebase/.gitkeep</path>
+        <kind>directory-placeholder</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>Firebase service directory created in Story 1.1, ready for firebaseConfig.ts, firebaseAuth.ts, firebaseDatabase.ts implementations</reason>
+      </artifact>
+
+      <artifact>
+        <path>package.json</path>
+        <kind>dependency-manifest</kind>
+        <symbol>firebase</symbol>
+        <lines>16</lines>
+        <reason>Firebase 12.4.0 dependency already installed in Story 1.1, ready to import modular SDK functions</reason>
+      </artifact>
+
+      <artifact>
+        <path>.gitignore</path>
+        <kind>configuration</kind>
+        <symbol>.env</symbol>
+        <lines>14</lines>
+        <reason>.env already excluded from git in Story 1.1, environment variables will be secure</reason>
+      </artifact>
+
+      <artifact>
+        <path>vite.config.ts</path>
+        <kind>configuration</kind>
+        <symbol>path.resolve aliases</symbol>
+        <lines>9-15</lines>
+        <reason>Path aliases @/services, @/types configured in Story 1.1, enabling clean imports for IAuthService and IDatabaseService</reason>
+      </artifact>
+
+      <artifact>
+        <path>tsconfig.app.json</path>
+        <kind>configuration</kind>
+        <symbol>compilerOptions.paths</symbol>
+        <lines>4-10</lines>
+        <reason>TypeScript path mappings for @/services/* configured, TypeScript will resolve imports correctly</reason>
+      </artifact>
+    </code>
+
+    <dependencies>
+      <node>
+        <package name="firebase" version="^12.4.0" type="production" />
+        <package name="react" version="^19.2.0" type="production" />
+        <package name="react-dom" version="^19.2.0" type="production" />
+        <package name="typescript" version="~5.9.3" type="development" />
+        <package name="vite" version="^7.2.2" type="development" />
+      </node>
+      <environment>
+        <requirement name="Node.js" version=">=20.0.0" />
+        <requirement name="npm" version=">=10.0.0" />
+        <requirement name="Firebase project" version="development + production" />
+      </environment>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>TypeScript strict mode enabled - all interfaces must have complete type definitions</constraint>
+    <constraint>BaaS abstraction layer pattern required - IAuthService and IDatabaseService interfaces separate from Firebase implementations</constraint>
+    <constraint>Firebase SDK imports restricted to /src/services/firebase/ directory only - nowhere else in codebase</constraint>
+    <constraint>Modular Firebase API required for tree-shaking - use import { getAuth } from 'firebase/auth' pattern</constraint>
+    <constraint>Environment variables loaded via Vite's import.meta.env - prefix all vars with VITE_</constraint>
+    <constraint>Two Firebase projects required: development (smartbudget-dev) and production (smartbudget-prod)</constraint>
+    <constraint>Firestore Security Rules start with deny all access - user-scoped rules in Epic 2+</constraint>
+    <constraint>Bundle size budget: Firebase SDK should not exceed 100KB gzipped at Epic 1 completion</constraint>
+    <constraint>Path aliases enforced: Use @/services/auth and @/services/database imports, not relative paths</constraint>
+    <constraint>API keys must never be committed to git - .env excluded, .env.example provided as template</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>IAuthService</name>
+      <kind>Service Interface</kind>
+      <signature>
+export interface User {
+  uid: string;
+  email: string | null;
+  isAnonymous: boolean;
+}
+
+export interface IAuthService {
+  signInAnonymously(): Promise&lt;User&gt;;
+  linkWithEmail(email: string, password: string): Promise&lt;User&gt;;
+  signInWithEmail(email: string, password: string): Promise&lt;User&gt;;
+  signOut(): Promise&lt;void&gt;;
+  getCurrentUser(): User | null;
+  onAuthStateChanged(callback: (user: User | null) => void): () => void;
+}
+      </signature>
+      <path>src/services/auth.ts</path>
+      <note>To be created in this story. Implemented by FirebaseAuthService in src/services/firebase/firebaseAuth.ts. Used in Epic 2+ for authentication flows.</note>
+    </interface>
+
+    <interface>
+      <name>IDatabaseService</name>
+      <kind>Service Interface</kind>
+      <signature>
+export interface QueryFilter {
+  field: string;
+  operator: '==' | '!=' | '&lt;' | '&lt;=' | '&gt;' | '&gt;=';
+  value: any;
+}
+
+export interface IDatabaseService {
+  createDocument&lt;T&gt;(collection: string, data: T): Promise&lt;string&gt;;
+  getDocument&lt;T&gt;(collection: string, id: string): Promise&lt;T | null&gt;;
+  updateDocument&lt;T&gt;(collection: string, id: string, data: Partial&lt;T&gt;): Promise&lt;void&gt;;
+  deleteDocument(collection: string, id: string): Promise&lt;void&gt;;
+  queryDocuments&lt;T&gt;(collection: string, where?: QueryFilter[]): Promise&lt;T[]&gt;;
+  subscribeToCollection&lt;T&gt;(
+    collection: string,
+    callback: (docs: T[]) => void
+  ): () => void;
+}
+      </signature>
+      <path>src/services/database.ts</path>
+      <note>To be created in this story. Implemented by FirebaseDatabaseService in src/services/firebase/firebaseDatabase.ts. Used in Epic 3+ for transaction CRUD operations.</note>
+    </interface>
+
+    <interface>
+      <name>Firebase App Instance</name>
+      <kind>External SDK</kind>
+      <signature>
+import { initializeApp } from 'firebase/app';
+import { getAuth, Auth } from 'firebase/auth';
+import { getFirestore, Firestore } from 'firebase/firestore';
+
+export const app = initializeApp(firebaseConfig);
+export const auth: Auth = getAuth(app);
+export const db: Firestore = getFirestore(app);
+      </signature>
+      <path>src/services/firebase/firebaseConfig.ts</path>
+      <note>To be created in this story. Initializes Firebase SDK with environment variables. Exports auth and db instances for use in FirebaseAuthService and FirebaseDatabaseService.</note>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+Vitest v2.0.0 for unit and component tests (installed in Story 1.1). @testing-library/react v16.1.0 for component testing. Co-located test files: firebaseAuth.test.ts next to firebaseAuth.ts. Mock Firebase SDK methods using Vitest's vi.mock() to avoid actual Firebase calls in unit tests. Integration tests should use Firebase emulator for safe testing. Test interface contract compliance - ensure IAuthService methods return correct types. Full test suite implementation scheduled for Epic 7.6.
+    </standards>
+
+    <locations>
+      <location>src/services/auth.test.ts - Unit tests for IAuthService interface</location>
+      <location>src/services/database.test.ts - Unit tests for IDatabaseService interface</location>
+      <location>src/services/firebase/firebaseAuth.test.ts - Unit tests for FirebaseAuthService (mock Firebase SDK)</location>
+      <location>src/services/firebase/firebaseDatabase.test.ts - Unit tests for FirebaseDatabaseService (mock Firebase SDK)</location>
+      <location>tests/integration/firebase.test.ts - Integration tests with Firebase emulator</location>
+    </locations>
+
+    <ideas>
+      <idea ac="1">Test Firebase connection by verifying firebaseConfig exports valid auth and db instances without throwing errors</idea>
+      <idea ac="2">Test Firebase SDK initialization by importing firebaseConfig in test and verifying app.name is defined</idea>
+      <idea ac="3">Test environment variable loading by mocking import.meta.env and verifying Firebase config uses correct values</idea>
+      <idea ac="4">Test .env security by verifying .env file is in .gitignore and .env.example contains placeholder values only</idea>
+      <idea ac="5">Test environment separation by verifying different API keys can be loaded for dev vs prod (config-based test)</idea>
+      <idea ac="6">Test IAuthService interface by creating a mock implementation and verifying all methods have correct signatures</idea>
+      <idea ac="7">Test FirebaseAuthService implements IAuthService by verifying class satisfies interface TypeScript contract</idea>
+      <idea ac="8">Test import isolation by grepping codebase for 'firebase/auth' imports - should only appear in /src/services/firebase/</idea>
+      <idea ac="9">Test Firestore Security Rules by attempting read/write to Firestore and verifying permission denied errors</idea>
+      <idea ac="10">Test Firebase connection by calling auth.currentUser and db.app in test environment, verify no crashes</idea>
+    </ideas>
+  </tests>
+</story-context>
