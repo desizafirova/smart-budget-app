@@ -41,7 +41,7 @@ development_status:
   1-1-project-initialization-structure: review
   1-2-backend-as-a-service-integration: review
   1-3-basic-routing-layout-structure: review
-  1-4-deployment-pipeline-hosting: backlog
+  1-4-deployment-pipeline-hosting: ready-for-dev
   epic-1-retrospective: optional
 
   # Epic 2: User Authentication & Zero-Friction Onboarding (3 stories)

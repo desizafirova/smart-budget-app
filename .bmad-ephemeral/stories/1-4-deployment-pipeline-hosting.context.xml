@@ -1,0 +1,438 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>4</storyId>
+    <title>Deployment Pipeline & Hosting</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-15</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>.bmad-ephemeral/stories/1-4-deployment-pipeline-hosting.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a developer</asA>
+    <iWant>to set up automated deployment to a hosting platform</iWant>
+    <soThat>code changes can be deployed quickly and reliably to a production environment</soThat>
+    <tasks>
+      <task id="1" ac="1,3">
+        <title>Create Vercel account and project</title>
+        <subtasks>
+          <subtask>Sign up for Vercel account (free tier)</subtask>
+          <subtask>Create new Vercel project</subtask>
+          <subtask>Connect GitHub repository to Vercel</subtask>
+          <subtask>Grant Vercel access to repository</subtask>
+          <subtask>Verify connection in Vercel dashboard</subtask>
+        </subtasks>
+      </task>
+      <task id="2" ac="2,5">
+        <title>Configure Vercel build settings</title>
+        <subtasks>
+          <subtask>Set Build Command: npm run build</subtask>
+          <subtask>Set Output Directory: dist</subtask>
+          <subtask>Set Install Command: npm install</subtask>
+          <subtask>Set Node.js Version: 20.x (or latest LTS)</subtask>
+          <subtask>Set Root Directory: . (project root)</subtask>
+          <subtask>Test: Trigger manual deployment, verify build succeeds</subtask>
+        </subtasks>
+      </task>
+      <task id="3" ac="4">
+        <title>Configure environment variables in Vercel</title>
+        <subtasks>
+          <subtask>Navigate to Vercel project settings → Environment Variables</subtask>
+          <subtask>Add Firebase API key: VITE_FIREBASE_API_KEY</subtask>
+          <subtask>Add Firebase Auth Domain: VITE_FIREBASE_AUTH_DOMAIN</subtask>
+          <subtask>Add Firebase Project ID: VITE_FIREBASE_PROJECT_ID</subtask>
+          <subtask>Add Firebase Storage Bucket: VITE_FIREBASE_STORAGE_BUCKET</subtask>
+          <subtask>Add Firebase Messaging Sender ID: VITE_FIREBASE_MESSAGING_SENDER_ID</subtask>
+          <subtask>Add Firebase App ID: VITE_FIREBASE_APP_ID</subtask>
+          <subtask>Set environment scope: Production and Preview</subtask>
+          <subtask>Update .env.example with all required variable names</subtask>
+          <subtask>Test: Verify Firebase connection works in deployed app</subtask>
+        </subtasks>
+      </task>
+      <task id="4" ac="6">
+        <title>Enable preview deployments</title>
+        <subtasks>
+          <subtask>Verify preview deployments enabled in Vercel settings (default)</subtask>
+          <subtask>Create test pull request</subtask>
+          <subtask>Verify preview deployment created with unique URL</subtask>
+          <subtask>Test: Access preview URL, verify app loads correctly</subtask>
+          <subtask>Verify PR comment shows deployment status</subtask>
+          <subtask>Close test PR after verification</subtask>
+        </subtasks>
+      </task>
+      <task id="5" ac="2,3,8">
+        <title>Deploy to production and verify</title>
+        <subtasks>
+          <subtask>Push changes to main branch</subtask>
+          <subtask>Monitor deployment progress in Vercel dashboard</subtask>
+          <subtask>Verify deployment completes successfully</subtask>
+          <subtask>Access production URL via HTTPS</subtask>
+          <subtask>Verify SSL certificate valid (https://)</subtask>
+          <subtask>Test: Navigate through all routes (/, /transactions, /categories)</subtask>
+          <subtask>Test: Verify Firebase connection works (anonymous auth)</subtask>
+          <subtask>Check browser console for errors (should be none)</subtask>
+        </subtasks>
+      </task>
+      <task id="6" ac="7">
+        <title>Set up GitHub Actions CI workflow</title>
+        <subtasks>
+          <subtask>Create .github/workflows/ci.yml file</subtask>
+          <subtask>Configure workflow trigger: push and pull_request on main branch</subtask>
+          <subtask>Add job: Install dependencies (npm ci)</subtask>
+          <subtask>Add job: Run linter (npm run lint)</subtask>
+          <subtask>Add job: Run TypeScript check (npm run build)</subtask>
+          <subtask>Commit workflow file to repository</subtask>
+          <subtask>Verify workflow runs on push</subtask>
+          <subtask>Check Actions tab for workflow status</subtask>
+        </subtasks>
+      </task>
+      <task id="7" ac="9">
+        <title>Configure Vercel Analytics</title>
+        <subtasks>
+          <subtask>Enable Vercel Analytics in project settings</subtask>
+          <subtask>Add Vercel Analytics script to index.html (if not auto-injected)</subtask>
+          <subtask>Deploy changes</subtask>
+          <subtask>Wait for traffic data (may take time to populate)</subtask>
+          <subtask>Verify Core Web Vitals visible in Vercel dashboard</subtask>
+        </subtasks>
+      </task>
+      <task id="8" ac="10">
+        <title>Update documentation</title>
+        <subtasks>
+          <subtask>Update README with deployment section</subtask>
+          <subtask>Document production URL</subtask>
+          <subtask>Document environment variable setup steps</subtask>
+          <subtask>Add deployment instructions for team members</subtask>
+          <subtask>Add link to Vercel dashboard (if team access)</subtask>
+          <subtask>Update .env.example if any variables added</subtask>
+        </subtasks>
+      </task>
+      <task id="9" ac="2,6,7">
+        <title>Test complete deployment workflow</title>
+        <subtasks>
+          <subtask>Create feature branch</subtask>
+          <subtask>Make small change (e.g., update footer text)</subtask>
+          <subtask>Push to branch, verify GitHub Actions CI runs</subtask>
+          <subtask>Create pull request</subtask>
+          <subtask>Verify preview deployment created</subtask>
+          <subtask>Test preview deployment</subtask>
+          <subtask>Merge PR to main</subtask>
+          <subtask>Verify production deployment triggered</subtask>
+          <subtask>Verify production updated with changes</subtask>
+        </subtasks>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">
+      <title>Hosting platform connected to GitHub repository</title>
+      <details>
+        <item>Vercel project created and linked to repository</item>
+        <item>Repository access configured for automatic deployments</item>
+      </details>
+    </criterion>
+    <criterion id="2">
+      <title>Automatic deployment on push to main branch</title>
+      <details>
+        <item>Pushing code to main branch triggers build and deployment</item>
+        <item>Build process completes successfully (Vite build)</item>
+        <item>New version deployed to production URL</item>
+      </details>
+    </criterion>
+    <criterion id="3">
+      <title>Production application accessible via HTTPS</title>
+      <details>
+        <item>Application deployed and accessible via Vercel HTTPS URL</item>
+        <item>Custom domain configured (optional for MVP)</item>
+        <item>SSL/TLS certificate active and valid</item>
+      </details>
+    </criterion>
+    <criterion id="4">
+      <title>Environment variables securely managed</title>
+      <details>
+        <item>Firebase API keys configured in Vercel dashboard (not in code)</item>
+        <item>Separate environment variable sets for preview and production</item>
+        <item>.env.example updated with all required variables</item>
+      </details>
+    </criterion>
+    <criterion id="5">
+      <title>Build configuration correct</title>
+      <details>
+        <item>Build command: npm run build</item>
+        <item>Output directory: dist</item>
+        <item>Node.js version specified (18.x or 20.x)</item>
+        <item>Install command: npm install</item>
+      </details>
+    </criterion>
+    <criterion id="6">
+      <title>Preview deployments for pull requests</title>
+      <details>
+        <item>Opening PR creates preview deployment with unique URL</item>
+        <item>Preview deployments include environment variables</item>
+        <item>PR comments show deployment status and preview URL</item>
+      </details>
+    </criterion>
+    <criterion id="7">
+      <title>GitHub Actions CI/CD configured</title>
+      <details>
+        <item>Workflow runs on push and pull request</item>
+        <item>Linting check (npm run lint)</item>
+        <item>TypeScript check (npm run build)</item>
+        <item>Workflow status badge in README (optional)</item>
+      </details>
+    </criterion>
+    <criterion id="8">
+      <title>Deployment status visible</title>
+      <details>
+        <item>Vercel dashboard shows deployment history</item>
+        <item>Failed deployments trigger notifications</item>
+        <item>Build logs accessible for debugging</item>
+      </details>
+    </criterion>
+    <criterion id="9">
+      <title>Web Vitals monitoring enabled</title>
+      <details>
+        <item>Vercel Analytics configured for performance tracking</item>
+        <item>Core Web Vitals visible in dashboard (LCP, FID, CLS)</item>
+        <item>Performance budget alerts configured (optional)</item>
+      </details>
+    </criterion>
+    <criterion id="10">
+      <title>Documentation updated</title>
+      <details>
+        <item>README includes deployment instructions</item>
+        <item>Environment variable setup documented</item>
+        <item>Production URL documented</item>
+      </details>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation & Infrastructure</title>
+        <section>Story 1.4: Deployment Pipeline & Hosting</section>
+        <snippet>Epic 1.4 configures deployment pipeline to Vercel with GitHub Actions CI/CD. Objectives include automated deployment on push to main, environment variable management, preview deployments for PRs, and Web Vitals monitoring. Acceptance Criteria: Vercel project connected to GitHub, build settings configured (npm run build, dist/ output, Node.js 20.x), environment variables in Vercel dashboard, GitHub Actions workflow for linting and type-checking, deployment status visible in PR checks.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>SmartBudget - Technical Architecture</title>
+        <section>Executive Summary</section>
+        <snippet>Vercel hosts the static build with automatic deployments and Web Vitals monitoring. Total bundle: ~180-220KB gzipped (under 500KB budget).</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>SmartBudget - Epic Breakdown</title>
+        <section>Epic 1: Foundation & Infrastructure - Story 1.4</section>
+        <snippet>As a developer, I want to set up automated deployment to a hosting platform, so that code changes can be deployed quickly and reliably. When I push code to main branch, the application automatically builds and deploys to hosting, is accessible via HTTPS URL, and environment variables are securely managed in hosting platform.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>package.json</path>
+        <kind>config</kind>
+        <symbol>scripts</symbol>
+        <lines>6-12</lines>
+        <reason>Build and dev scripts that Vercel will use. Build command: "tsc -b && vite build", Lint: "eslint"</reason>
+      </artifact>
+      <artifact>
+        <path>vite.config.ts</path>
+        <kind>config</kind>
+        <symbol>Vite configuration</symbol>
+        <lines>all</lines>
+        <reason>Vite build configuration that determines build output (dist/ directory) and build process</reason>
+      </artifact>
+      <artifact>
+        <path>.env.example</path>
+        <kind>config</kind>
+        <symbol>Environment variables template</symbol>
+        <lines>all</lines>
+        <reason>Template for Firebase environment variables that need to be configured in Vercel dashboard</reason>
+      </artifact>
+      <artifact>
+        <path>README.md</path>
+        <kind>documentation</kind>
+        <symbol>Project documentation</symbol>
+        <lines>all</lines>
+        <reason>Will be updated with deployment instructions and production URL per AC #10</reason>
+      </artifact>
+      <artifact>
+        <path>src/App.tsx</path>
+        <kind>component</kind>
+        <symbol>App router</symbol>
+        <lines>all</lines>
+        <reason>React Router configuration with routes that need to be tested in deployment (/, /transactions, /categories)</reason>
+      </artifact>
+      <artifact>
+        <path>src/components/layout/Layout.tsx</path>
+        <kind>component</kind>
+        <symbol>Layout</symbol>
+        <lines>all</lines>
+        <reason>Main layout component that renders across all routes, needs verification in production deployment</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <production>
+          <package name="react" version="^19.2.0" />
+          <package name="react-dom" version="^19.2.0" />
+          <package name="react-router" version="^7.9.6" />
+          <package name="firebase" version="^12.4.0" />
+          <package name="zustand" version="^5.0.8" />
+          <package name="chart.js" version="^4.5.1" />
+          <package name="react-chartjs-2" version="^5.3.0" />
+          <package name="react-hook-form" version="^7.66.0" />
+          <package name="dayjs" version="^1.11.18" />
+          <package name="lucide-react" version="^0.553.0" />
+        </production>
+        <development>
+          <package name="vite" version="^7.2.2" />
+          <package name="typescript" version="~5.9.3" />
+          <package name="tailwindcss" version="4.1" />
+          <package name="eslint" version="^9.39.1" />
+          <package name="prettier" version="^3.4.0" />
+          <package name="vitest" version="2.0" />
+          <package name="playwright" version="1.50" />
+        </development>
+        <note>Node.js version requirement: 20.x or later (specified in Vercel build settings)</note>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="platform">
+      <title>Vercel Hosting Platform</title>
+      <description>Use Vercel for zero-config Vite deployment with automatic builds, Git integration, preview deployments, and Web Vitals monitoring</description>
+    </constraint>
+    <constraint type="build">
+      <title>Build Configuration</title>
+      <description>Build Command: "npm run build" (runs TypeScript compilation + Vite build). Output Directory: "dist/". Install Command: "npm install". Node.js Version: 20.x</description>
+    </constraint>
+    <constraint type="environment">
+      <title>Environment Variable Security</title>
+      <description>Firebase API keys MUST be configured in Vercel dashboard, never committed to git. Separate environment variable sets for Preview and Production. .env.example must document all required variables</description>
+    </constraint>
+    <constraint type="ci-cd">
+      <title>GitHub Actions CI Pipeline</title>
+      <description>CI workflow must run on push and pull_request events. Required checks: ESLint (npm run lint) and TypeScript compilation (npm run build). Build must pass before merge to main</description>
+    </constraint>
+    <constraint type="deployment">
+      <title>Automatic Deployment</title>
+      <description>Pushing to main branch triggers automatic Vercel deployment. Preview deployments created for all pull requests. Deployment status visible in GitHub PR checks</description>
+    </constraint>
+    <constraint type="performance">
+      <title>Bundle Size Budget</title>
+      <description>Total production bundle must be under 500KB gzipped. Current baseline after Epic 1: ~150KB gzipped main bundle</description>
+    </constraint>
+    <constraint type="security">
+      <title>HTTPS and SSL</title>
+      <description>Production deployment must be accessible via HTTPS with valid SSL/TLS certificate (automatically provided by Vercel)</description>
+    </constraint>
+    <constraint type="testing">
+      <title>Deployment Validation</title>
+      <description>Post-deployment verification required: all routes accessible, Firebase connection works, no console errors, HTTPS enabled, bundle size within budget, page load time baseline</description>
+    </constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>Vercel Build Configuration</name>
+      <kind>Platform Configuration</kind>
+      <signature>
+        Build Command: npm run build
+        Output Directory: dist
+        Install Command: npm install
+        Node.js Version: 20.x
+        Root Directory: . (project root)
+      </signature>
+      <path>Configured in Vercel dashboard project settings</path>
+    </interface>
+    <interface>
+      <name>Vercel Environment Variables</name>
+      <kind>Platform Configuration</kind>
+      <signature>
+        VITE_FIREBASE_API_KEY (Production, Preview)
+        VITE_FIREBASE_AUTH_DOMAIN (Production, Preview)
+        VITE_FIREBASE_PROJECT_ID (Production, Preview)
+        VITE_FIREBASE_STORAGE_BUCKET (Production, Preview)
+        VITE_FIREBASE_MESSAGING_SENDER_ID (Production, Preview)
+        VITE_FIREBASE_APP_ID (Production, Preview)
+      </signature>
+      <path>Configured in Vercel dashboard → Environment Variables</path>
+    </interface>
+    <interface>
+      <name>GitHub Actions CI Workflow</name>
+      <kind>CI/CD Pipeline</kind>
+      <signature>
+        Workflow file: .github/workflows/ci.yml
+        Triggers: on push and pull_request to main branch
+        Jobs:
+          - Install dependencies (npm ci)
+          - Run ESLint (npm run lint)
+          - Run TypeScript check (npm run build)
+      </signature>
+      <path>.github/workflows/ci.yml</path>
+    </interface>
+    <interface>
+      <name>Vercel Deployment Hooks</name>
+      <kind>Platform Integration</kind>
+      <signature>
+        Git Integration: Automatic deployment on push to main
+        Preview Deployments: Automatic preview URL for each PR
+        Status Reporting: Deployment status posted to GitHub PR checks
+      </signature>
+      <path>Configured via Vercel GitHub integration</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Epic 1 uses manual testing for infrastructure setup. CI/CD validation through GitHub Actions (linting and type-checking). Deployment smoke tests verify production accessibility. Comprehensive automated testing (Vitest + Playwright) will be implemented in Epic 7.6. Testing frameworks already installed: Vitest 2.0 for unit tests, Playwright 1.50 for E2E tests, @testing-library/react 16.1 for component tests.
+    </standards>
+    <locations>
+      <location>.github/workflows/ci.yml - CI/CD pipeline configuration</location>
+      <location>tests/ - Future automated test location (Epic 7.6)</location>
+      <location>Vercel Dashboard - Deployment logs and build status</location>
+      <location>GitHub Actions - CI workflow execution logs</location>
+    </locations>
+    <ideas>
+      <idea ac="1,3">
+        <title>Vercel Project Connection Test</title>
+        <description>Verify Vercel project exists, GitHub repository connected, and deployment triggers are configured. Check Vercel dashboard shows project linked to correct GitHub repo.</description>
+      </idea>
+      <idea ac="2,5">
+        <title>Build Configuration Validation</title>
+        <description>Trigger manual deployment in Vercel, verify build command runs successfully, output directory (dist/) contains expected files, build completes without errors. Check build logs for correct Node.js version.</description>
+      </idea>
+      <idea ac="4">
+        <title>Environment Variable Security Check</title>
+        <description>Verify all Firebase environment variables configured in Vercel dashboard (not in code). Test both Production and Preview scopes. Confirm deployed app can connect to Firebase using Vercel-provided env vars.</description>
+      </idea>
+      <idea ac="2,3,8">
+        <title>Production Deployment Smoke Test</title>
+        <description>Push to main branch, monitor deployment progress in Vercel dashboard, verify deployment completes successfully. Visit production HTTPS URL, navigate all routes (/, /transactions, /categories), check SSL certificate valid, verify no browser console errors.</description>
+      </idea>
+      <idea ac="6">
+        <title>Preview Deployment Test</title>
+        <description>Create test PR, verify preview deployment created with unique URL, check PR comment shows deployment status, test preview URL loads correctly, verify environment variables work in preview. Close PR after verification.</description>
+      </idea>
+      <idea ac="7">
+        <title>GitHub Actions CI Pipeline Test</title>
+        <description>Push code change or create PR, verify GitHub Actions workflow triggers, check workflow runs linting (npm run lint) and TypeScript check (npm run build), verify workflow status appears in PR checks, confirm build must pass before merge allowed.</description>
+      </idea>
+      <idea ac="9">
+        <title>Vercel Analytics Verification</title>
+        <description>Enable Vercel Analytics in project settings, deploy to production, wait for traffic data, verify Core Web Vitals (LCP, FID, CLS) visible in Vercel Analytics dashboard.</description>
+      </idea>
+      <idea ac="10">
+        <title>Documentation Completeness Check</title>
+        <description>Verify README includes deployment section with production URL, environment variable setup steps, and deployment instructions. Check .env.example documents all required Firebase variables.</description>
+      </idea>
+      <idea ac="2,6,7">
+        <title>End-to-End Deployment Workflow Test</title>
+        <description>Create feature branch, make small change (e.g., update footer text), push and verify GitHub Actions CI runs, create PR and verify preview deployment, test preview deployment, merge to main, verify production deployment triggered, confirm production updated with changes.</description>
+      </idea>
+    </ideas>
+  </tests>
+</story-context>
