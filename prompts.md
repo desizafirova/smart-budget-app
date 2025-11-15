@@ -1769,6 +1769,63 @@ A
 
 ---
 
+### Prompt 87: Installation Attempt - Command Not Found
+
+**Phase**: Module Development - Installation
+**Purpose**: Attempt to install prompt-logger module using BMAD installer
+
+**Prompt**:
+
+```
+C:\Users\Emo\Desktop\smart-budget-app>bmad install
+```
+
+**Task**: Run BMAD installer command to compile Philip agent
+**Output**: Error - 'bmad' is not recognized as an internal or external command
+**Notes**: BMAD CLI not available in user's environment. User has been using BMAD via slash commands throughout session, suggesting slash command approach is correct installation method.
+
+---
+
+### Prompt 88: Continue Without Questions - Compile Philip Directly
+
+**Phase**: Module Development - Direct Compilation
+**Purpose**: Generate compiled Philip agent without waiting for user input
+
+**Context**: Conversation resumed from summary. Last task was helping user install Philip after bmad command failed.
+
+**Task**: Create compiled logger.md file directly instead of waiting for build tools
+**Output**: Created `.bmad/custom/modules/prompt-logger/agents/logger.md` - Compiled agent with full XML structure including:
+- Metadata (name, title, icon, module, type)
+- Activation rules (auto-initialize logging on load)
+- Persona (role, identity, communication style, principles)
+- Embedded prompts (auto_logging instructions)
+- Menu (status, help, exit commands)
+
+**Loading Instructions Provided:**
+- Try slash command: `/bmad:custom:modules:prompt-logger:agents:logger`
+- Or shorter: `/philip`
+
+**Notes**: Philip now ready to use without needing build tools. Compiled .md file can be loaded directly via BMAD slash command system.
+
+---
+
+### Prompt 89: Update Prompts Log
+
+**Phase**: Documentation
+**Purpose**: Log the continuation of Session 8 to prompts.md
+
+**Prompt**:
+
+```
+update the prompts.md file
+```
+
+**Task**: Append Prompts 87-89 to prompts.md following established format
+**Output**: Session 8 updated with installation troubleshooting and direct compilation steps
+**Notes**: Philip is now compiled and ready. Next step: User should try loading Philip via `/bmad:custom:modules:prompt-logger:agents:logger` to activate automatic logging for future sessions.
+
+---
+
 ## Template for Future Prompts
 
 ### Prompt [N]: [Brief Title]
