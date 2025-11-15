@@ -180,6 +180,239 @@ Format code with Prettier:
 npm run format
 ```
 
+## Deployment
+
+SmartBudget uses **Vercel** for hosting with automatic deployments triggered by Git pushes. **GitHub Actions** provides continuous integration (linting and type-checking) before deployment.
+
+### Production URL
+
+🌐 **Live Application:** [https://smart-budget-app.vercel.app](https://smart-budget-app.vercel.app)
+*(URL will be available after first deployment)*
+
+### Prerequisites
+
+- GitHub repository with code pushed
+- Vercel account (free tier)
+- Firebase production project credentials
+
+### One-Time Vercel Setup
+
+#### 1. Create Vercel Account and Project
+
+1. Go to [vercel.com](https://vercel.com) and sign up/sign in with your GitHub account
+2. Click **"Add New..." → Project**
+3. **Import your GitHub repository:**
+   - Find `smart-budget-app` in the repository list
+   - Click **Import**
+4. **Configure Project Settings:**
+   - **Framework Preset:** Vite (should auto-detect)
+   - **Root Directory:** `.` (leave as project root)
+   - **Build Command:** `npm run build`
+   - **Output Directory:** `dist`
+   - **Install Command:** `npm install`
+   - **Node.js Version:** 20.x
+5. **DO NOT** click Deploy yet - we need to add environment variables first
+
+#### 2. Configure Environment Variables in Vercel
+
+1. In your Vercel project, go to **Settings → Environment Variables**
+2. Add the following variables from your **production** Firebase project:
+
+| Variable Name | Example Value | Scope |
+|--------------|---------------|-------|
+| `VITE_FIREBASE_API_KEY` | `AIzaSyC...` | Production, Preview |
+| `VITE_FIREBASE_AUTH_DOMAIN` | `smartbudget-prod.firebaseapp.com` | Production, Preview |
+| `VITE_FIREBASE_PROJECT_ID` | `smartbudget-prod` | Production, Preview |
+| `VITE_FIREBASE_STORAGE_BUCKET` | `smartbudget-prod.firebasestorage.app` | Production, Preview |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | `123456789` | Production, Preview |
+| `VITE_FIREBASE_APP_ID` | `1:123456789:web:abc123` | Production, Preview |
+
+3. For each variable:
+   - Enter **Name** (e.g., `VITE_FIREBASE_API_KEY`)
+   - Enter **Value** (paste from Firebase Console)
+   - Select **Environments:** Check both `Production` and `Preview`
+   - Click **Save**
+
+**⚠️ Security Note:** Never commit these values to git. They're securely stored in Vercel and injected at build time.
+
+#### 3. Deploy to Production
+
+1. After adding environment variables, go to **Deployments** tab
+2. Click **Deploy** (or trigger by pushing to `main` branch)
+3. Wait for deployment to complete (~2-3 minutes)
+4. Vercel will display your production URL: `https://smart-budget-app.vercel.app`
+5. Visit the URL and verify the app loads correctly
+
+#### 4. Verify Deployment
+
+**Post-Deployment Checklist:**
+
+- [ ] Production URL loads via HTTPS
+- [ ] SSL certificate is valid (check browser lock icon)
+- [ ] All routes navigate correctly: `/`, `/transactions`, `/categories`
+- [ ] Firebase connection works (check browser console - no errors)
+- [ ] Bundle size is within budget (<150KB gzipped for Epic 1 foundation)
+- [ ] Page loads in <2 seconds on 4G connection
+
+**Troubleshooting:**
+
+- **Build fails:** Check build logs in Vercel dashboard. Common issues:
+  - TypeScript errors → Run `npm run build` locally to reproduce
+  - Missing dependencies → Verify `package.json` is committed
+  - Node.js version → Ensure 20.x is selected in Vercel settings
+- **App loads but Firebase errors:** Verify environment variables in Vercel dashboard match your Firebase config
+- **404 errors on routes:** Vercel should auto-configure SPA routing for Vite. If issues persist, create `vercel.json`:
+  ```json
+  {
+    "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  }
+  ```
+
+### Automatic Deployment Workflow
+
+#### Push to Main Branch (Production)
+
+```bash
+# Make changes and commit
+git add .
+git commit -m "feat: add new feature"
+
+# Push to main branch
+git push origin main
+```
+
+**What happens:**
+1. GitHub Actions CI runs (linting + type-checking)
+2. If CI passes, Vercel automatically builds and deploys
+3. New version goes live at production URL within 2-3 minutes
+4. Vercel posts deployment status to GitHub commit
+
+#### Pull Request Workflow (Preview Deployments)
+
+```bash
+# Create feature branch
+git checkout -b feature/add-feature
+
+# Make changes and push
+git add .
+git commit -m "feat: implement feature"
+git push origin feature/add-feature
+
+# Create pull request on GitHub
+```
+
+**What happens:**
+1. GitHub Actions CI runs automatically
+2. Vercel creates a **preview deployment** with unique URL
+3. Preview URL is posted as comment on the PR
+4. Test changes on preview URL before merging
+5. When PR is merged to main, Vercel deploys to production
+
+**Preview Deployment Benefits:**
+- Test features in production-like environment before merging
+- Share preview URLs with team for review
+- Automatically includes environment variables
+- No impact on production until merge
+
+### GitHub Actions CI Pipeline
+
+Continuous integration runs automatically on every push and pull request.
+
+**CI Checks:**
+- ✅ Install dependencies with `npm ci`
+- ✅ Run ESLint: `npm run lint`
+- ✅ Run TypeScript check: `npm run build`
+
+**View CI Status:**
+- Go to GitHub repository → **Actions** tab
+- Each workflow run shows pass/fail status
+- Click on a run to view detailed logs
+- Failed runs block PR merges (if branch protection enabled)
+
+**Configuration:** `.github/workflows/ci.yml`
+
+### Vercel Analytics (Optional)
+
+Track performance metrics and Core Web Vitals in production.
+
+**Enable Analytics:**
+1. In Vercel project, go to **Analytics** tab
+2. Click **Enable Web Analytics**
+3. Analytics will automatically inject tracking script
+4. Wait 24-48 hours for data to populate
+
+**Available Metrics:**
+- **Largest Contentful Paint (LCP):** Target <2.5s
+- **First Input Delay (FID):** Target <100ms
+- **Cumulative Layout Shift (CLS):** Target <0.1
+- Real User Monitoring (RUM) data from actual users
+- Performance scores by device, browser, and region
+
+### Deployment Commands Reference
+
+```bash
+# Trigger production deployment (via push)
+git push origin main
+
+# View deployment logs
+# Visit Vercel dashboard → Deployments → Click on deployment
+
+# Rollback to previous deployment
+# Vercel dashboard → Deployments → Click "..." → Promote to Production
+
+# View environment variables
+# Vercel dashboard → Settings → Environment Variables
+
+# Force redeploy (no code changes)
+# Vercel dashboard → Deployments → Click "..." → Redeploy
+```
+
+### Deployment Best Practices
+
+1. **Always test locally before pushing:**
+   ```bash
+   npm run build    # Verify build succeeds
+   npm run lint     # Check for linting errors
+   npm run preview  # Test production build locally
+   ```
+
+2. **Use feature branches and PRs:**
+   - Never commit directly to `main`
+   - Create feature branch → PR → Review → Merge
+   - Leverage preview deployments for testing
+
+3. **Monitor deployment status:**
+   - Check GitHub Actions for CI status
+   - Check Vercel dashboard for build logs
+   - Verify production URL after deployment
+
+4. **Keep dependencies updated:**
+   - Run `npm outdated` regularly
+   - Update dependencies in separate PRs
+   - Test thoroughly after major version bumps
+
+5. **Bundle size monitoring:**
+   - After deployment, check Vercel analytics for bundle size
+   - Target: <500KB gzipped (current Epic 1 baseline: ~150KB)
+   - Use `npm run build` locally to see size breakdown
+
+### Troubleshooting Deployments
+
+**Problem:** Deployment fails with "Build Error"
+- **Solution:** Run `npm run build` locally to reproduce error. Check Vercel logs for detailed stack trace.
+
+**Problem:** Environment variables not working
+- **Solution:** Verify variables are set for both Production AND Preview environments in Vercel settings. Redeploy after changes.
+
+**Problem:** Routes return 404 after deployment
+- **Solution:** Vite projects should work out of the box. If issues persist, add `vercel.json` with SPA rewrite rule (see above).
+
+**Problem:** CI failing but code works locally
+- **Solution:** Ensure `package-lock.json` is committed. CI uses `npm ci` which requires lock file. Check Node.js version matches (20.x).
+
+**Problem:** Slow deployments (>5 minutes)
+- **Solution:** Normal for first deployment. Subsequent deployments use caching and complete in 2-3 minutes. Check Vercel status page for platform issues.
+
 ## Project Structure
 
 ```
