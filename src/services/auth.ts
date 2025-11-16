@@ -7,14 +7,10 @@
  * Firebase implementation: src/services/firebase/firebaseAuth.ts
  */
 
-/**
- * User type representing an authenticated user
- */
-export interface User {
-  uid: string;
-  email: string | null;
-  isAnonymous: boolean;
-}
+import type { User } from '@/types/user';
+
+// Re-export User type for convenience
+export type { User };
 
 /**
  * Authentication service interface

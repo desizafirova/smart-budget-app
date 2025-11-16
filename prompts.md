@@ -2796,3 +2796,285 @@ log the missing prompts from this session into prompts.md
 **Notes**: [Any relevant observations or decisions]
 
 ---
+
+---
+
+## Session 14: Epic 2 Planning and Story 2.1 Creation
+
+**Date**: 2025-11-16
+**Phase**: Planning → Solutioning → Implementation Setup
+**Epic**: Epic 2 - User Authentication & Zero-Friction Onboarding
+**Agent**: Bob (Scrum Master)
+
+---
+
+### Prompt 126: Run Epic 1 Retrospective
+
+**Phase**: Implementation - Epic Completion
+**Purpose**: Conduct Epic 1 retrospective after all 4 stories completed
+
+**Prompt**:
+```
+yes
+```
+
+**Context**: Responding to prompt asking if user wants to run Epic 1 retrospective
+
+**Task**: Execute retrospective workflow for Epic 1: Foundation & Infrastructure
+
+**Output**:
+- Comprehensive retrospective document created
+- Epic 1 delivery metrics: 4/4 stories (100%), 149.77 KB gzipped bundle
+- What went well: CI/CD pipeline, abstraction layer, fast build tooling, TypeScript strict mode
+- Challenges: Hybrid story pattern (Story 1.4)
+- Key insights: Infrastructure investment creates velocity, abstraction provides flexibility
+- Action items: Document hybrid story patterns, review Firestore security rules
+- Updated sprint-status.yaml: epic-1-retrospective completed
+
+**Notes**: First comprehensive epic retrospective. Epic 1 foundation solid with excellent quality metrics.
+
+---
+
+### Prompt 127: Proceed with Epic 2
+
+**Phase**: Planning → Solutioning
+**Purpose**: User confirms readiness to begin Epic 2
+
+**Prompt**:
+```
+2
+```
+
+**Task**: Transition from Epic 1 completion to Epic 2 planning
+**Output**: Switched to SM agent, displayed SM menu
+
+**Notes**: Demonstrates agent role boundaries.
+
+---
+
+### Prompt 128: Generate Epic 2 Technical Context
+
+**Phase**: Solutioning - Technical Specification
+**Purpose**: Create comprehensive technical specification for Epic 2
+
+**Prompt**:
+```
+*epic-tech-context Epic-2
+```
+
+**Task**: Execute epic-tech-context workflow for Epic 2
+
+**Output**:
+- 23-page tech spec at tech-spec-epic-2.md
+- 3 stories detailed, 7 features out-of-scope
+- Complete IAuthService interface with 7 methods
+- Data models: User entity, AuthStore schema
+- 3 detailed workflow sequences with edge cases
+- NFRs: Performance, Security, Reliability, Observability
+- 11 acceptance criteria with traceability mapping
+- Comprehensive test strategy (6 test levels)
+- Updated sprint-status.yaml: epic-2 contexted
+
+**Notes**: Comprehensive Epic 2 tech spec with Firebase Auth implementation details.
+
+---
+
+### Prompt 129: Create Story 2.1 - Anonymous Authentication
+
+**Phase**: Implementation - Story Drafting
+**Purpose**: Draft first story of Epic 2
+
+**Prompt**:
+```
+*create-story Story 2.1
+```
+
+**Task**: Execute create-story workflow for Story 2.1
+
+**Output**:
+- Story file: 2-1-anonymous-authentication.md
+- 3 acceptance criteria from tech spec
+- 10 implementation tasks mapped to ACs
+- Dev notes with learnings from Story 1.4
+- Architecture context with code snippets
+- Testing standards and manual checklist
+- Updated sprint-status.yaml: 2-1-anonymous-authentication drafted
+
+**Notes**: First Epic 2 story with Firebase anonymous auth implementation guidance.
+
+---
+
+### Prompt 130: Mark Story 2.1 Ready for Development
+
+**Phase**: Implementation - Story Preparation
+**Purpose**: Mark drafted Story 2.1 as ready for DEV agent
+
+**Prompt**:
+```
+*story-ready
+```
+
+**Task**: Execute story-ready workflow
+
+**Output**:
+- Story status: drafted → ready-for-dev
+- Sprint status updated
+- Next steps: Run story-context or dev-story
+
+**Notes**: Story 2.1 ready for implementation.
+
+---
+
+### Prompt 131: Log Session Prompts
+
+**Phase**: Documentation
+**Purpose**: Document Session 14 to prompts.md
+
+**Prompt**:
+```
+log the still not logged prompts from this session in the prompts.md file
+```
+
+**Task**: Log Session 14 exchanges
+
+**Session 14 Summary**:
+- Epic 1 retrospective completed
+- Epic 2 tech spec generated (23 pages)
+- Story 2.1 drafted and marked ready
+- Demonstrated: Retrospective → Tech Context → Story Creation → Story Ready
+
+**Key Achievements**:
+1. Epic 1 retrospective with comprehensive learnings
+2. Epic 2 tech spec (IAuthService, User types, AuthStore, workflows, NFRs)
+3. Story 2.1 drafted with 10 tasks
+4. Story 2.1 ready for DEV agent
+
+**Next Steps**:
+- Run story-context to generate implementation context XML
+- Load DEV agent and implement Story 2.1
+
+---
+
+
+## Session 15 - Story 2.1 Implementation (Anonymous Authentication)
+
+**Date**: 2025-11-16
+**Agent**: dev (Amelia - Developer Agent)
+**Model**: claude-sonnet-4-5-20250929
+
+---
+
+### Prompt 132: Execute Dev Story Workflow for Story 2.1
+
+**Phase**: Implementation - Story Development
+**Purpose**: Implement Story 2.1: Anonymous Authentication with automatic sign-in and UI indicators
+
+**Prompt**:
+```
+/bmad:bmm:agents:dev
+*develop-story  - story 2.1
+```
+
+**Task**: Execute complete dev-story workflow for Story 2.1
+
+**Implementation Summary**:
+
+**Files Created:**
+- src/types/user.ts (User interface with uid, email, displayName, isAnonymous, createdAt, lastSignInAt)
+- src/types/errors.ts (AuthError class and AuthErrorCode constants)
+- src/stores/authStore.ts (Zustand auth store with localStorage persistence)
+- src/providers/AuthProvider.tsx (Auto anonymous sign-in provider)
+- src/components/layout/Header.tsx (Header with anonymous user banner and Claim Account button)
+
+**Files Modified:**
+- src/services/auth.ts (Re-export User type from centralized types)
+- src/services/firebase/firebaseAuth.ts (Enhanced error handling with AuthError, extended convertUser mapper)
+- src/App.tsx (Wrapped with AuthProvider)
+- src/components/layout/Layout.tsx (Integrated Header component)
+- tsconfig.app.json (Added @/providers path alias)
+- vite.config.ts (Added @/providers path alias)
+
+**Technical Decisions:**
+1. Converted enum to const object pattern to comply with TypeScript erasableSyntaxOnly flag
+2. Used Zustand persist middleware with partialize for selective state persistence
+3. Implemented comprehensive AuthError class with Firebase error mapping
+4. Created AuthProvider with automatic anonymous sign-in fallback
+
+**Validation Results:**
+- ✅ TypeScript strict mode: Zero errors
+- ✅ Bundle size: 155.50 KB gzipped (+5.73 KB from baseline)
+- ✅ Build: Successful
+- ✅ Dev server: Running at http://localhost:5173
+
+**Story Status**: marked as `review` in sprint-status.yaml
+
+**Acceptance Criteria Satisfied:**
+- AC 2.1.1: Automatic anonymous sign-in on app load ✅
+- AC 2.1.2: Data persistence across sessions (localStorage + Firebase Auth) ✅
+- AC 2.1.3: UI indicator showing anonymous status with Claim Account button ✅
+
+**Notes**:
+- Anonymous authentication must be enabled in Firebase Console for full functionality
+- Zustand store state verified in localStorage (key: 'smartbudget-auth')
+- Ready for code review workflow
+
+---
+
+### Prompt 133: Troubleshooting React DevTools for Zustand
+
+**Phase**: Implementation - Testing Support
+**Purpose**: Guide user on inspecting Zustand store state
+
+**Prompt**:
+```
+Where to find - cant find it react dev tools
+```
+
+**Context**: User looking for authStore.user.isAnonymous in React DevTools
+
+**Guidance Provided**:
+- Zustand stores don't appear in React DevTools like Redux
+- Recommended using localStorage inspection (Application tab)
+- Alternative: Browser console with store.getState()
+- Verified: localStorage contains `smartbudget-auth` with auth state
+
+**Resolution**: User confirmed auth state present in localStorage ✅
+
+---
+
+### Prompt 134: Update Prompts Log
+
+**Phase**: Documentation
+**Purpose**: Document Session 15 implementation work
+
+**Prompt**:
+```
+update the prompts.md file with the latest prompts
+```
+
+**Task**: Log current session to prompts.md
+
+**Session 15 Summary**:
+- Story 2.1 fully implemented (all 10 tasks completed)
+- Created type system (User, AuthError) with TypeScript best practices
+- Built auth state management with Zustand + persistence
+- Integrated Firebase anonymous authentication
+- Created responsive Header with anonymous user UI
+- Passed all validations (TypeScript strict, bundle size, build)
+- Story marked as ready for review
+
+**Key Technical Achievements**:
+1. Type-safe authentication system with custom error handling
+2. Automatic anonymous sign-in with session persistence
+3. Clean separation of concerns (types, stores, providers, components)
+4. Mobile-first responsive UI with Tailwind CSS
+5. Zero TypeScript errors in strict mode
+6. Bundle size within budget (+5.73 KB)
+
+**Next Steps**:
+- User to enable anonymous auth in Firebase Console
+- Consider running code-review workflow
+- Ready to proceed to Story 2.2 (Account Claiming Flow) after review
+
+---
+

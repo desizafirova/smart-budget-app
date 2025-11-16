@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router';
 import { lazy, Suspense } from 'react';
 import type {} from 'react';
 import Layout from '@/components/layout/Layout';
+import { AuthProvider } from '@/providers/AuthProvider';
 
 const Dashboard = lazy(() => import('@/features/dashboard/Dashboard'));
 const Transactions = lazy(
@@ -23,9 +24,11 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <RouterProvider router={router} />
-    </Suspense>
+    <AuthProvider>
+      <Suspense fallback={<div>Loading...</div>}>
+        <RouterProvider router={router} />
+      </Suspense>
+    </AuthProvider>
   );
 }
 

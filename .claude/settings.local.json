@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "SlashCommand(/bmad:bmm:workflows:story-ready)",
+      "Bash(dir:*)",
+      "Bash(nul)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(powershell -Command:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

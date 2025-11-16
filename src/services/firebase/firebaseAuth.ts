@@ -18,7 +18,9 @@ import {
 } from 'firebase/auth';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { auth } from './firebaseConfig';
-import type { User, IAuthService } from '@/services/auth';
+import type { User } from '@/types/user';
+import type { IAuthService } from '@/services/auth';
+import { AuthError, AuthErrorCode } from '@/types/errors';
 
 /**
  * Convert Firebase User to application User type
@@ -29,7 +31,14 @@ const convertUser = (firebaseUser: FirebaseUser | null): User | null => {
   return {
     uid: firebaseUser.uid,
     email: firebaseUser.email,
+    displayName: firebaseUser.displayName,
     isAnonymous: firebaseUser.isAnonymous,
+    createdAt: firebaseUser.metadata.creationTime
+      ? new Date(firebaseUser.metadata.creationTime)
+      : new Date(),
+    lastSignInAt: firebaseUser.metadata.lastSignInTime
+      ? new Date(firebaseUser.metadata.lastSignInTime)
+      : new Date(),
   };
 };
 
@@ -47,13 +56,21 @@ class FirebaseAuthService implements IAuthService {
       const user = convertUser(credential.user);
 
       if (!user) {
-        throw new Error('Failed to sign in anonymously');
+        throw new AuthError(
+          AuthErrorCode.ANONYMOUS_SIGN_IN_FAILED,
+          'Failed to sign in anonymously: user conversion returned null'
+        );
       }
 
       return user;
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new Error(`Anonymous sign-in failed: ${message}`);
+      // If already an AuthError, re-throw
+      if (error instanceof AuthError) {
+        throw error;
+      }
+
+      // Convert Firebase errors to AuthError
+      throw AuthError.fromFirebaseError(error);
     }
   }
 
@@ -65,11 +82,17 @@ class FirebaseAuthService implements IAuthService {
       const currentUser = auth.currentUser;
 
       if (!currentUser) {
-        throw new Error('No user is currently signed in');
+        throw new AuthError(
+          AuthErrorCode.NO_USER_SIGNED_IN,
+          'No user is currently signed in'
+        );
       }
 
       if (!currentUser.isAnonymous) {
-        throw new Error('Current user is not anonymous');
+        throw new AuthError(
+          AuthErrorCode.NOT_ANONYMOUS,
+          'Current user is not anonymous'
+        );
       }
 
       const credential = EmailAuthProvider.credential(email, password);
@@ -77,13 +100,21 @@ class FirebaseAuthService implements IAuthService {
       const user = convertUser(userCredential.user);
 
       if (!user) {
-        throw new Error('Failed to link account');
+        throw new AuthError(
+          AuthErrorCode.ACCOUNT_LINKING_FAILED,
+          'Failed to link account: user conversion returned null'
+        );
       }
 
       return user;
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new Error(`Account linking failed: ${message}`);
+      // If already an AuthError, re-throw
+      if (error instanceof AuthError) {
+        throw error;
+      }
+
+      // Convert Firebase errors to AuthError
+      throw AuthError.fromFirebaseError(error);
     }
   }
 
@@ -96,32 +127,21 @@ class FirebaseAuthService implements IAuthService {
       const user = convertUser(credential.user);
 
       if (!user) {
-        throw new Error('Failed to sign in');
+        throw new AuthError(
+          AuthErrorCode.UNKNOWN_ERROR,
+          'Failed to sign in: user conversion returned null'
+        );
       }
 
       return user;
     } catch (error: unknown) {
-      // Handle common Firebase auth errors
-      let errorMessage = 'Sign-in failed';
-
-      if (error && typeof error === 'object' && 'code' in error) {
-        const firebaseError = error as { code: string; message: string };
-
-        if (firebaseError.code === 'auth/user-not-found') {
-          errorMessage = 'No account found with this email';
-        } else if (firebaseError.code === 'auth/wrong-password') {
-          errorMessage = 'Incorrect password';
-        } else if (firebaseError.code === 'auth/invalid-email') {
-          errorMessage = 'Invalid email address';
-        } else if (firebaseError.code === 'auth/user-disabled') {
-          errorMessage = 'This account has been disabled';
-        }
-
-        throw new Error(`${errorMessage}: ${firebaseError.message}`);
+      // If already an AuthError, re-throw
+      if (error instanceof AuthError) {
+        throw error;
       }
 
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new Error(`${errorMessage}: ${message}`);
+      // Convert Firebase errors to AuthError
+      throw AuthError.fromFirebaseError(error);
     }
   }
 
@@ -132,8 +152,8 @@ class FirebaseAuthService implements IAuthService {
     try {
       await firebaseSignOut(auth);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new Error(`Sign-out failed: ${message}`);
+      // Convert Firebase errors to AuthError
+      throw AuthError.fromFirebaseError(error);
     }
   }
 
