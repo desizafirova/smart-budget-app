@@ -49,7 +49,7 @@ development_status:
   2-1-anonymous-authentication: review
   2-2-account-claiming-flow: review
   2-3-email-password-sign-in-sign-out: done
-  epic-2-retrospective: optional
+  epic-2-retrospective: completed
 
   # Epic 3: Transaction Management (4 stories)
   epic-3: backlog
