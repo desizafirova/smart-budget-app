@@ -8,6 +8,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User } from '@/types/user';
+import { authService } from '@/services/firebase/firebaseAuth';
 
 /**
  * Authentication store state interface
@@ -41,6 +42,9 @@ interface AuthActions {
 
   /** Set error message */
   setError: (error: string | null) => void;
+
+  /** Claim anonymous account with email and password */
+  claimAccount: (email: string, password: string) => Promise<void>;
 }
 
 /**
@@ -86,6 +90,26 @@ export const useAuthStore = create<AuthStore>()(
           error,
           isLoading: false, // Stop loading on error
         }),
+
+      claimAccount: async (email, password) => {
+        try {
+          set({ isLoading: true, error: null });
+          const updatedUser = await authService.linkWithEmail(email, password);
+          set({
+            user: updatedUser,
+            isAnonymous: updatedUser.isAnonymous,
+            error: null,
+            isLoading: false,
+          });
+        } catch (error) {
+          const authError = error as { getUserMessage?: () => string; message?: string };
+          const errorMessage = authError.getUserMessage
+            ? authError.getUserMessage()
+            : authError.message || 'Failed to claim account';
+          set({ error: errorMessage, isLoading: false });
+          throw error; // Re-throw so caller can handle it
+        }
+      },
     }),
     {
       name: 'smartbudget-auth', // localStorage key
