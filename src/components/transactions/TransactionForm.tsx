@@ -11,7 +11,7 @@
  * - Accessibility features (ARIA labels, keyboard navigation)
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useTransactionStore } from '@/stores/transactionStore';
 import { useAuthStore } from '@/stores/authStore';
@@ -99,6 +99,48 @@ export function TransactionForm({
   // Watch description to show character count (using useWatch for React Compiler compatibility)
   const description = useWatch({ control, name: 'description' });
   const characterCount = description?.length || 0;
+
+  // Helper function to convert date values consistently
+  const convertDateToString = (dateValue: any): string => {
+    if (!dateValue) return new Date().toISOString().split('T')[0];
+
+    // Firestore Timestamp has toDate() method
+    if (typeof dateValue === 'object' && 'toDate' in dateValue && typeof dateValue.toDate === 'function') {
+      return dateValue.toDate().toISOString().split('T')[0];
+    }
+
+    // Already a Date object
+    if (dateValue instanceof Date) {
+      return dateValue.toISOString().split('T')[0];
+    }
+
+    // Try to parse as string or number
+    const parsedDate = new Date(dateValue);
+    return !isNaN(parsedDate.getTime())
+      ? parsedDate.toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0]; // Fallback to today
+  };
+
+  // Reset form when switching between create/edit mode or when initialTransaction changes
+  useEffect(() => {
+    if (mode === 'edit' && initialTransaction) {
+      // Pre-populate form with transaction data
+      reset({
+        amount: String(initialTransaction.amount),
+        description: initialTransaction.description,
+        category: initialTransaction.category,
+        date: convertDateToString(initialTransaction.date),
+      });
+    } else if (mode === 'create') {
+      // Reset to empty form for create mode
+      reset({
+        amount: '',
+        description: '',
+        category: 'Uncategorized',
+        date: new Date().toISOString().split('T')[0],
+      });
+    }
+  }, [mode, initialTransaction, reset]);
 
   const handleClose = () => {
     reset({
