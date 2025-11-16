@@ -1,6 +1,6 @@
 # Story 2.3: Email/Password Sign-In & Sign-Out
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -376,7 +376,7 @@ src/
 
 ### Context Reference
 
-<!-- Path(s) to story context XML will be added here by context workflow -->
+- .bmad-ephemeral/stories/2-3-email-password-sign-in-sign-out.context.xml
 
 ### Agent Model Used
 

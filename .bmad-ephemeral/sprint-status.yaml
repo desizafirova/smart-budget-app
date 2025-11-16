@@ -48,7 +48,7 @@ development_status:
   epic-2: contexted
   2-1-anonymous-authentication: review
   2-2-account-claiming-flow: review
-  2-3-email-password-sign-in-sign-out: drafted
+  2-3-email-password-sign-in-sign-out: ready-for-dev
   epic-2-retrospective: optional
 
   # Epic 3: Transaction Management (4 stories)

@@ -3756,3 +3756,176 @@ update prompts.md
 **Status**: Documentation updated, Story 2.3 awaiting context generation or ready marking
 
 ---
+
+## Session 19 - Story 2.3 Context Generation
+
+**Date**: 2025-11-16
+**Agent**: Bob (Scrum Master)
+**Workflow**: story-context
+
+---
+
+### Prompt 145: Execute Story Context Workflow for Story 2.3
+
+**Phase**: Agile Planning (Story Context)
+**Purpose**: Generate comprehensive technical context XML for Story 2.3 (Email/Password Sign-In & Sign-Out)
+
+**Prompt**:
+```
+*story-context Story-2.3
+Keep the prompts.md file updated with the prompts from this session
+```
+
+**Command**: SM agent story-context workflow
+**Workflow**: /bmad:bmm:workflows:4-implementation/story-context
+**Agent**: Bob - Scrum Master
+
+**Workflow Execution**:
+
+**Step 1: Load Story and Metadata**
+- Loaded sprint-status.yaml from .bmad-ephemeral/
+- Identified Story 2.3: `2-3-email-password-sign-in-sign-out` (status: drafted)
+- Read complete story file from `.bmad-ephemeral/stories/2-3-email-password-sign-in-sign-out.md`
+- Extracted metadata: Epic 2, Story 3, Title: "Email/Password Sign-In & Sign-Out"
+- Parsed user story fields: asA, iWant, soThat
+- Extracted 6 acceptance criteria (2.3.1-2.3.6)
+- Extracted 11 tasks with subtasks
+- No existing context file found - proceeding with new generation
+
+**Step 2: Collect Relevant Documentation**
+- **Epic 2 (docs/epics.md)**: Story 2.3 specification with acceptance criteria
+- **Architecture Decision 1 (docs/architecture.md)**: Firebase JS SDK v12.4.0, IAuthService interface pattern
+- **Architecture Decision 3 (docs/architecture.md)**: Zustand v5.0.8 state management, persist middleware
+- **Story 2.2 Dev Notes**: Learnings from previous story - existing auth infrastructure ready
+
+**Documentation Artifacts**:
+1. Epic 2 story specification (sign-in requirements, forgot password flow, session management)
+2. Firebase Authentication architecture (anonymous auth, email/password, token refresh)
+3. Zustand authStore pattern (signIn/signOut actions, localStorage persistence)
+4. Previous story learnings (FirebaseAuthService methods, authStore actions, modal patterns)
+
+**Step 3: Analyze Existing Code**
+- **src/services/auth.ts**: IAuthService interface with signInWithEmail() and signOut() already defined
+- **src/services/firebase/firebaseAuth.ts**: signInWithEmail() implemented (lines 124-146), signOut() implemented (lines 151-158)
+- **src/stores/authStore.ts**: Auth store with setUser(), clearUser(), setLoading(), setError(), claimAccount() actions
+- **src/components/layout/Header.tsx**: Header with handleSignOut() and authenticated user UI
+- **src/components/auth/ClaimAccountModal.tsx**: Modal pattern for SignInModal to replicate
+
+**Code Artifacts Identified**:
+1. IAuthService interface (needs sendPasswordResetEmail() method)
+2. FirebaseAuthService implementation (signInWithEmail and signOut ready, needs sendPasswordResetEmail)
+3. authStore (needs signIn() action following claimAccount pattern)
+4. Header component (needs "Sign In" button and SignInModal integration)
+5. ClaimAccountModal pattern (react-hook-form, Tailwind CSS, accessibility)
+
+**Step 4: Gather Dependencies**
+- Firebase 12.4.0 (signInWithEmailAndPassword, sendPasswordResetEmail)
+- react-hook-form ^7.x (form validation - already installed)
+- Zustand 5.0.8 (state management - already installed)
+- React ^18.x, React Router ^7.x
+
+**Step 5: Extract Testing Standards**
+- **Framework**: Vitest 2.0 with @testing-library/react 16.1
+- **E2E**: Playwright 1.50
+- **Test Locations**: Co-located .test.ts/.test.tsx files
+- **Standards**: Query by accessible roles/labels, test user behavior, mock Firebase SDK
+- **Coverage Target**: ≥80% for critical business logic
+
+**Test Ideas Generated**:
+1. SignInModal form validation and field behavior (AC 2.3.1)
+2. authStore.signIn() action with success/error handling (AC 2.3.2, 2.3.3)
+3. Error display for incorrect credentials (AC 2.3.3)
+4. Sign-out functionality with anonymous sign-in (AC 2.3.4)
+5. Forgot password flow (AC 2.3.5)
+6. Session management and auto-refresh (AC 2.3.6)
+7. E2E: Sign-in journey with session persistence
+8. E2E: Incorrect credentials error handling
+9. E2E: Sign-out flow
+10. E2E: Forgot password flow
+
+**Step 6: Generate Context XML**
+Created comprehensive story context file:
+- **File**: `.bmad-ephemeral/stories/2-3-email-password-sign-in-sign-out.context.xml`
+- **Metadata**: Epic 2, Story 3, generated 2025-11-16
+- **Story Fields**: asA, iWant, soThat with 11 tasks
+- **Acceptance Criteria**: All 6 ACs with Given/When/Then format
+- **Documentation**: 4 relevant docs with paths and snippets
+- **Code Artifacts**: 5 code references with line numbers and reasoning
+- **Dependencies**: Node packages with versions
+- **Constraints**: 14 development rules and patterns
+- **Interfaces**: 3 API contracts to implement
+- **Testing**: Standards, locations, and 10 test ideas
+
+**Step 7: Validation**
+Validated context file against checklist:
+✅ Story fields captured
+✅ Acceptance criteria match story draft (6 ACs)
+✅ Tasks captured (11 tasks)
+✅ Relevant docs included (4 docs)
+✅ Code references with line hints (5 artifacts)
+✅ Interfaces extracted (3 interfaces)
+✅ Constraints included (14 constraints)
+✅ Dependencies detected (5 packages)
+✅ Testing standards populated
+✅ XML structure follows template
+
+**Step 8: Update Story Status**
+- Updated story file status: `drafted` → `ready-for-dev`
+- Added context reference: `.bmad-ephemeral/stories/2-3-email-password-sign-in-sign-out.context.xml`
+- Updated sprint-status.yaml: `2-3-email-password-sign-in-sign-out: ready-for-dev`
+
+**Key Technical Insights**:
+
+**Existing Infrastructure Ready**:
+- Firebase signInWithEmail() and signOut() already implemented
+- AuthStore actions pattern established (setUser, clearUser, setLoading, setError)
+- Header component has sign-out functionality
+- ClaimAccountModal provides reusable pattern for SignInModal
+
+**New Components Required**:
+1. SignInModal component (follow ClaimAccountModal pattern)
+2. authStore.signIn() action (follow claimAccount() pattern)
+3. FirebaseAuthService.sendPasswordResetEmail() method
+4. IAuthService.sendPasswordResetEmail() interface method
+5. Header "Sign In" button integration
+
+**Development Constraints**:
+- Must use existing auth service methods (signInWithEmail, signOut)
+- Must follow established modal pattern (react-hook-form, Tailwind CSS)
+- Bundle size target: <500KB gzipped (SignInModal adds ~8KB)
+- TypeScript strict mode - no 'any' types
+- Error messages must be user-friendly (not technical Firebase errors)
+- Security: Same error message for user-not-found and wrong-password
+
+**Testing Strategy**:
+- Unit tests: FirebaseAuthService.sendPasswordResetEmail(), authStore.signIn()
+- Component tests: SignInModal validation, Header sign-in button
+- E2E tests: Sign-in journey, incorrect credentials, sign-out, forgot password
+- Coverage: ≥80% for auth business logic
+
+**Outcome**: Story Context XML successfully generated and validated
+
+**Files Created/Modified**:
+1. Created: `.bmad-ephemeral/stories/2-3-email-password-sign-in-sign-out.context.xml`
+2. Modified: `.bmad-ephemeral/stories/2-3-email-password-sign-in-sign-out.md` (status: ready-for-dev)
+3. Modified: `.bmad-ephemeral/sprint-status.yaml` (story status updated)
+4. Modified: `prompts.md` (this session documentation)
+
+**Next Steps Recommended**:
+1. Review context file: `.bmad-ephemeral/stories/2-3-email-password-sign-in-sign-out.context.xml`
+2. Run `dev-story` with DEV agent to implement Story 2.3
+3. Context file provides:
+   - Complete acceptance criteria breakdown
+   - Existing code to leverage (auth services, store, components)
+   - New code to create (SignInModal, signIn action, sendPasswordResetEmail)
+   - Testing guidance (10 test ideas mapped to ACs)
+   - Development constraints and patterns
+
+**Current Sprint Status** (Epic 2):
+- 2-1-anonymous-authentication: review
+- 2-2-account-claiming-flow: review
+- 2-3-email-password-sign-in-sign-out: ready-for-dev ✓
+
+**Status**: Story 2.3 context generated, validated, and marked ready for development
+
+---
