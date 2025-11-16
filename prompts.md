@@ -5810,3 +5810,361 @@ update prompts.md file
 - Create Story 3.4 (Delete Transaction) draft
 - Epic 3 completion and retrospective
 - Continue to Epic 4 (Intelligent Categorization)
+
+---
+
+## Session 27: Story 3.3 Bug Fixes and Completion
+
+**Date**: November 16, 2025
+**Agent**: Amelia (Developer Agent)
+**Branch**: claude/bmad-bmm-agents-01CYQ9jvwMaLSH54ds37DrPY
+**Focus**: Complete Story 3.3 implementation, fix Firestore Timestamp bug, enhance UX
+**Session Type**: Continuation (previous session ran out of context)
+
+**Context**: Previous session implemented Story 3.3 (Edit Transaction) but ran out of context before completion. This session continues from where it left off.
+
+---
+
+### Prompt 1: Session Continuation
+
+**Phase**: Context Restoration
+**Purpose**: Continue Story 3.3 work from previous session
+
+**Prompt**:
+
+```
+This session is being continued from a previous conversation that ran out of context. The conversation is summarized below:
+[Summary provided covering all Story 3.3 implementation details]
+Please continue the conversation from where we left it off without asking the user any further questions. Continue with the last task that you were asked to work on.
+```
+
+**Context**: Session summary indicated Story 3.3 was implemented and marked as "review" status, with all files committed and pushed.
+
+**Agent**: Amelia (Developer Agent)
+
+**Actions**:
+1. ✅ Read story file to verify completion status
+2. ✅ Verified all 9 tasks completed
+3. ✅ Confirmed all 6 acceptance criteria satisfied
+4. ✅ Reported completion to user with quality metrics
+
+**Output**:
+
+Story 3.3 implementation confirmed complete:
+- **TypeScript Compliance**: ✅ Zero errors
+- **Bundle Size**: ✅ 212.47 KB gzipped / 500 KB budget (42.5%) - 0 KB increase
+- **Files Modified**: 5 files (no new files created)
+- **All Acceptance Criteria**: ✅ Met (AC 3.3.1 through AC 3.3.6)
+
+**Commits from Previous Session** (restored):
+- `9c2fc10` - "feat: Implement Story 3.3 (Edit Transaction)"
+- `227e1b9` - "fix: Handle Firestore Timestamp conversion in edit mode"
+
+**Status**: Story 3.3 ready for manual testing
+
+---
+
+### Prompt 2: Fix Firestore Timestamp Conversion Bug
+
+**Phase**: Bug Fix
+**Purpose**: Resolve "Invalid time value" error when editing transactions
+
+**Prompt**:
+
+```
+nexpected Application Error!
+Invalid time value
+RangeError: Invalid time value
+    at Date.toISOString (<anonymous>)
+    at TransactionForm (http://localhost:5173/src/components/transactions/TransactionForm.tsx?t=1763330546956:32:143)
+    [stack trace...]
+```
+
+**Context**: User tested edit functionality and encountered crash when opening edit modal. The error occurred because Firestore stores dates as Timestamp objects (not JavaScript Date objects).
+
+**Agent**: Amelia (Developer Agent)
+
+**Root Cause Analysis**:
+- TransactionForm was calling `.toISOString()` directly on Firestore Timestamp objects
+- Firestore Timestamps require `.toDate()` method to convert to JavaScript Date first
+- Original code only checked `instanceof Date`, missing Timestamp objects
+
+**Solution Implemented**:
+
+Modified `src/components/transactions/TransactionForm.tsx` line 69-89 (in defaultValues):
+
+```typescript
+date: (() => {
+  // Handle Firestore Timestamp, Date, or other date formats
+  const dateValue = initialTransaction.date;
+  if (!dateValue) return new Date().toISOString().split('T')[0];
+
+  // Firestore Timestamp has toDate() method
+  if (typeof dateValue === 'object' && 'toDate' in dateValue && typeof dateValue.toDate === 'function') {
+    return dateValue.toDate().toISOString().split('T')[0];
+  }
+
+  // Already a Date object
+  if (dateValue instanceof Date) {
+    return dateValue.toISOString().split('T')[0];
+  }
+
+  // Try to parse as string or number
+  const parsedDate = new Date(dateValue);
+  return !isNaN(parsedDate.getTime())
+    ? parsedDate.toISOString().split('T')[0]
+    : new Date().toISOString().split('T')[0]; // Fallback to today
+})(),
+```
+
+**Handles**:
+- ✅ Firestore Timestamps (via `.toDate()` method)
+- ✅ JavaScript Date objects
+- ✅ Date strings and numbers
+- ✅ Invalid dates (graceful fallback to today)
+
+**Verification**:
+- TypeScript build: ✅ Zero errors
+- Bundle size: ✅ 212.47 KB gzipped (unchanged)
+
+**Commit**: `227e1b9` - "fix: Handle Firestore Timestamp conversion in edit mode"
+
+**Files Modified** (1):
+- `src/components/transactions/TransactionForm.tsx` (21 lines added, 3 lines removed)
+
+**Status**: Bug fixed, pushed to remote
+
+---
+
+### Prompt 3: Manual Testing Results
+
+**Phase**: Manual Testing
+**Purpose**: Verify all acceptance criteria after bug fix
+
+**Prompt**:
+
+```
+✓ Edit transaction interface (AC 3.3.1) it is ok
+✓ Update transaction (AC 3.3.2) it is ok 
+✓ Validation on edit (AC 3.3.3) it is ok
+✓ Cancel edit operation (AC 3.3.4) ok
+✓ Real-time update reflection (AC 3.3.5) ok
+✓ Concurrent edit handling (AC 3.3.6) ok
+
+But when the user opens the edit transaction modal it would be better him to see as default value in the inputs the previous entered values. This gives the user the option to see what wee the previous inputs values in order to edit them.
+```
+
+**Context**: All 6 acceptance criteria passed manual testing. However, user identified UX issue: form fields not pre-populating when switching between different transactions to edit.
+
+**Agent**: Amelia (Developer Agent)
+
+**Problem Analysis**:
+React Hook Form's `defaultValues` only apply on initial component mount. When clicking edit on different transactions, the form component doesn't re-mount (it just receives new props), so `defaultValues` don't update.
+
+**Solution**: Use `useEffect` + `reset()` to dynamically update form values
+
+**Implementation**:
+
+1. **Added import**: `useEffect` from React
+
+2. **Extracted helper function** for consistent date conversion:
+```typescript
+const convertDateToString = (dateValue: any): string => {
+  if (!dateValue) return new Date().toISOString().split('T')[0];
+
+  // Firestore Timestamp has toDate() method
+  if (typeof dateValue === 'object' && 'toDate' in dateValue && typeof dateValue.toDate === 'function') {
+    return dateValue.toDate().toISOString().split('T')[0];
+  }
+
+  // Already a Date object
+  if (dateValue instanceof Date) {
+    return dateValue.toISOString().split('T')[0];
+  }
+
+  // Try to parse as string or number
+  const parsedDate = new Date(dateValue);
+  return !isNaN(parsedDate.getTime())
+    ? parsedDate.toISOString().split('T')[0]
+    : new Date().toISOString().split('T')[0];
+};
+```
+
+3. **Added useEffect** to reset form when transaction changes:
+```typescript
+// Reset form when switching between create/edit mode or when initialTransaction changes
+useEffect(() => {
+  if (mode === 'edit' && initialTransaction) {
+    // Pre-populate form with transaction data
+    reset({
+      amount: String(initialTransaction.amount),
+      description: initialTransaction.description,
+      category: initialTransaction.category,
+      date: convertDateToString(initialTransaction.date),
+    });
+  } else if (mode === 'create') {
+    // Reset to empty form for create mode
+    reset({
+      amount: '',
+      description: '',
+      category: 'Uncategorized',
+      date: new Date().toISOString().split('T')[0],
+    });
+  }
+}, [mode, initialTransaction, reset]);
+```
+
+**How It Works**:
+- When user clicks edit on Transaction A, `initialTransaction` changes → `useEffect` triggers → `reset()` called → form updates
+- When user clicks edit on Transaction B, `initialTransaction` changes again → `useEffect` triggers → form updates to Transaction B's values
+- When modal closes and reopens in create mode, `mode` changes → form resets to empty
+
+**Benefits**:
+- ✅ Form fields now update every time a different transaction is selected
+- ✅ Users see current values before editing
+- ✅ Switching between transactions shows correct data
+- ✅ Create mode still works correctly (empty form)
+
+**Verification**:
+- TypeScript build: ✅ Zero errors
+- Bundle size: ✅ 212.47 KB gzipped (unchanged)
+
+**Commit**: `f6b38bd` - "feat: Pre-populate form fields when editing transactions"
+
+**Files Modified** (1):
+- `src/components/transactions/TransactionForm.tsx` (43 lines added, 1 line removed)
+
+**Status**: UX enhancement complete, pushed to remote
+
+---
+
+### Prompt 4: Mark Story 3.3 as Done
+
+**Phase**: Story Completion
+**Purpose**: Mark Story 3.3 as done after all testing and fixes
+
+**Prompt**:
+
+```
+mark story 3.3 as done
+```
+
+**Agent**: Amelia (Developer Agent)
+
+**Actions**:
+1. ✅ Updated sprint-status.yaml: `3-3-edit-transaction: in-progress` → `3-3-edit-transaction: done`
+2. ✅ Updated story file: Status `review` → `done`
+3. ✅ Committed changes with comprehensive summary
+4. ✅ Pushed to remote
+
+**Commit**: `fc0e54d` - "docs: Mark Story 3.3 (Edit Transaction) as done"
+
+**Files Modified** (2):
+- `.bmad-ephemeral/sprint-status.yaml` (status updated)
+- `.bmad-ephemeral/stories/3-3-edit-transaction.md` (status updated)
+
+**Final Status Verification**:
+
+All 6 Acceptance Criteria Satisfied:
+- ✅ AC 3.3.1: Edit transaction interface (modal with pre-filled form)
+- ✅ AC 3.3.2: Update transaction (Firestore update with updatedAt)
+- ✅ AC 3.3.3: Validation on edit (required fields, error messages)
+- ✅ AC 3.3.4: Cancel edit operation (close without saving)
+- ✅ AC 3.3.5: Real-time update reflection (automatic via Story 3.2 subscription)
+- ✅ AC 3.3.6: Concurrent edit handling (last-write-wins strategy)
+
+**Manual Testing**: All 6 ACs tested and passed
+
+**Quality Metrics**:
+- TypeScript: ✅ Zero errors (strict mode compliant)
+- Bundle Size: ✅ 212.47 KB gzipped (42.5% of 500 KB budget, 0 KB increase)
+- Files Modified: 5 total
+- New Files Created: 0 (extends existing components)
+
+**Status**: Story 3.3 (Edit Transaction) complete and marked as done
+
+---
+
+### Prompt 5: Update Documentation
+
+**Phase**: Documentation
+**Purpose**: Update prompts.md with Session 27 history
+
+**Prompt**:
+
+```
+add the last prompts to the prompts.md file
+```
+
+**Agent**: Amelia (Developer Agent)
+
+**Task**: Append Session 27 prompts to prompts.md
+**Actions**:
+1. Read existing prompts.md format and last session (Session 26)
+2. Append Session 27 with all 5 prompts chronologically
+3. Include bug fixes, UX enhancement, and completion details
+
+**Output**:
+
+**Files Modified** (1):
+- `prompts.md` (Session 27 documentation appended)
+
+**Status**: prompts.md updated with complete Session 27 history
+
+---
+
+**Session 27 Summary**:
+
+**Completed**:
+- ✅ Restored context from previous session (Story 3.3 implementation)
+- ✅ Fixed critical Firestore Timestamp conversion bug
+- ✅ Enhanced UX: form fields now pre-populate when editing different transactions
+- ✅ All 6 acceptance criteria manually tested and passed
+- ✅ Marked Story 3.3 (Edit Transaction) as done
+- ✅ Updated prompts.md documentation
+
+**Bug Fixes**:
+1. **Firestore Timestamp Conversion**: Added robust date handling for Timestamp objects, Date objects, strings, and invalid dates
+2. **Form Pre-population**: Added useEffect + reset() to update form values when switching between transactions
+
+**Commits** (3):
+- `227e1b9` - "fix: Handle Firestore Timestamp conversion in edit mode" (from previous session)
+- `f6b38bd` - "feat: Pre-populate form fields when editing transactions"
+- `fc0e54d` - "docs: Mark Story 3.3 (Edit Transaction) as done"
+
+**Epic Status**:
+- Epic 1: 4/4 complete (100%) ✅
+- Epic 2: 3/3 complete (100%) ✅
+- Epic 3: **3/4 done**, 1 backlog (75% complete)
+
+**Project Metrics**:
+- Stories done: **10** (including Story 3.3)
+- Stories ready-for-dev: 0
+- Stories drafted: 0
+- Stories in backlog: 19
+- Bundle size: 212.47 KB / 500 KB (42.5%)
+- TypeScript: Zero errors across all implementations
+
+**Key Technical Achievements**:
+- ✅ Robust Firestore Timestamp handling in forms
+- ✅ Dynamic form pre-population with useEffect + reset()
+- ✅ All edit transaction functionality working correctly
+- ✅ Real-time updates via existing Firestore subscription
+- ✅ Zero bundle size increase for Story 3.3
+
+**Files Modified in Session** (3 unique):
+1. `src/components/transactions/TransactionForm.tsx` (2 commits: bug fix + UX enhancement)
+2. `.bmad-ephemeral/sprint-status.yaml` (status update)
+3. `.bmad-ephemeral/stories/3-3-edit-transaction.md` (status update)
+
+**Next Session**:
+- Create Story 3.4 (Delete Transaction) draft
+- Implement Story 3.4 to complete Epic 3
+- Epic 3 retrospective
+- Plan Epic 4 (Intelligent Categorization)
+
+**Epic 3 Progress**:
+- ✅ Story 3.1: Add Transaction (done)
+- ✅ Story 3.2: View Transaction List (done)
+- ✅ Story 3.3: Edit Transaction (done) ← **Completed this session**
+- ⏳ Story 3.4: Delete Transaction (backlog - next up!)
