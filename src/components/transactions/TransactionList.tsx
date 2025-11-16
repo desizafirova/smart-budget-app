@@ -28,12 +28,6 @@ interface TransactionListProps {
   onDelete: (transactionId: string) => void;
 }
 
-interface TransactionRowProps {
-  transaction: Transaction;
-  onEdit: (transaction: Transaction) => void;
-  onDelete: (transactionId: string) => void;
-}
-
 /**
  * Transaction list component with virtualization support
  */
@@ -100,7 +94,8 @@ export function TransactionList({
   }
 
   // Row component for virtualized list
-  const TransactionRow = ({ index }: RowComponentProps<TransactionRowProps>) => {
+  // Uses closure to access sortedTransactions, onEdit, onDelete
+  const TransactionRow = ({ index }: RowComponentProps<Record<string, never>>) => {
     const transaction = sortedTransactions[index];
     return (
       <div className="px-4 pb-2">
@@ -123,9 +118,9 @@ export function TransactionList({
         <List
           defaultHeight={600}
           rowCount={sortedTransactions.length}
-          rowHeight={88} // Approximate height of TransactionItem
+          rowHeight={88}
           rowComponent={TransactionRow}
-          rowProps={{ transaction: sortedTransactions[0], onEdit, onDelete }}
+          rowProps={{}}
           className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
         />
       </div>
