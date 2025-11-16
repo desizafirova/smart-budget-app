@@ -51,6 +51,9 @@ interface TransactionActions {
     updates: Partial<Transaction>
   ) => Promise<void>;
 
+  /** Delete a transaction */
+  deleteTransaction: (userId: string, transactionId: string) => Promise<void>;
+
   /** Set transactions list */
   setTransactions: (transactions: Transaction[]) => void;
 
@@ -254,6 +257,36 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
         error instanceof Error
           ? error.message
           : 'Failed to update transaction';
+
+      set({ error: errorMessage, isSaving: false });
+
+      // Re-throw error for caller to handle
+      throw new Error(errorMessage);
+    }
+  },
+
+  /**
+   * Delete a transaction
+   * Real-time subscription will automatically reflect the deletion in the UI
+   */
+  deleteTransaction: async (userId: string, transactionId: string) => {
+    set({ isSaving: true, error: null });
+
+    try {
+      // Call database service to delete Firestore document
+      await databaseService.deleteDocument(
+        `users/${userId}/transactions`,
+        transactionId
+      );
+
+      set({ isSaving: false });
+      // Real-time subscription will update the transactions array automatically
+      // No need to manually update state here
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to delete transaction';
 
       set({ error: errorMessage, isSaving: false });
 

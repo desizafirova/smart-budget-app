@@ -19,7 +19,7 @@ interface TransactionItemProps {
   /** Callback when Edit button clicked */
   onEdit: (transaction: Transaction) => void;
   /** Callback when Delete button clicked */
-  onDelete: (transactionId: string) => void;
+  onDelete: (transaction: Transaction) => void;
 }
 
 /**
@@ -99,7 +99,7 @@ export function TransactionItem({
           <Edit2 size={18} />
         </button>
         <button
-          onClick={() => onDelete(transaction.id)}
+          onClick={() => onDelete(transaction)}
           className="min-h-[44px] min-w-[44px] p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
           aria-label="Delete transaction"
           type="button"

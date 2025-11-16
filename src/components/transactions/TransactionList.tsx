@@ -25,7 +25,7 @@ interface TransactionListProps {
   /** Callback when Edit clicked */
   onEdit: (transaction: Transaction) => void;
   /** Callback when Delete clicked */
-  onDelete: (transactionId: string) => void;
+  onDelete: (transaction: Transaction) => void;
 }
 
 /**
