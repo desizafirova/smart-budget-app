@@ -11,8 +11,14 @@ export default function Transactions() {
 
   // Get current user and transaction store
   const user = useAuthStore((state) => state.user);
-  const { transactions, isLoading, subscribeToTransactions, unsubscribeFromTransactions } =
-    useTransactionStore();
+  const {
+    transactions,
+    isLoading,
+    editingTransaction,
+    setEditingTransaction,
+    subscribeToTransactions,
+    unsubscribeFromTransactions,
+  } = useTransactionStore();
 
   // Subscribe to real-time transaction updates on mount
   useEffect(() => {
@@ -32,10 +38,10 @@ export default function Transactions() {
     setTimeout(() => setShowToast(false), 3000);
   };
 
-  // Stub handlers for Edit and Delete (will be implemented in Stories 3.3 and 3.4)
+  // Edit handler: Set transaction for editing and open modal
   const handleEdit = (transaction: Transaction) => {
-    console.log('Edit transaction:', transaction);
-    // TODO Story 3.3: Open TransactionForm in edit mode with initial values
+    setEditingTransaction(transaction);
+    setShowTransactionForm(true);
   };
 
   const handleDelete = (transactionId: string) => {
@@ -74,8 +80,13 @@ export default function Transactions() {
       {/* Transaction Form Modal */}
       <TransactionForm
         isOpen={showTransactionForm}
-        onClose={() => setShowTransactionForm(false)}
+        onClose={() => {
+          setShowTransactionForm(false);
+          setEditingTransaction(null);
+        }}
         onSuccess={handleTransactionSuccess}
+        mode={editingTransaction ? 'edit' : 'create'}
+        initialTransaction={editingTransaction || undefined}
       />
 
       {/* Success Toast */}

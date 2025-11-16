@@ -15,7 +15,7 @@ import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useTransactionStore } from '@/stores/transactionStore';
 import { useAuthStore } from '@/stores/authStore';
-import type { CreateTransactionInput } from '@/types/transaction';
+import type { CreateTransactionInput, Transaction } from '@/types/transaction';
 
 interface TransactionFormProps {
   /** Whether the modal is open */
@@ -24,6 +24,10 @@ interface TransactionFormProps {
   onClose: () => void;
   /** Callback when transaction is successfully added */
   onSuccess?: () => void;
+  /** Form mode: create or edit */
+  mode?: 'create' | 'edit';
+  /** Transaction to edit (required when mode is 'edit') */
+  initialTransaction?: Transaction;
 }
 
 interface TransactionFormData {
@@ -40,8 +44,10 @@ export function TransactionForm({
   isOpen,
   onClose,
   onSuccess,
+  mode = 'create',
+  initialTransaction,
 }: TransactionFormProps) {
-  const { addTransaction, isSaving } = useTransactionStore();
+  const { addTransaction, updateTransaction, isSaving } = useTransactionStore();
   const { user } = useAuthStore();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -54,12 +60,22 @@ export function TransactionForm({
     control,
   } = useForm<TransactionFormData>({
     mode: 'onChange', // Real-time validation
-    defaultValues: {
-      amount: '',
-      description: '',
-      category: 'Uncategorized',
-      date: new Date().toISOString().split('T')[0], // Today's date
-    },
+    defaultValues:
+      mode === 'edit' && initialTransaction
+        ? {
+            amount: String(initialTransaction.amount),
+            description: initialTransaction.description,
+            category: initialTransaction.category,
+            date: initialTransaction.date instanceof Date
+              ? initialTransaction.date.toISOString().split('T')[0]
+              : new Date(initialTransaction.date).toISOString().split('T')[0],
+          }
+        : {
+            amount: '',
+            description: '',
+            category: 'Uncategorized',
+            date: new Date().toISOString().split('T')[0], // Today's date
+          },
   });
 
   // Watch description to show character count (using useWatch for React Compiler compatibility)
@@ -80,24 +96,30 @@ export function TransactionForm({
 
   const onSubmit = async (data: TransactionFormData) => {
     if (!user?.uid) {
-      setSubmitError('You must be signed in to add transactions');
+      setSubmitError('You must be signed in to manage transactions');
       return;
     }
 
     try {
       setSubmitError(null);
 
-      // Convert form data to CreateTransactionInput
+      // Convert form data
       const amount = parseFloat(data.amount);
-      const input: CreateTransactionInput = {
+      const transactionData = {
         amount,
         description: data.description.trim(),
         category: data.category,
         date: new Date(data.date),
       };
 
-      // Add transaction with optimistic update
-      await addTransaction(user.uid, input);
+      if (mode === 'edit' && initialTransaction) {
+        // Update existing transaction
+        await updateTransaction(user.uid, initialTransaction.id, transactionData);
+      } else {
+        // Create new transaction
+        const input: CreateTransactionInput = transactionData;
+        await addTransaction(user.uid, input);
+      }
 
       // Success!
       setSubmitSuccess(true);
@@ -115,7 +137,7 @@ export function TransactionForm({
       const errorMessage =
         error instanceof Error
           ? error.message
-          : 'Failed to add transaction. Please try again.';
+          : `Failed to ${mode === 'edit' ? 'update' : 'add'} transaction. Please try again.`;
       setSubmitError(errorMessage);
     }
   };
@@ -167,11 +189,12 @@ export function TransactionForm({
               id="transaction-form-title"
               className="mb-2 text-2xl font-bold text-gray-900"
             >
-              Add Transaction
+              {mode === 'edit' ? 'Edit Transaction' : 'Add Transaction'}
             </h2>
             <p className="mb-6 text-sm text-gray-600">
-              Enter transaction details. Use positive numbers for income,
-              negative for expenses.
+              {mode === 'edit'
+                ? 'Update transaction details below.'
+                : 'Enter transaction details. Use positive numbers for income, negative for expenses.'}
             </p>
 
             {/* Success message */}
@@ -192,7 +215,7 @@ export function TransactionForm({
                     />
                   </svg>
                   <p className="text-sm font-medium text-green-800">
-                    Transaction added successfully!
+                    {mode === 'edit' ? 'Transaction updated successfully!' : 'Transaction added successfully!'}
                   </p>
                 </div>
               </div>
@@ -373,7 +396,17 @@ export function TransactionForm({
                   disabled={!isValid || isSaving || submitSuccess}
                   className="flex-1 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-blue-400"
                 >
-                  {isSaving ? 'Adding...' : submitSuccess ? 'Added!' : 'Add Transaction'}
+                  {isSaving
+                    ? mode === 'edit'
+                      ? 'Updating...'
+                      : 'Adding...'
+                    : submitSuccess
+                      ? mode === 'edit'
+                        ? 'Updated!'
+                        : 'Added!'
+                      : mode === 'edit'
+                        ? 'Update Transaction'
+                        : 'Add Transaction'}
                 </button>
               </div>
             </form>

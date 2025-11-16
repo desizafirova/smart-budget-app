@@ -55,7 +55,7 @@ development_status:
   epic-3: contexted
   3-1-add-transaction: done
   3-2-view-transaction-list: done
-  3-3-edit-transaction: ready-for-dev
+  3-3-edit-transaction: in-progress
   3-4-delete-transaction: backlog
   epic-3-retrospective: optional
 

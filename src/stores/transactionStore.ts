@@ -29,6 +29,9 @@ interface TransactionState {
 
   /** Unsubscribe function for active subscription */
   unsubscribe: (() => void) | null;
+
+  /** Transaction currently being edited (null if not editing) */
+  editingTransaction: Transaction | null;
 }
 
 /**
@@ -39,6 +42,13 @@ interface TransactionActions {
   addTransaction: (
     userId: string,
     input: CreateTransactionInput
+  ) => Promise<void>;
+
+  /** Update an existing transaction */
+  updateTransaction: (
+    userId: string,
+    transactionId: string,
+    updates: Partial<Transaction>
   ) => Promise<void>;
 
   /** Set transactions list */
@@ -61,6 +71,9 @@ interface TransactionActions {
 
   /** Unsubscribe from real-time transaction updates */
   unsubscribeFromTransactions: () => void;
+
+  /** Set the transaction currently being edited */
+  setEditingTransaction: (transaction: Transaction | null) => void;
 }
 
 /**
@@ -79,6 +92,7 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
   isSaving: false,
   error: null,
   unsubscribe: null,
+  editingTransaction: null,
 
   // Actions
   setTransactions: (transactions) => set({ transactions }),
@@ -90,6 +104,8 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
   setError: (error) => set({ error }),
 
   clearTransactions: () => set({ transactions: [] }),
+
+  setEditingTransaction: (transaction) => set({ editingTransaction: transaction }),
 
   /**
    * Subscribe to real-time transaction updates
@@ -204,6 +220,42 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
         error: errorMessage,
         isSaving: false,
       }));
+
+      // Re-throw error for caller to handle
+      throw new Error(errorMessage);
+    }
+  },
+
+  /**
+   * Update an existing transaction
+   * Real-time subscription will automatically reflect the update in the UI
+   */
+  updateTransaction: async (
+    userId: string,
+    transactionId: string,
+    updates: Partial<Transaction>
+  ) => {
+    set({ isSaving: true, error: null });
+
+    try {
+      // Call database service to update Firestore document
+      // updatedAt timestamp is handled automatically by the database service
+      await databaseService.updateDocument(
+        `users/${userId}/transactions`,
+        transactionId,
+        updates
+      );
+
+      set({ isSaving: false });
+      // Real-time subscription will update the transactions array automatically
+      // No need to manually update state here
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to update transaction';
+
+      set({ error: errorMessage, isSaving: false });
 
       // Re-throw error for caller to handle
       throw new Error(errorMessage);
