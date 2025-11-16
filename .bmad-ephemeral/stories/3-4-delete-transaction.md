@@ -1,6 +1,6 @@
 # Story 3.4: Delete Transaction
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -421,7 +421,7 @@ src/
 
 ### Context Reference
 
-<!-- Path(s) to story context XML will be added here by context workflow -->
+.bmad-ephemeral/stories/3-4-delete-transaction.context.xml
 
 ### Agent Model Used
 
