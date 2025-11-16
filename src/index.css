@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@source "src/**/*.{ts,tsx}";
+
 /* Custom styles */
 body {
   margin: 0;
