@@ -1,0 +1,188 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>1</storyId>
+    <title>Add Transaction</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-16</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>.bmad-ephemeral/stories/3-1-add-transaction.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to add income and expense transactions quickly</iWant>
+    <soThat>I can track my financial activity without hassle</soThat>
+    <tasks>
+      <task id="1" name="Create Transaction type definition">
+        Define Transaction interface, TransactionType, CreateTransactionInput, and UpdateTransactionInput in src/types/transaction.ts
+      </task>
+      <task id="2" name="Extend IDatabaseService interface">
+        Add createTransaction method to IDatabaseService interface in src/services/database.ts
+      </task>
+      <task id="3" name="Implement FirestoreDatabaseService">
+        Implement createTransaction method in FirestoreDatabaseService with offline queuing support
+      </task>
+      <task id="4" name="Create transactionStore">
+        Create Zustand store with addTransaction action implementing optimistic updates
+      </task>
+      <task id="5" name="Create TransactionForm component">
+        Build modal form with react-hook-form validation, mobile-responsive design
+      </task>
+      <task id="6" name="Create + New Transaction button">
+        Add trigger button to dashboard/transaction list page
+      </task>
+      <task id="7" name="Implement transaction type auto-detection">
+        Create utility to auto-detect income/expense from amount sign
+      </task>
+      <task id="8" name="Implement success toast notification">
+        Add toast notification for successful transaction creation
+      </task>
+      <task id="9" name="Handle offline state">
+        Verify offline queuing and sync behavior
+      </task>
+      <task id="10" name="End-to-end testing">
+        Full flow testing including validation and offline scenarios
+      </task>
+      <task id="11" name="TypeScript strict mode compliance">
+        Verify zero TypeScript errors and no any types
+      </task>
+      <task id="12" name="Bundle size validation">
+        Verify bundle impact stays within budget
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="3.1.1" name="Transaction form display and validation">
+      Form opens with amount, description, category, date fields. Amount shows numeric keyboard on mobile. Description has 100 char limit. Category defaults to "Uncategorized". Date defaults to today. Submit disabled until all required fields filled.
+    </criterion>
+    <criterion id="3.1.2" name="Transaction type auto-detection">
+      Positive amount automatically sets type to "income", negative sets to "expense".
+    </criterion>
+    <criterion id="3.1.3" name="Successful transaction creation">
+      Transaction saved to Firestore users/{userId}/transactions, appears immediately in list (optimistic update), shows success confirmation, form clears, completes in &lt;2 seconds.
+    </criterion>
+    <criterion id="3.1.4" name="Form validation">
+      Required field validation for amount, description, category. Amount cannot be zero. Description max 100 characters. Inline error messages.
+    </criterion>
+    <criterion id="3.1.5" name="Offline transaction queuing">
+      Offline transaction appears immediately with message "You're offline. Transaction will sync when connected." Auto-syncs when connection restored.
+    </criterion>
+    <criterion id="3.1.6" name="Mobile-friendly inputs">
+      Numeric keyboard for amount, date picker for date, 44px min touch targets, responsive on 320px+ screens.
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path=".bmad-ephemeral/stories/tech-spec-epic-3.md" title="Epic 3 Technical Specification" section="Transaction Data Model">
+        Defines Transaction interface (id, userId, amount, description, category, date, type, createdAt, updatedAt). TransactionType = 'income' | 'expense' auto-detected from amount sign. CreateTransactionInput omits id/timestamps. Firestore path: users/{userId}/transactions/{transactionId}.
+      </doc>
+      <doc path=".bmad-ephemeral/stories/tech-spec-epic-3.md" title="Epic 3 Technical Specification" section="IDatabaseService Interface">
+        createTransaction(userId: string, transaction: Omit&lt;Transaction, 'id'&gt;): Promise&lt;string&gt; method contract. Returns Firestore document ID. Implements BaaS abstraction layer for future migration flexibility.
+      </doc>
+      <doc path=".bmad-ephemeral/stories/tech-spec-epic-3.md" title="Epic 3 Technical Specification" section="Optimistic Update Pattern">
+        transactionStore.addTransaction() pattern: 1) Create temp transaction with temp ID, 2) Add to UI immediately, 3) Call Firestore, 4) Replace temp ID with real ID, 5) Rollback on error. Provides perceived instant feedback for &lt;2s save requirement.
+      </doc>
+      <doc path="docs/PRD.md" title="Product Requirements Document" section="User Success Indicators">
+        First transaction logged in under 60 seconds requirement. 70% next-day return rate goal. Transaction entry must be zero friction.
+      </doc>
+      <doc path="docs/PRD.md" title="Product Requirements Document" section="Performance Requirements">
+        Transaction save must complete in &lt;2 seconds. Chart updates in &lt;500ms. Total bundle &lt;500KB gzipped.
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture Document" section="Decision 1: Firebase BaaS">
+        Firebase JS SDK v12.4.0 (modular API). Firestore NoSQL database for transactions. Real-time onSnapshot() listeners. Offline persistence via enableIndexedDbPersistence(). User-scoped security rules.
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture Document" section="Decision 3: Zustand State Management">
+        Zustand for transaction state management. Optimistic updates for instant UI feedback. Derived calculations for dashboard. &lt;100ms interaction responsiveness requirement.
+      </doc>
+    </docs>
+    <code>
+      <artifact path="src/stores/authStore.ts" kind="store" symbol="useAuthStore" lines="1-50" reason="Provides user.uid for transaction userId. User interface defines authenticated user structure."/>
+      <artifact path="src/services/database.ts" kind="interface" symbol="IDatabaseService" lines="24-76" reason="BaaS abstraction layer. Transaction creation will use createDocument&lt;Transaction&gt;('users/{userId}/transactions', data). Generic CRUD methods for all database operations."/>
+      <artifact path="src/services/firebase/firebaseDatabase.ts" kind="service" symbol="FirebaseDatabaseService" lines="45-80" reason="Firestore implementation of IDatabaseService. Already implements createDocument with addDoc, handles errors. Will be used directly by transactionStore via databaseService singleton."/>
+      <artifact path="src/components/auth/SignInModal.tsx" kind="component" symbol="SignInModal" lines="1-50" reason="Modal pattern to replicate for TransactionForm. Uses react-hook-form for validation, modal overlay, close button, loading states, error display. Mobile-responsive with Tailwind CSS."/>
+      <artifact path="src/features/transactions/Transactions.tsx" kind="page" symbol="Transactions" lines="1-8" reason="Placeholder page where '+ New Transaction' button will be added. Currently shows 'Coming in Epic 3' message."/>
+    </code>
+    <dependencies>
+      <node>
+        <package name="react-hook-form" version="^7.66.0" reason="Form validation for TransactionForm. Already used in SignInModal pattern."/>
+        <package name="zustand" version="^5.0.8" reason="State management for transactionStore. Already used in authStore."/>
+        <package name="firebase" version="^12.4.0" reason="Firestore SDK for transaction persistence. addDoc, serverTimestamp, onSnapshot methods."/>
+        <package name="lucide-react" version="^0.553.0" reason="Icons for form UI (X close button, plus icon for Add Transaction button)."/>
+        <package name="tailwindcss" version="4.1" reason="Utility-first CSS for responsive mobile-first design."/>
+        <package name="dayjs" version="^1.11.18" reason="Optional: Date handling for transaction date field formatting."/>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint source="architecture" type="TypeScript strict mode">
+      Zero TypeScript errors required. No any types allowed. All async functions must return Promise types correctly.
+    </constraint>
+    <constraint source="architecture" type="Bundle size">
+      Total bundle must stay under 500KB gzipped. TransactionForm estimated 8-10 KB, transactionStore 4-5 KB, FirestoreDatabase extension 5-6 KB = ~17-21 KB total impact.
+    </constraint>
+    <constraint source="PRD" type="Performance">
+      Transaction save must complete in &lt;2 seconds. Use optimistic updates for perceived instant feedback.
+    </constraint>
+    <constraint source="PRD" type="Performance">
+      Form validation real-time response &lt;100ms. Chart updates &lt;500ms (Epic 5 dependency).
+    </constraint>
+    <constraint source="architecture" type="BaaS Abstraction">
+      All Firestore operations MUST go through IDatabaseService interface. Never import Firestore SDK directly in components or stores. Use databaseService singleton from src/services/firebase/firebaseDatabase.ts.
+    </constraint>
+    <constraint source="architecture" type="Mobile-first responsive">
+      All UI must work on 320px-2560px screens. Mobile breakpoint &lt;640px uses full-screen modal, desktop uses centered card.
+    </constraint>
+    <constraint source="architecture" type="Accessibility">
+      WCAG 2.1 Level AA compliance. Keyboard navigable forms. Proper ARIA labels. Focus trap in modal. Min 44px touch targets on mobile.
+    </constraint>
+    <constraint source="tech-spec" type="Firestore collection structure">
+      Transactions stored at users/{userId}/transactions. User ID from authStore.user.uid. Each transaction is a separate document.
+    </constraint>
+    <constraint source="dev-notes" type="Reuse patterns">
+      TransactionForm must replicate SignInModal structure: modal overlay, close button, react-hook-form validation, loading states, error display, mobile-responsive.
+    </constraint>
+  </constraints>
+  <interfaces>
+    <interface name="IDatabaseService.createDocument&lt;T&gt;" kind="method signature" path="src/services/database.ts">
+      createDocument&lt;T&gt;(collection: string, data: T): Promise&lt;string&gt;
+      Creates document in Firestore and returns auto-generated document ID.
+      For transactions: createDocument&lt;Transaction&gt;('users/{userId}/transactions', transactionData)
+    </interface>
+    <interface name="useAuthStore().user.uid" kind="Zustand store property" path="src/stores/authStore.ts">
+      user: User | null - User.uid provides authenticated user ID for transaction userId field
+      Access via: const { user } = useAuthStore(); const userId = user?.uid;
+    </interface>
+    <interface name="Transaction type" kind="TypeScript interface" path="TO BE CREATED: src/types/transaction.ts">
+      Transaction { id: string; userId: string; amount: number; description: string; category: string; date: Date; type: TransactionType; createdAt: Date; updatedAt: Date; }
+      TransactionType = 'income' | 'expense';
+      CreateTransactionInput omits id, createdAt, updatedAt
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Unit tests use Vitest framework. Component tests use @testing-library/react for rendering and user interaction simulation. Integration tests use Playwright (Epic 7.6). Test files colocated with source (e.g., transactionStore.test.ts). Mock Firestore SDK methods for service tests. Mock stores for component tests. Follow AAA pattern (Arrange, Act, Assert). TypeScript strict mode applies to tests.
+    </standards>
+    <locations>
+      src/**/*.test.ts - Unit tests for utilities and services
+      src/**/*.test.tsx - Component tests
+      e2e/**/*.spec.ts - Playwright integration tests (Epic 7.6)
+    </locations>
+    <ideas>
+      <test id="unit-1" ac="3.1.2" desc="getTransactionType() returns 'income' for positive amount, 'expense' for negative"/>
+      <test id="unit-2" ac="3.1.3" desc="transactionStore.addTransaction() creates optimistic transaction, calls databaseService.createDocument, replaces temp ID with Firestore ID"/>
+      <test id="unit-3" ac="3.1.3" desc="transactionStore.addTransaction() rolls back optimistic update on Firestore error"/>
+      <test id="component-1" ac="3.1.1" desc="TransactionForm renders all fields: amount, description, category, date"/>
+      <test id="component-2" ac="3.1.1" desc="TransactionForm submit button disabled when form invalid"/>
+      <test id="component-3" ac="3.1.4" desc="TransactionForm shows 'Amount is required' error when amount empty"/>
+      <test id="component-4" ac="3.1.4" desc="TransactionForm shows 'Amount cannot be zero' error when amount is 0"/>
+      <test id="component-5" ac="3.1.4" desc="TransactionForm shows 'Description cannot exceed 100 characters' error when description &gt;100 chars"/>
+      <test id="component-6" ac="3.1.6" desc="TransactionForm amount field has inputMode='decimal' for mobile numeric keyboard"/>
+      <test id="integration-1" ac="ALL" desc="Full flow: Sign in → Click '+ New Transaction' → Fill form → Submit → Verify success toast → Verify transaction in list (Epic 3.2 dependency)"/>
+      <test id="integration-2" ac="3.1.5" desc="Offline test: Go offline → Add transaction → Verify optimistic update → Go online → Verify Firestore sync"/>
+    </ideas>
+  </tests>
+</story-context>

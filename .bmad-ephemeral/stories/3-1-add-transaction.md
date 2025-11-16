@@ -1,6 +1,6 @@
 # Story 3.1: Add Transaction
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -423,7 +423,7 @@ src/
 
 ### Context Reference
 
-<!-- Path(s) to story context XML will be added here by context workflow -->
+- `.bmad-ephemeral/stories/3-1-add-transaction.context.xml` - Generated 2025-11-16 (Story Context with acceptance criteria, tasks, documentation references, code artifacts, constraints, interfaces, and test ideas)
 
 ### Agent Model Used
 
