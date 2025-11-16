@@ -45,6 +45,9 @@ interface AuthActions {
 
   /** Claim anonymous account with email and password */
   claimAccount: (email: string, password: string) => Promise<void>;
+
+  /** Sign in with email and password */
+  signIn: (email: string, password: string) => Promise<void>;
 }
 
 /**
@@ -106,6 +109,26 @@ export const useAuthStore = create<AuthStore>()(
           const errorMessage = authError.getUserMessage
             ? authError.getUserMessage()
             : authError.message || 'Failed to claim account';
+          set({ error: errorMessage, isLoading: false });
+          throw error; // Re-throw so caller can handle it
+        }
+      },
+
+      signIn: async (email, password) => {
+        try {
+          set({ isLoading: true, error: null });
+          const user = await authService.signInWithEmail(email, password);
+          set({
+            user,
+            isAnonymous: user.isAnonymous,
+            error: null,
+            isLoading: false,
+          });
+        } catch (error) {
+          const authError = error as { getUserMessage?: () => string; message?: string };
+          const errorMessage = authError.getUserMessage
+            ? authError.getUserMessage()
+            : authError.message || 'Failed to sign in';
           set({ error: errorMessage, isLoading: false });
           throw error; // Re-throw so caller can handle it
         }

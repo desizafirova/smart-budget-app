@@ -11,6 +11,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/services/firebase/firebaseAuth';
 import { useState } from 'react';
 import { ClaimAccountModal } from '@/components/auth/ClaimAccountModal';
+import { SignInModal } from '@/components/auth/SignInModal';
 
 /**
  * Header component with auth status and actions
@@ -19,6 +20,7 @@ export function Header() {
   const { user, isAnonymous, setLoading, setError, clearUser } = useAuthStore();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
+  const [showSignInModal, setShowSignInModal] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -63,13 +65,22 @@ export function Header() {
                 You're using SmartBudget anonymously
               </p>
             </div>
-            <button
-              onClick={() => setShowClaimModal(true)}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              aria-label="Claim your anonymous account"
-            >
-              Claim Account
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowSignInModal(true)}
+                className="rounded-md bg-white px-4 py-2 text-sm font-medium text-blue-700 shadow-sm ring-1 ring-inset ring-blue-300 transition-colors hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                aria-label="Sign in to your account"
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => setShowClaimModal(true)}
+                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                aria-label="Claim your anonymous account"
+              >
+                Claim Account
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -132,6 +143,12 @@ export function Header() {
           {/* Navigation or other header items can be added here */}
         </div>
       </div>
+
+      {/* Sign In Modal */}
+      <SignInModal
+        isOpen={showSignInModal}
+        onClose={() => setShowSignInModal(false)}
+      />
 
       {/* Claim Account Modal */}
       <ClaimAccountModal

@@ -57,4 +57,12 @@ export interface IAuthService {
    * @returns Unsubscribe function to stop listening
    */
   onAuthStateChanged(callback: (user: User | null) => void): () => void;
+
+  /**
+   * Send password reset email to user
+   * @param email User's email address
+   * @returns Promise resolving when email is sent
+   * @throws AuthError if email not found or invalid
+   */
+  sendPasswordResetEmail(email: string): Promise<void>;
 }
