@@ -1,0 +1,287 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>2</storyId>
+    <title>View Transaction List</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-16</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>.bmad-ephemeral/stories/3-2-view-transaction-list.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to see all my transactions in reverse chronological order</iWant>
+    <soThat>I can review my recent financial activity</soThat>
+    <tasks>
+      <task id="1" name="Create TransactionList component">
+        Create src/components/transactions/TransactionList.tsx with loading state, empty state, and transaction list rendering. Sort transactions by date DESC. Mobile-responsive design with Tailwind CSS.
+      </task>
+      <task id="2" name="Create TransactionItem component">
+        Create src/components/transactions/TransactionItem.tsx with visual distinction for income (green, + icon) and expenses (red, - icon). Display amount, description, category, date. Include Edit and Delete buttons.
+      </task>
+      <task id="3" name="Set up Firestore real-time subscription">
+        Add subscribeToTransactions() action to transactionStore using databaseService.subscribeToUserTransactions(). Manage subscription lifecycle (subscribe on auth, unsubscribe on signout/unmount).
+      </task>
+      <task id="4" name="Implement virtualization for large lists">
+        Install react-window package. Wrap list in FixedSizeList component. Enable only for transactions.length > 100. Test with 200+ transactions.
+      </task>
+      <task id="5" name="Integrate TransactionList into Transactions page">
+        Open src/features/transactions/Transactions.tsx. Subscribe to transactions on mount. Pass data to TransactionList. Handle onEdit and onDelete callbacks.
+      </task>
+      <task id="6" name="Create currency formatting utility">
+        Create src/utils/formatCurrency.ts with formatCurrency(amount: number): string function. Use Intl.NumberFormat for locale-aware formatting. Handle positive (+ prefix) and negative (- prefix) amounts.
+      </task>
+      <task id="7" name="Create date formatting utility">
+        Create src/utils/formatDate.ts with formatTransactionDate(date: Date): string function. Format as "MMM DD, YYYY". Use Intl.DateTimeFormat or date-fns.
+      </task>
+      <task id="8" name="End-to-end testing">
+        Add 3-5 test transactions. Verify list displays sorted by date DESC. Verify income (green, +) and expenses (red, -) styling. Test empty state, real-time updates, Edit/Delete actions, mobile responsiveness (320px), scrolling performance (150+ transactions).
+      </task>
+      <task id="9" name="TypeScript strict mode compliance">
+        Run npm run build. Fix all TypeScript errors. Ensure no any types. Verify async functions return Promise types.
+      </task>
+      <task id="10" name="Bundle size validation">
+        Run npm run build. Estimate Story 3.2 impact: ~19-22 KB. Verify total bundle still &lt;500KB gzipped. Document bundle size in completion notes.
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="3.2.1" name="Transaction list display">
+      Transactions page shows list of all transactions sorted by date (most recent first). Each transaction shows: amount, description, category, date. List is responsive on screens 320px+ wide.
+    </criterion>
+    <criterion id="3.2.2" name="Visual distinction between income and expenses">
+      Income transactions (amount > 0) appear with green styling and + icon. Expense transactions (amount &lt; 0) appear with red styling and - icon. Amounts formatted as "+$1,500.00" for income, "-$45.50" for expense.
+    </criterion>
+    <criterion id="3.2.3" name="Empty state handling">
+      When no transactions exist, show empty state message: "No transactions yet. Add your first one!" with prominent "+ New Transaction" button.
+    </criterion>
+    <criterion id="3.2.4" name="Loading state">
+      While fetching from Firestore, show loading spinner or skeleton screen. List renders in &lt;1 second for &lt;100 transactions.
+    </criterion>
+    <criterion id="3.2.5" name="Real-time updates">
+      When transaction added/edited/deleted locally, list updates immediately. When transaction modified on another device, list updates automatically via Firestore real-time sync.
+    </criterion>
+    <criterion id="3.2.6" name="Performance optimization for large lists">
+      For >100 transactions, virtualization enabled (only visible items rendered). Scrolling remains smooth with no lag.
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path=".bmad-ephemeral/stories/tech-spec-epic-3.md" title="Epic 3 Technical Specification" section="TransactionList Component Spec">
+        TransactionListProps: { transactions: Transaction[], isLoading: boolean, onEdit: (transaction: Transaction) => void, onDelete: (transactionId: string) => void }. Features: sort by date DESC, loading spinner, empty state, virtualization for >100 transactions, mobile-responsive (320px+), accessibility (keyboard nav, screen reader).
+      </doc>
+      <doc path=".bmad-ephemeral/stories/tech-spec-epic-3.md" title="Epic 3 Technical Specification" section="TransactionItem Component Spec">
+        TransactionItemProps: { transaction: Transaction, onEdit: (transaction: Transaction) => void, onDelete: (transactionId: string) => void }. Features: income (green, + icon) vs expense (red, - icon) styling, display amount/description/category/date, Edit/Delete buttons, mobile-responsive (full-width on mobile, card on desktop), accessible.
+      </doc>
+      <doc path=".bmad-ephemeral/stories/tech-spec-epic-3.md" title="Epic 3 Technical Specification" section="Real-Time Firestore Subscription Pattern">
+        FirestoreDatabaseService.subscribeToUserTransactions(userId, callback): () => void. Uses onSnapshot() on query(collection('users/{userId}/transactions'), orderBy('date', 'desc')). Returns unsubscribe function. Callback receives transactions array on each Firestore update.
+      </doc>
+      <doc path=".bmad-ephemeral/stories/tech-spec-epic-3.md" title="Epic 3 Technical Specification" section="Virtualization Pattern">
+        Use react-window FixedSizeList with height=600, itemSize=80. Only enable if transactions.length > 100. Improves scrolling performance for large lists.
+      </doc>
+      <doc path=".bmad-ephemeral/stories/tech-spec-epic-3.md" title="Epic 3 Technical Specification" section="Performance Requirements">
+        Transaction list render: &lt;1 second for &lt;100 transactions. Real-time updates: &lt;500ms chart update (applies to list too). Virtualization threshold: >100 transactions.
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture Document" section="Decision 1: Firebase BaaS">
+        Firebase JS SDK v12.4.0 (modular imports). Firestore for NoSQL document storage. Real-time listeners: onSnapshot() for automatic updates. Offline persistence enabled (enableIndexedDbPersistence). User-scoped security rules: users/{userId}/transactions.
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture Document" section="Decision 3: Zustand State Management">
+        Version: zustand@5.0.8. Minimal bundle: ~1KB gzipped. Real-time sync via Firestore subscription → update store → React re-renders. &lt;100ms interaction responsiveness requirement.
+      </doc>
+    </docs>
+
+    <code>
+      <artifact path="src/types/transaction.ts" title="Transaction Type Definitions" purpose="EXISTING - Import Transaction, TransactionType types">
+        Transaction interface with fields: id, userId, amount, description, category, date, type ('income' | 'expense'), createdAt, updatedAt. Created in Story 3.1. DO NOT RECREATE.
+      </artifact>
+      <artifact path="src/stores/transactionStore.ts" title="Transaction Zustand Store" purpose="EXTEND - Add subscribeToTransactions action">
+        Existing store has: transactions: Transaction[], isLoading, isSaving, error, addTransaction(). NEED TO ADD: subscribeToTransactions() action for real-time Firestore subscription. Created in Story 3.1.
+      </artifact>
+      <artifact path="src/services/database.ts" title="IDatabaseService Interface" purpose="EXTEND - Add subscribeToUserTransactions method">
+        Generic BaaS abstraction interface. NEED TO ADD: subscribeToUserTransactions(userId: string, callback: (transactions: Transaction[]) => void): () => void method signature.
+      </artifact>
+      <artifact path="src/services/firebase/firebaseDatabase.ts" title="FirebaseDatabaseService Implementation" purpose="EXTEND - Implement subscribeToUserTransactions">
+        Firestore implementation of IDatabaseService. NEED TO IMPLEMENT: subscribeToUserTransactions() using onSnapshot(query(collection, orderBy('date', 'desc'))). Returns unsubscribe function.
+      </artifact>
+      <artifact path="src/components/transactions/TransactionForm.tsx" title="Transaction Form Modal" purpose="EXISTING - Reference for modal pattern">
+        Created in Story 3.1. Shows modal structure (overlay, card, close button), form validation with react-hook-form, mobile-responsive design. Use as pattern reference for similar components.
+      </artifact>
+      <artifact path="src/features/transactions/Transactions.tsx" title="Transactions Page" purpose="EXTEND - Integrate TransactionList component">
+        Currently has "+ New Transaction" button and TransactionForm modal. NEED TO ADD: TransactionList component below button, subscribe to transactions on mount, handle onEdit (open form in edit mode), handle onDelete (show confirmation modal).
+      </artifact>
+    </code>
+
+    <interfaces>
+      <interface name="TransactionListProps">
+        transactions: Transaction[]; // Array of transactions to display
+        isLoading: boolean; // Whether transactions are being fetched
+        onEdit: (transaction: Transaction) => void; // Callback when Edit clicked
+        onDelete: (transactionId: string) => void; // Callback when Delete clicked
+      </interface>
+      <interface name="TransactionItemProps">
+        transaction: Transaction; // Transaction to display
+        onEdit: (transaction: Transaction) => void; // Callback when Edit clicked
+        onDelete: (transactionId: string) => void; // Callback when Delete clicked
+      </interface>
+      <interface name="IDatabaseService Extension">
+        subscribeToUserTransactions(
+          userId: string,
+          callback: (transactions: Transaction[]) => void
+        ): () => void; // Returns unsubscribe function
+      </interface>
+    </interfaces>
+
+    <constraints>
+      <constraint type="TypeScript">Zero TypeScript errors in strict mode. No any types allowed. All async functions must return proper Promise types.</constraint>
+      <constraint type="Bundle Size">Total bundle must remain &lt;500KB gzipped. Story 3.2 expected to add ~19-22 KB (TransactionList + TransactionItem + react-window).</constraint>
+      <constraint type="Performance">Transaction list must render in &lt;1 second for &lt;100 transactions. Real-time updates must appear within 500ms.</constraint>
+      <constraint type="Mobile-First">All UI must be responsive 320px-2560px. Touch targets minimum 44px. Use inputMode for mobile keyboards.</constraint>
+      <constraint type="Accessibility">Semantic HTML. Keyboard navigation support. ARIA labels on interactive elements. Screen reader compatible.</constraint>
+      <constraint type="BaaS Abstraction">All Firestore operations MUST go through IDatabaseService interface. Never import Firestore SDK directly in components.</constraint>
+      <constraint type="Real-Time Sync">Use Firestore onSnapshot() for real-time updates. Manage subscription lifecycle properly (subscribe/unsubscribe).</constraint>
+      <constraint type="Virtualization">Enable virtualization (react-window) ONLY when transactions.length > 100 to avoid unnecessary complexity for small lists.</constraint>
+      <constraint type="Code Pattern Consistency">Follow patterns established in Story 3.1: Zustand store pattern, modal structure, TypeScript strict types, mobile-responsive Tailwind CSS.</constraint>
+    </constraints>
+
+    <dependencies>
+      <dependency type="story" status="done">
+        Story 3.1: Add Transaction - Provides Transaction types, transactionStore, Firestore collection structure (users/{userId}/transactions). All transaction creation infrastructure established.
+      </dependency>
+      <dependency type="epic" status="done">
+        Epic 2: User Authentication - Provides authenticated user UID from useAuthStore().user.uid required for Firestore queries scoped to current user.
+      </dependency>
+      <dependency type="epic" status="done">
+        Epic 1: Foundation - Provides IDatabaseService abstraction layer, Firebase initialization, TypeScript configuration, Tailwind CSS setup.
+      </dependency>
+      <dependency type="forward-story" status="backlog">
+        Story 3.3: Edit Transaction - TransactionItem Edit button will open TransactionForm in edit mode (pass initial values).
+      </dependency>
+      <dependency type="forward-story" status="backlog">
+        Story 3.4: Delete Transaction - TransactionItem Delete button will open DeleteConfirmationModal component.
+      </dependency>
+      <dependency type="forward-epic" status="backlog">
+        Epic 5: Dashboard - TransactionList will be displayed on dashboard alongside charts. Real-time subscription pattern established here will be reused for chart updates.
+      </dependency>
+    </dependencies>
+
+    <testScenarios>
+      <scenario id="1" name="Empty state display">
+        Given: User has no transactions. When: User navigates to transactions page. Then: Empty state shows "No transactions yet. Add your first one!" with "+ New Transaction" button visible.
+      </scenario>
+      <scenario id="2" name="Transaction list display with sorting">
+        Given: User has 5 transactions (added on different dates). When: User navigates to transactions page. Then: All 5 transactions shown sorted by date descending (most recent first).
+      </scenario>
+      <scenario id="3" name="Income transaction visual styling">
+        Given: User views transaction list. When: List contains income transaction (amount > 0, e.g., +$1500). Then: Transaction displays with green styling, + icon, formatted as "+$1,500.00".
+      </scenario>
+      <scenario id="4" name="Expense transaction visual styling">
+        Given: User views transaction list. When: List contains expense transaction (amount &lt; 0, e.g., -$45.50). Then: Transaction displays with red styling, - icon, formatted as "-$45.50".
+      </scenario>
+      <scenario id="5" name="Loading state">
+        Given: Transactions are being fetched from Firestore. When: User navigates to transactions page. Then: Loading spinner or skeleton screen shown until transactions load.
+      </scenario>
+      <scenario id="6" name="Real-time update - local addition">
+        Given: User is viewing transaction list. When: User adds new transaction via "+ New Transaction" form. Then: New transaction appears immediately at top of list (most recent).
+      </scenario>
+      <scenario id="7" name="Real-time update - cross-device sync">
+        Given: User has app open on two devices. When: User adds transaction on device 1. Then: Transaction automatically appears on device 2 without refresh (Firestore onSnapshot).
+      </scenario>
+      <scenario id="8" name="Edit button interaction">
+        Given: User views transaction list. When: User clicks Edit button on a transaction. Then: onEdit callback fired with transaction object. (Story 3.3 will implement the edit form).
+      </scenario>
+      <scenario id="9" name="Delete button interaction">
+        Given: User views transaction list. When: User clicks Delete button on a transaction. Then: onDelete callback fired with transaction ID. (Story 3.4 will implement confirmation modal).
+      </scenario>
+      <scenario id="10" name="Mobile responsiveness">
+        Given: User on mobile device (320px width). When: User views transaction list. Then: List renders correctly with full-width cards, readable text, 44px+ touch targets for Edit/Delete.
+      </scenario>
+      <scenario id="11" name="Virtualization for large lists">
+        Given: User has 150 transactions. When: User scrolls through list. Then: Virtualization enabled (only visible items rendered), scrolling is smooth with no lag.
+      </scenario>
+      <scenario id="12" name="Date and amount formatting">
+        Given: Transaction has date=2025-11-16, amount=-45.50. When: Transaction displays in list. Then: Date shows as "Nov 16, 2025", amount shows as "-$45.50".
+      </scenario>
+    </testScenarios>
+  </artifacts>
+
+  <devNotes>
+    <note type="pattern" source="Story 3.1">
+      transactionStore follows Zustand pattern from authStore: create&lt;StoreType&gt;((set) => ({ state, actions })). Maintain consistency. Store already has transactions, isLoading, isSaving, error, addTransaction(). Add subscribeToTransactions() following same pattern.
+    </note>
+    <note type="pattern" source="Story 3.1">
+      Modal component structure: overlay div (onClick=handleClose), modal div (stopPropagation), close button (top-right), content div. See TransactionForm.tsx for reference implementation.
+    </note>
+    <note type="pattern" source="Story 3.1">
+      TypeScript strict mode: Use Transaction type from src/types/transaction.ts. No any types. Async functions return Promise&lt;T&gt;. Form data interfaces defined separately from domain types.
+    </note>
+    <note type="pattern" source="Story 3.1">
+      Mobile-responsive: Tailwind CSS utility classes. Touch targets min-h-[44px] min-w-[44px]. Use inputMode="decimal" for numeric fields, type="date" for dates.
+    </note>
+    <note type="implementation" source="Tech Spec Epic 3">
+      subscribeToUserTransactions implementation: const transactionsRef = collection(db, 'users/${userId}/transactions'); const q = query(transactionsRef, orderBy('date', 'desc')); return onSnapshot(q, callback). Return unsubscribe function for cleanup.
+    </note>
+    <note type="implementation" source="Tech Spec Epic 3">
+      Virtualization: import { FixedSizeList } from 'react-window'. Wrap list only if transactions.length > 100. Set height=600, itemSize=80, width="100%". Render function receives index and style props.
+    </note>
+    <note type="bundle" source="Story 3.1">
+      Current bundle: 211.87 KB gzipped (42.4% of 500KB budget). Story 3.2 adds ~19-22 KB: TransactionList (~6-8 KB) + TransactionItem (~3-4 KB) + react-window (~10 KB). Post-3.2 projection: ~230-234 KB (~46-47% of budget). Safe margin.
+    </note>
+    <note type="integration" source="Story 3.2">
+      Transactions.tsx integration: Import TransactionList, useTransactionStore. On mount: call subscribeToTransactions(). Pass transactions, isLoading props. onEdit: will set state to open TransactionForm in edit mode (Story 3.3). onDelete: will set state to open DeleteConfirmationModal (Story 3.4). For now, stub these with console.log or empty handlers.
+    </note>
+    <note type="accessibility" source="Tech Spec">
+      TransactionList: Use &lt;ul&gt; for semantic list. TransactionItem: Use &lt;li&gt; with role="listitem". Edit/Delete buttons need aria-label="Edit transaction" and "Delete transaction". Amount should have aria-label indicating income vs expense for screen readers.
+    </note>
+    <note type="performance" source="Tech Spec">
+      Performance targets: &lt;1 second render for &lt;100 transactions, &lt;500ms real-time update. Virtualization for >100 transactions ensures these targets met even with large datasets. Test with 200+ transactions to verify.
+    </note>
+    <note type="firestore" source="Architecture">
+      Firestore offline persistence already enabled in Epic 1.2. Real-time subscription will work offline: cached data shown immediately, updates applied when connection restored. No additional offline handling needed.
+    </note>
+    <note type="formatting" source="Story 3.2">
+      formatCurrency: Use Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }). Prepend "+" for positive, "-" for negative. Example: formatCurrency(1500) => "+$1,500.00", formatCurrency(-45.5) => "-$45.50".
+    </note>
+    <note type="formatting" source="Story 3.2">
+      formatTransactionDate: Use Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }). Example: formatTransactionDate(new Date('2025-11-16')) => "Nov 16, 2025".
+    </note>
+    <note type="testing" source="Story 3.2">
+      Manual testing checklist: Add 5 transactions (3 expenses, 2 income). Verify sorting (most recent first). Verify green/+ for income, red/- for expenses. Delete all, verify empty state. Add new, verify real-time update. Resize to 320px, verify mobile layout. Add 150 transactions, verify virtualization and smooth scrolling.
+    </note>
+  </devNotes>
+
+  <implementationGuidance>
+    <step order="1">
+      Install react-window: npm install react-window @types/react-window. This enables virtualization for large lists (Task 4).
+    </step>
+    <step order="2">
+      Create formatting utilities first (Tasks 6, 7): src/utils/formatCurrency.ts and src/utils/formatDate.ts. These are pure functions with no dependencies, easy to implement and test first.
+    </step>
+    <step order="3">
+      Extend IDatabaseService interface (src/services/database.ts): Add subscribeToUserTransactions method signature. Then implement in FirebaseDatabaseService (src/services/firebase/firebaseDatabase.ts) using Firestore onSnapshot. This establishes data flow foundation (Task 3 partial).
+    </step>
+    <step order="4">
+      Extend transactionStore (src/stores/transactionStore.ts): Add subscribeToTransactions action that calls databaseService.subscribeToUserTransactions and updates store state. Manage subscription lifecycle (store unsubscribe function, call on cleanup) (Task 3 completion).
+    </step>
+    <step order="5">
+      Create TransactionItem component (Task 2): Build individual transaction display with green/+ for income, red/- for expense. Use formatCurrency and formatDate utilities. Add Edit/Delete buttons. This is leaf component with no complex dependencies.
+    </step>
+    <step order="6">
+      Create TransactionList component (Task 1): Render array of TransactionItem components. Implement loading state (spinner), empty state (message + button). Sort transactions by date DESC. Add virtualization conditional (if length > 100). Mobile-responsive layout.
+    </step>
+    <step order="7">
+      Integrate into Transactions page (Task 5): Import TransactionList and useTransactionStore. Subscribe to transactions on mount (useEffect). Pass transactions, isLoading props. Stub onEdit and onDelete handlers (log to console for now, will implement in Stories 3.3, 3.4).
+    </step>
+    <step order="8">
+      End-to-end testing (Task 8): Add test transactions, verify all acceptance criteria. Test empty state, loading state, real-time updates, mobile responsiveness (320px), scrolling with 150+ transactions. Verify Edit/Delete callbacks fire correctly.
+    </step>
+    <step order="9">
+      TypeScript validation (Task 9): Run npm run build, fix any TypeScript errors. Ensure no any types. Verify all async functions have proper return types.
+    </step>
+    <step order="10">
+      Bundle size validation (Task 10): Run npm run build, check gzipped bundle size. Verify total &lt;500KB. Document actual bundle size in story completion notes. Compare to projection (~230-234 KB).
+    </step>
+  </implementationGuidance>
+</story-context>

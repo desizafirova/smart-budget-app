@@ -1,6 +1,6 @@
 # Story 3.2: View Transaction List
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
