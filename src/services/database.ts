@@ -14,7 +14,7 @@
 export interface QueryFilter {
   field: string;
   operator: '==' | '!=' | '<' | '<=' | '>' | '>=';
-  value: any;
+  value: unknown;
 }
 
 /**
