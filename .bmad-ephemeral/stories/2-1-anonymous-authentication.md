@@ -1,6 +1,6 @@
 # Story 2.1: Anonymous Authentication
 
-Status: review
+Status: done
 
 ## Story
 

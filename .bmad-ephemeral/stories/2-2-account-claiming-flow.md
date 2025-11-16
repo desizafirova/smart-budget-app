@@ -1,6 +1,6 @@
 # Story 2.2: Account Claiming Flow
 
-Status: review
+Status: done
 
 ## Story
 
