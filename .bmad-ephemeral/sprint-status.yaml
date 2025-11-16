@@ -46,15 +46,15 @@ development_status:
 
   # Epic 2: User Authentication & Zero-Friction Onboarding (3 stories)
   epic-2: contexted
-  2-1-anonymous-authentication: review
-  2-2-account-claiming-flow: review
+  2-1-anonymous-authentication: done
+  2-2-account-claiming-flow: done
   2-3-email-password-sign-in-sign-out: done
   epic-2-retrospective: completed
 
   # Epic 3: Transaction Management (4 stories)
   epic-3: contexted
-  3-1-add-transaction: drafted
-  3-2-view-transaction-list: backlog
+  3-1-add-transaction: done
+  3-2-view-transaction-list: review
   3-3-edit-transaction: backlog
   3-4-delete-transaction: backlog
   epic-3-retrospective: optional

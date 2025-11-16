@@ -1,0 +1,35 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user owns the resource
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // User documents: Users can read/write their own user document
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      // Transactions subcollection: Users can manage their own transactions
+      match /transactions/{transactionId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Categories subcollection (Epic 4): Users can manage their own categories
+      match /categories/{categoryId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

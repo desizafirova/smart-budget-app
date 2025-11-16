@@ -19,6 +19,7 @@ import {
   getDocs,
   onSnapshot,
   addDoc,
+  orderBy,
 } from 'firebase/firestore';
 import type {
   WhereFilterOp,
@@ -182,6 +183,45 @@ class FirebaseDatabaseService implements IDatabaseService {
       const message = error instanceof Error ? error.message : 'Unknown error';
       throw new Error(
         `Failed to subscribe to ${collectionName}: ${message}`
+      );
+    }
+  }
+
+  /**
+   * Subscribe to real-time updates on user transactions
+   * Automatically sorts by date descending (most recent first)
+   */
+  subscribeToUserTransactions<T>(
+    userId: string,
+    callback: (transactions: T[]) => void
+  ): () => void {
+    try {
+      const transactionsRef = collection(db, `users/${userId}/transactions`);
+      const q = query(transactionsRef, orderBy('date', 'desc'));
+
+      const unsubscribe: Unsubscribe = onSnapshot(
+        q,
+        (querySnapshot) => {
+          const transactions: T[] = [];
+          querySnapshot.forEach((doc) => {
+            // Include document ID in the transaction object
+            transactions.push({ id: doc.id, ...doc.data() } as T);
+          });
+          callback(transactions);
+        },
+        (error) => {
+          console.error(
+            `Error in subscription to user ${userId} transactions:`,
+            error.message
+          );
+        }
+      );
+
+      return unsubscribe;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(
+        `Failed to subscribe to user transactions for ${userId}: ${message}`
       );
     }
   }
