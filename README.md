@@ -46,11 +46,13 @@ SmartBudget uses Firebase for authentication, real-time database, and offline sy
 For both projects, enable the following services:
 
 **Authentication:**
+
 1. Go to **Build → Authentication**
 2. Click "Get started"
 3. Sign-in methods will be configured in later epics
 
 **Firestore Database:**
+
 1. Go to **Build → Firestore Database**
 2. Click "Create database"
 3. Choose "Start in test mode" (we'll configure security rules)
@@ -85,6 +87,7 @@ VITE_FIREBASE_APP_ID=your_app_id
 ```
 
 **⚠️ Important:**
+
 - The `.env` file is excluded from git (see `.gitignore`)
 - Never commit Firebase credentials to version control
 - Production credentials will be configured in your deployment platform (Vercel)
@@ -116,10 +119,12 @@ service cloud.firestore {
 SmartBudget uses an abstraction layer pattern to avoid vendor lock-in:
 
 **Service Interfaces:**
+
 - `src/services/auth.ts` - `IAuthService` interface for authentication
 - `src/services/database.ts` - `IDatabaseService` interface for database operations
 
 **Firebase Implementations:**
+
 - `src/services/firebase/firebaseAuth.ts` - Firebase Auth implementation
 - `src/services/firebase/firebaseDatabase.ts` - Firestore implementation
 
@@ -187,7 +192,7 @@ SmartBudget uses **Vercel** for hosting with automatic deployments triggered by 
 ### Production URL
 
 🌐 **Live Application:** [https://smart-budget-app.vercel.app](https://smart-budget-app.vercel.app)
-*(URL will be available after first deployment)*
+_(URL will be available after first deployment)_
 
 ### Prerequisites
 
@@ -218,14 +223,14 @@ SmartBudget uses **Vercel** for hosting with automatic deployments triggered by 
 1. In your Vercel project, go to **Settings → Environment Variables**
 2. Add the following variables from your **production** Firebase project:
 
-| Variable Name | Example Value | Scope |
-|--------------|---------------|-------|
-| `VITE_FIREBASE_API_KEY` | `AIzaSyC...` | Production, Preview |
-| `VITE_FIREBASE_AUTH_DOMAIN` | `smartbudget-prod.firebaseapp.com` | Production, Preview |
-| `VITE_FIREBASE_PROJECT_ID` | `smartbudget-prod` | Production, Preview |
-| `VITE_FIREBASE_STORAGE_BUCKET` | `smartbudget-prod.firebasestorage.app` | Production, Preview |
-| `VITE_FIREBASE_MESSAGING_SENDER_ID` | `123456789` | Production, Preview |
-| `VITE_FIREBASE_APP_ID` | `1:123456789:web:abc123` | Production, Preview |
+| Variable Name                       | Example Value                          | Scope               |
+| ----------------------------------- | -------------------------------------- | ------------------- |
+| `VITE_FIREBASE_API_KEY`             | `AIzaSyC...`                           | Production, Preview |
+| `VITE_FIREBASE_AUTH_DOMAIN`         | `smartbudget-prod.firebaseapp.com`     | Production, Preview |
+| `VITE_FIREBASE_PROJECT_ID`          | `smartbudget-prod`                     | Production, Preview |
+| `VITE_FIREBASE_STORAGE_BUCKET`      | `smartbudget-prod.firebasestorage.app` | Production, Preview |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | `123456789`                            | Production, Preview |
+| `VITE_FIREBASE_APP_ID`              | `1:123456789:web:abc123`               | Production, Preview |
 
 3. For each variable:
    - Enter **Name** (e.g., `VITE_FIREBASE_API_KEY`)
@@ -247,12 +252,12 @@ SmartBudget uses **Vercel** for hosting with automatic deployments triggered by 
 
 **Post-Deployment Checklist:**
 
-- [ ] Production URL loads via HTTPS
-- [ ] SSL certificate is valid (check browser lock icon)
-- [ ] All routes navigate correctly: `/`, `/transactions`, `/categories`
-- [ ] Firebase connection works (check browser console - no errors)
-- [ ] Bundle size is within budget (<150KB gzipped for Epic 1 foundation)
-- [ ] Page loads in <2 seconds on 4G connection
+- [*] Production URL loads via HTTPS
+- [*] SSL certificate is valid (check browser lock icon)
+- [*] All routes navigate correctly: `/`, `/transactions`, `/categories`
+- [*] Firebase connection works (check browser console - no errors)
+- [*] Bundle size is within budget (<150KB gzipped for Epic 1 foundation)
+- [*] Page loads in <2 seconds on 4G connection
 
 **Troubleshooting:**
 
@@ -282,6 +287,7 @@ git push origin main
 ```
 
 **What happens:**
+
 1. GitHub Actions CI runs (linting + type-checking)
 2. If CI passes, Vercel automatically builds and deploys
 3. New version goes live at production URL within 2-3 minutes
@@ -302,6 +308,7 @@ git push origin feature/add-feature
 ```
 
 **What happens:**
+
 1. GitHub Actions CI runs automatically
 2. Vercel creates a **preview deployment** with unique URL
 3. Preview URL is posted as comment on the PR
@@ -309,6 +316,7 @@ git push origin feature/add-feature
 5. When PR is merged to main, Vercel deploys to production
 
 **Preview Deployment Benefits:**
+
 - Test features in production-like environment before merging
 - Share preview URLs with team for review
 - Automatically includes environment variables
@@ -319,11 +327,13 @@ git push origin feature/add-feature
 Continuous integration runs automatically on every push and pull request.
 
 **CI Checks:**
+
 - ✅ Install dependencies with `npm ci`
 - ✅ Run ESLint: `npm run lint`
 - ✅ Run TypeScript check: `npm run build`
 
 **View CI Status:**
+
 - Go to GitHub repository → **Actions** tab
 - Each workflow run shows pass/fail status
 - Click on a run to view detailed logs
@@ -336,12 +346,14 @@ Continuous integration runs automatically on every push and pull request.
 Track performance metrics and Core Web Vitals in production.
 
 **Enable Analytics:**
+
 1. In Vercel project, go to **Analytics** tab
 2. Click **Enable Web Analytics**
 3. Analytics will automatically inject tracking script
 4. Wait 24-48 hours for data to populate
 
 **Available Metrics:**
+
 - **Largest Contentful Paint (LCP):** Target <2.5s
 - **First Input Delay (FID):** Target <100ms
 - **Cumulative Layout Shift (CLS):** Target <0.1
@@ -370,6 +382,7 @@ git push origin main
 ### Deployment Best Practices
 
 1. **Always test locally before pushing:**
+
    ```bash
    npm run build    # Verify build succeeds
    npm run lint     # Check for linting errors
@@ -377,16 +390,19 @@ git push origin main
    ```
 
 2. **Use feature branches and PRs:**
+
    - Never commit directly to `main`
    - Create feature branch → PR → Review → Merge
    - Leverage preview deployments for testing
 
 3. **Monitor deployment status:**
+
    - Check GitHub Actions for CI status
    - Check Vercel dashboard for build logs
    - Verify production URL after deployment
 
 4. **Keep dependencies updated:**
+
    - Run `npm outdated` regularly
    - Update dependencies in separate PRs
    - Test thoroughly after major version bumps
@@ -399,18 +415,23 @@ git push origin main
 ### Troubleshooting Deployments
 
 **Problem:** Deployment fails with "Build Error"
+
 - **Solution:** Run `npm run build` locally to reproduce error. Check Vercel logs for detailed stack trace.
 
 **Problem:** Environment variables not working
+
 - **Solution:** Verify variables are set for both Production AND Preview environments in Vercel settings. Redeploy after changes.
 
 **Problem:** Routes return 404 after deployment
+
 - **Solution:** Vite projects should work out of the box. If issues persist, add `vercel.json` with SPA rewrite rule (see above).
 
 **Problem:** CI failing but code works locally
+
 - **Solution:** Ensure `package-lock.json` is committed. CI uses `npm ci` which requires lock file. Check Node.js version matches (20.x).
 
 **Problem:** Slow deployments (>5 minutes)
+
 - **Solution:** Normal for first deployment. Subsequent deployments use caching and complete in 2-3 minutes. Check Vercel status page for platform issues.
 
 ## Project Structure
@@ -461,6 +482,7 @@ import { formatCurrency } from '@/utils/format-currency';
 ```
 
 Available aliases:
+
 - `@/components` → `src/components`
 - `@/services` → `src/services`
 - `@/stores` → `src/stores`
@@ -486,4 +508,4 @@ Available aliases:
 
 ## License
 
-Private - All rights reserved
+Private - All rights reserved.
