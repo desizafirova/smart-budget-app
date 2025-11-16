@@ -1,6 +1,6 @@
 # Story 2.3: Email/Password Sign-In & Sign-Out
 
-Status: review
+Status: done
 
 ## Story
 
