@@ -10,6 +10,7 @@
 import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/services/firebase/firebaseAuth';
 import { useState } from 'react';
+import { ClaimAccountModal } from '@/components/auth/ClaimAccountModal';
 
 /**
  * Header component with auth status and actions
@@ -17,6 +18,7 @@ import { useState } from 'react';
 export function Header() {
   const { user, isAnonymous, setLoading, setError, clearUser } = useAuthStore();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [showClaimModal, setShowClaimModal] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -62,11 +64,7 @@ export function Header() {
               </p>
             </div>
             <button
-              onClick={() => {
-                // TODO: Navigate to /claim-account or open modal
-                // For now, just log to console
-                console.log('Claim Account clicked');
-              }}
+              onClick={() => setShowClaimModal(true)}
               className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               aria-label="Claim your anonymous account"
             >
@@ -134,6 +132,12 @@ export function Header() {
           {/* Navigation or other header items can be added here */}
         </div>
       </div>
+
+      {/* Claim Account Modal */}
+      <ClaimAccountModal
+        isOpen={showClaimModal}
+        onClose={() => setShowClaimModal(false)}
+      />
     </header>
   );
 }
