@@ -4361,3 +4361,210 @@ Please continue the conversation from where we left it off without asking the us
 **Next**: Ready to start Epic 3 or perform code reviews for Stories 2.1/2.2
 
 ---
+**Retrospective Document**: docs/retrospectives/epic-2-retrospective.md
+**Next**: Ready to start Epic 3 or perform code reviews for Stories 2.1/2.2
+
+---
+
+## Session 22 - Epic 3 Technical Context
+
+**Date**: 2025-11-16
+**Phase**: Epic Planning - Technical Specification
+**Command**: `*epic-tech-context` (manual execution after slash command failure)
+
+---
+
+### Epic 3: Transaction Management - Technical Context Generation
+
+**Purpose**: Generate comprehensive technical specification for Epic 3 to guide story implementation
+
+**User Input**:
+```
+continue to epic 3 *epic-tech-context
+```
+
+**Task**: Create Epic 3 technical specification document following BMAD epic-tech-context workflow
+
+**Actions Taken**:
+
+1. **Read Epic 3 Content** from `docs/epics.md`:
+   - Story 3.1: Add Transaction (CRUD create, <2s save requirement)
+   - Story 3.2: View Transaction List (read, <1s render for <100 transactions)
+   - Story 3.3: Edit Transaction (update with optimistic UI)
+   - Story 3.4: Delete Transaction (delete with confirmation modal)
+
+2. **Read PRD Requirements** (`docs/PRD.md`):
+   - Transaction save time: <2 seconds (performance requirement)
+   - First transaction in <60 seconds (success criterion)
+   - Transaction management: amount, description, category, date
+   - Mobile-friendly design (320px+)
+   - Offline support with automatic sync
+
+3. **Read Architecture Decisions** (`docs/architecture.md`):
+   - Decision 1: Firebase BaaS (Firestore for transactions)
+   - Decision 2: Tailwind CSS (mobile-first styling)
+   - Decision 3: Zustand v5.0.8 (state management, optimistic updates)
+   - Decision 4: React Router v7 (client-side routing)
+
+4. **Read Epic 2 Tech Spec** (`.bmad-ephemeral/stories/tech-spec-epic-2.md`):
+   - Used as template for structure and format
+   - 400 lines covering overview, objectives, architecture alignment, detailed design
+
+5. **Created Epic 3 Technical Specification** (`.bmad-ephemeral/stories/tech-spec-epic-3.md`):
+
+**Document Sections** (1,100+ lines):
+
+1. **Overview**: Epic 3 delivers core transaction CRUD operations, foundation for all subsequent epics
+
+2. **Objectives and Scope**:
+   - **In Scope**: Add/view/edit/delete transactions, Firestore integration, optimistic updates, offline queuing
+   - **Out of Scope**: Search/filters, recurring transactions, bulk operations, import/export
+
+3. **System Architecture Alignment**:
+   - Firebase Firestore: Document storage at `users/{uid}/transactions`
+   - Zustand transactionStore: Optimistic updates for <2s requirement
+   - IDatabaseService abstraction: Maintains BaaS migration flexibility
+
+4. **Detailed Design**:
+   - Services: IDatabaseService interface, FirestoreDatabaseService implementation, transactionStore
+   - Components: TransactionForm, TransactionList, TransactionItem, DeleteConfirmationModal
+
+5. **Data Models and Contracts**:
+   - Transaction entity: id, userId, amount, description, category, date, type, createdAt, updatedAt
+   - Transaction type detection: positive = income, negative = expense
+   - Firestore document structure and mapping
+   - TransactionStore state schema with optimistic update pattern
+
+6. **APIs and Interfaces**:
+   - IDatabaseService methods: createTransaction, updateTransaction, deleteTransaction, getUserTransactions, subscribeToUserTransactions
+   - Error handling: DatabaseError class with codes (PERMISSION_DENIED, TRANSACTION_NOT_FOUND, NETWORK_ERROR, etc.)
+   - FirestoreDatabaseService pseudo-code implementation
+
+7. **Component Architecture**:
+   - Component hierarchy: App → AuthProvider → Router → Dashboard Layout → TransactionList/Form
+   - TransactionForm: react-hook-form validation, mobile-friendly inputs, loading states
+   - TransactionList: Virtualization for >100 items, empty state, real-time updates
+   - TransactionItem: Visual distinction (income green/+, expense red/-), edit/delete actions
+   - DeleteConfirmationModal: Focus trap, keyboard navigation, confirmation flow
+
+8. **User Flows**:
+   - Add Transaction: Form submit → optimistic update → Firestore write → success toast
+   - View Transaction List: Real-time Firestore subscription → sort by date DESC → render
+   - Edit Transaction: Form pre-populate → submit → optimistic update → Firestore update
+   - Delete Transaction: Confirmation modal → optimistic remove → Firestore delete
+
+9. **Integration Points**:
+   - Epic 2: User authentication (userId required for scoping)
+   - Epic 4: Category system (will replace "Uncategorized" with pre-defined categories)
+   - Epic 5: Dashboard (uses transactionStore derived state: getTotalIncome, getTotalExpenses)
+   - Epic 6: Offline sync (Firestore auto-queues writes when offline)
+
+10. **Testing Strategy**:
+    - Unit tests: FirestoreDatabaseService, transactionStore, validation
+    - Component tests: TransactionForm, TransactionList, TransactionItem, DeleteConfirmationModal
+    - Integration tests: Full transaction lifecycle (add → edit → delete)
+    - Performance tests: <2s save, <1s list render
+
+11. **Performance Targets**:
+    - Transaction save: <2 seconds (optimistic updates for perceived instant feedback)
+    - Transaction list render: <1 second for <100 transactions
+    - Bundle size: Epic 3 estimated ~26-33 KB (post-Epic 3: ~193-200 KB / 500 KB budget)
+
+12. **Security Considerations**:
+    - Firestore security rules: User-scoped data access (users/{userId}/transactions)
+    - Server-side validation: Amount non-zero, description max 100 chars, valid date
+    - Client-side XSS prevention: React auto-escaping, no dangerouslySetInnerHTML
+
+13. **Risk Assessment**:
+    - High risk: Transaction save >2s (mitigation: optimistic updates)
+    - Medium risk: List performance >100 transactions (mitigation: virtualization)
+    - Low risk: Offline sync conflicts (mitigation: last-write-wins acceptable for MVP)
+
+14. **Acceptance Criteria**: 32 checkboxes across 4 stories covering functionality, performance, accessibility
+
+15. **Dependencies and Prerequisites**: Epic 1 (infrastructure), Epic 2 (authentication)
+
+16. **Epic 3 Story Sequencing**:
+    - Story 3.1: Add Transaction (3-5 days) - Foundation
+    - Story 3.2: View Transaction List (2-4 days) - Read operation
+    - Story 3.3: Edit Transaction (1-2 days) - Update operation
+    - Story 3.4: Delete Transaction (1-2 days) - Delete operation
+    - **Total estimate:** 7-13 days
+
+17. **Appendix**: Transaction data examples, Firestore query examples, error handling examples
+
+**Technical Highlights**:
+
+**Transaction Data Model**:
+```typescript
+interface Transaction {
+  id: string;                   // Firestore document ID
+  userId: string;               // Auth UID (scoping)
+  amount: number;               // Positive = income, negative = expense
+  description: string;          // Max 100 chars
+  category: string;             // Initially "Uncategorized"
+  date: Date;                   // Defaults to today
+  type: 'income' | 'expense';   // Auto-detected from amount sign
+  createdAt: Date;              // Firestore serverTimestamp
+  updatedAt: Date;              // Firestore serverTimestamp
+}
+```
+
+**Optimistic Update Pattern**:
+```typescript
+// 1. Add to UI immediately with temp ID
+// 2. Call Firestore to persist
+// 3. Replace temp ID with real Firestore ID
+// 4. Rollback on error
+```
+
+**Firestore Collection Structure**:
+```
+users/{userId}/transactions/{transactionId}
+```
+
+**Performance Optimization**:
+- Optimistic updates for perceived <2s save
+- Virtualization (react-window) for >100 transactions
+- Firestore query limit: 100 recent transactions by default
+- Code splitting: Lazy load TransactionForm modal
+
+**Bundle Budget**:
+- Epic 3 estimated: ~26-33 KB
+- Post-Epic 3 total: ~193-200 KB / 500 KB (39-40% used)
+- Remaining: ~300 KB for Epics 4-7
+
+6. **Updated Sprint Status**: Changed `epic-3: backlog` → `epic-3: contexted`
+
+---
+
+**Output**:
+
+**Files Created** (1):
+- `.bmad-ephemeral/stories/tech-spec-epic-3.md` (1,100+ line comprehensive technical specification)
+
+**Files Modified** (2):
+- `.bmad-ephemeral/sprint-status.yaml` (epic-3: contexted)
+- `prompts.md` (Session 22 documentation)
+
+---
+
+**Epic 3 Technical Context Complete**:
+
+**Scope**: 4 stories (Add/View/Edit/Delete transactions)
+**Data Model**: Transaction entity with Firestore schema
+**Services**: IDatabaseService interface, FirestoreDatabaseService, transactionStore
+**Components**: TransactionForm, TransactionList, TransactionItem, DeleteConfirmationModal
+**Performance**: <2s save, <1s list render for <100 transactions
+**Bundle Impact**: ~26-33 KB estimated
+**Dependencies**: Epic 2 (auth for userId scoping)
+**Integration**: Epic 4 (categories), Epic 5 (dashboard data), Epic 6 (offline sync)
+**Testing**: Unit, component, integration, performance tests defined
+**Security**: Firestore rules, user-scoped data, XSS prevention
+**Story Sequencing**: 3.1 → 3.2 → 3.3/3.4 (7-13 days total)
+
+---
+
+**Status**: Epic 3 contexted and ready for story drafting
+**Next**: Draft Story 3.1 (Add Transaction) using `/bmad:bmm:workflows:create-story`
+
