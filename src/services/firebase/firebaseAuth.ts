@@ -15,6 +15,7 @@ import {
   EmailAuthProvider,
   signOut as firebaseSignOut,
   onAuthStateChanged as firebaseOnAuthStateChanged,
+  sendPasswordResetEmail as firebaseSendPasswordResetEmail,
 } from 'firebase/auth';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { auth } from './firebaseConfig';
@@ -171,6 +172,18 @@ class FirebaseAuthService implements IAuthService {
     return firebaseOnAuthStateChanged(auth, (firebaseUser) => {
       callback(convertUser(firebaseUser));
     });
+  }
+
+  /**
+   * Send password reset email to user
+   */
+  async sendPasswordResetEmail(email: string): Promise<void> {
+    try {
+      await firebaseSendPasswordResetEmail(auth, email);
+    } catch (error: unknown) {
+      // Convert Firebase errors to AuthError
+      throw AuthError.fromFirebaseError(error);
+    }
   }
 }
 
