@@ -51,8 +51,9 @@ class FirebaseAuthService implements IAuthService {
       }
 
       return user;
-    } catch (error: any) {
-      throw new Error(`Anonymous sign-in failed: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Anonymous sign-in failed: ${message}`);
     }
   }
 
@@ -80,8 +81,9 @@ class FirebaseAuthService implements IAuthService {
       }
 
       return user;
-    } catch (error: any) {
-      throw new Error(`Account linking failed: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Account linking failed: ${message}`);
     }
   }
 
@@ -98,21 +100,28 @@ class FirebaseAuthService implements IAuthService {
       }
 
       return user;
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle common Firebase auth errors
       let errorMessage = 'Sign-in failed';
 
-      if (error.code === 'auth/user-not-found') {
-        errorMessage = 'No account found with this email';
-      } else if (error.code === 'auth/wrong-password') {
-        errorMessage = 'Incorrect password';
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'Invalid email address';
-      } else if (error.code === 'auth/user-disabled') {
-        errorMessage = 'This account has been disabled';
+      if (error && typeof error === 'object' && 'code' in error) {
+        const firebaseError = error as { code: string; message: string };
+
+        if (firebaseError.code === 'auth/user-not-found') {
+          errorMessage = 'No account found with this email';
+        } else if (firebaseError.code === 'auth/wrong-password') {
+          errorMessage = 'Incorrect password';
+        } else if (firebaseError.code === 'auth/invalid-email') {
+          errorMessage = 'Invalid email address';
+        } else if (firebaseError.code === 'auth/user-disabled') {
+          errorMessage = 'This account has been disabled';
+        }
+
+        throw new Error(`${errorMessage}: ${firebaseError.message}`);
       }
 
-      throw new Error(`${errorMessage}: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`${errorMessage}: ${message}`);
     }
   }
 
@@ -122,8 +131,9 @@ class FirebaseAuthService implements IAuthService {
   async signOut(): Promise<void> {
     try {
       await firebaseSignOut(auth);
-    } catch (error: any) {
-      throw new Error(`Sign-out failed: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Sign-out failed: ${message}`);
     }
   }
 

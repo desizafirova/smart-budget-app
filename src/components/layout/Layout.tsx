@@ -55,6 +55,7 @@ export default function Layout() {
         className="border-t p-4 text-center text-sm text-gray-600"
       >
         <p>&copy; 2025 SmartBudget. Built with React + Firebase.</p>
+        {/* Test comment: Deployment pipeline validation */}
       </footer>
     </div>
   );

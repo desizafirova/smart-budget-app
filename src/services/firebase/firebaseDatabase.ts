@@ -51,9 +51,10 @@ class FirebaseDatabaseService implements IDatabaseService {
       const collectionRef = collection(db, collectionName);
       const docRef = await addDoc(collectionRef, data as DocumentData);
       return docRef.id;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
       throw new Error(
-        `Failed to create document in ${collectionName}: ${error.message}`
+        `Failed to create document in ${collectionName}: ${message}`
       );
     }
   }
@@ -71,9 +72,10 @@ class FirebaseDatabaseService implements IDatabaseService {
       }
 
       return docSnap.data() as T;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
       throw new Error(
-        `Failed to get document ${id} from ${collectionName}: ${error.message}`
+        `Failed to get document ${id} from ${collectionName}: ${message}`
       );
     }
   }
@@ -89,9 +91,10 @@ class FirebaseDatabaseService implements IDatabaseService {
     try {
       const docRef = doc(db, collectionName, id);
       await updateDoc(docRef, data as DocumentData);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
       throw new Error(
-        `Failed to update document ${id} in ${collectionName}: ${error.message}`
+        `Failed to update document ${id} in ${collectionName}: ${message}`
       );
     }
   }
@@ -103,9 +106,10 @@ class FirebaseDatabaseService implements IDatabaseService {
     try {
       const docRef = doc(db, collectionName, id);
       await deleteDoc(docRef);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
       throw new Error(
-        `Failed to delete document ${id} from ${collectionName}: ${error.message}`
+        `Failed to delete document ${id} from ${collectionName}: ${message}`
       );
     }
   }
@@ -137,9 +141,10 @@ class FirebaseDatabaseService implements IDatabaseService {
       });
 
       return documents;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
       throw new Error(
-        `Failed to query documents from ${collectionName}: ${error.message}`
+        `Failed to query documents from ${collectionName}: ${message}`
       );
     }
   }
@@ -173,9 +178,10 @@ class FirebaseDatabaseService implements IDatabaseService {
       );
 
       return unsubscribe;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
       throw new Error(
-        `Failed to subscribe to ${collectionName}: ${error.message}`
+        `Failed to subscribe to ${collectionName}: ${message}`
       );
     }
   }
