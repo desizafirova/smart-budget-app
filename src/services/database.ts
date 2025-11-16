@@ -73,4 +73,16 @@ export interface IDatabaseService {
     collection: string,
     callback: (docs: T[]) => void
   ): () => void;
+
+  /**
+   * Subscribe to real-time updates on user transactions
+   * Automatically sorts by date descending (most recent first)
+   * @param userId User ID to query transactions for
+   * @param callback Function called when transactions change
+   * @returns Unsubscribe function to stop listening
+   */
+  subscribeToUserTransactions<T>(
+    userId: string,
+    callback: (transactions: T[]) => void
+  ): () => void;
 }

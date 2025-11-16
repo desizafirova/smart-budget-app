@@ -26,6 +26,9 @@ interface TransactionState {
 
   /** Error message (null if no error) */
   error: string | null;
+
+  /** Unsubscribe function for active subscription */
+  unsubscribe: (() => void) | null;
 }
 
 /**
@@ -52,6 +55,12 @@ interface TransactionActions {
 
   /** Clear all transactions */
   clearTransactions: () => void;
+
+  /** Subscribe to real-time transaction updates */
+  subscribeToTransactions: (userId: string) => void;
+
+  /** Unsubscribe from real-time transaction updates */
+  unsubscribeFromTransactions: () => void;
 }
 
 /**
@@ -69,6 +78,7 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
   isLoading: false,
   isSaving: false,
   error: null,
+  unsubscribe: null,
 
   // Actions
   setTransactions: (transactions) => set({ transactions }),
@@ -80,6 +90,49 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
   setError: (error) => set({ error }),
 
   clearTransactions: () => set({ transactions: [] }),
+
+  /**
+   * Subscribe to real-time transaction updates
+   * Automatically updates store state when Firestore data changes
+   */
+  subscribeToTransactions: (userId: string) => {
+    // Set loading state
+    set({ isLoading: true, error: null });
+
+    try {
+      // Subscribe to Firestore real-time updates
+      const unsubscribe = databaseService.subscribeToUserTransactions<Transaction>(
+        userId,
+        (transactions) => {
+          // Update store with new transactions
+          set({ transactions, isLoading: false });
+        }
+      );
+
+      // Store unsubscribe function for cleanup
+      set({ unsubscribe });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to subscribe to transactions';
+      set({ error: errorMessage, isLoading: false });
+    }
+  },
+
+  /**
+   * Unsubscribe from real-time transaction updates
+   * Call this when component unmounts or user signs out
+   */
+  unsubscribeFromTransactions: () => {
+    set((state) => {
+      // Call unsubscribe function if it exists
+      if (state.unsubscribe) {
+        state.unsubscribe();
+      }
+      return { unsubscribe: null, transactions: [], isLoading: false };
+    });
+  },
 
   /**
    * Add transaction with optimistic update pattern
