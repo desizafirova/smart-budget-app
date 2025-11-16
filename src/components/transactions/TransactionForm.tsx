@@ -66,9 +66,27 @@ export function TransactionForm({
             amount: String(initialTransaction.amount),
             description: initialTransaction.description,
             category: initialTransaction.category,
-            date: initialTransaction.date instanceof Date
-              ? initialTransaction.date.toISOString().split('T')[0]
-              : new Date(initialTransaction.date).toISOString().split('T')[0],
+            date: (() => {
+              // Handle Firestore Timestamp, Date, or other date formats
+              const dateValue = initialTransaction.date;
+              if (!dateValue) return new Date().toISOString().split('T')[0];
+
+              // Firestore Timestamp has toDate() method
+              if (typeof dateValue === 'object' && 'toDate' in dateValue && typeof dateValue.toDate === 'function') {
+                return dateValue.toDate().toISOString().split('T')[0];
+              }
+
+              // Already a Date object
+              if (dateValue instanceof Date) {
+                return dateValue.toISOString().split('T')[0];
+              }
+
+              // Try to parse as string or number
+              const parsedDate = new Date(dateValue);
+              return !isNaN(parsedDate.getTime())
+                ? parsedDate.toISOString().split('T')[0]
+                : new Date().toISOString().split('T')[0]; // Fallback to today
+            })(),
           }
         : {
             amount: '',
