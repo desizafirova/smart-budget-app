@@ -1,6 +1,6 @@
 # Story 3.3: Edit Transaction
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -394,7 +394,7 @@ src/
 
 ### Context Reference
 
-<!-- Path(s) to story context XML will be added here by context workflow -->
+.bmad-ephemeral/stories/3-3-edit-transaction.context.xml
 
 ### Agent Model Used
 
