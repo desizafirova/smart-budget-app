@@ -12,7 +12,7 @@
  */
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useTransactionStore } from '@/stores/transactionStore';
 import { useAuthStore } from '@/stores/authStore';
 import type { CreateTransactionInput } from '@/types/transaction';
@@ -51,7 +51,7 @@ export function TransactionForm({
     handleSubmit,
     formState: { errors, isValid },
     reset,
-    watch,
+    control,
   } = useForm<TransactionFormData>({
     mode: 'onChange', // Real-time validation
     defaultValues: {
@@ -62,8 +62,8 @@ export function TransactionForm({
     },
   });
 
-  // Watch amount to show character count
-  const description = watch('description');
+  // Watch description to show character count (using useWatch for React Compiler compatibility)
+  const description = useWatch({ control, name: 'description' });
   const characterCount = description?.length || 0;
 
   const handleClose = () => {
