@@ -2533,6 +2533,251 @@ log the prompts from this session in the prompts.md file
 
 ---
 
+## Session 13 - November 16, 2025
+
+**Phase**: Implementation - Story 1.4 Development (Deployment Pipeline & Hosting)
+**Context**: Dev agent (Amelia) implementing Story 1.4, executing Task 9 (end-to-end deployment workflow test), diagnosing and fixing CI failures
+
+---
+
+### Prompt 117: Execute Story 1.4 Development Workflow
+
+**Phase**: Implementation - Story Development
+**Purpose**: Implement Story 1.4 (Deployment Pipeline & Hosting) with all tasks
+
+**Prompt**:
+
+```
+*develop-story
+```
+
+**Task**: Activate dev-story workflow for Story 1.4 implementation
+**Output**:
+- GitHub Actions CI workflow created (.github/workflows/ci.yml)
+- README.md updated with comprehensive deployment documentation (~200 lines)
+- .env.example verified (all Firebase variables documented)
+- Story status updated: ready-for-dev → in-progress
+- Tasks 6, 8, and partial Task 3 completed
+- Sprint status updated to in-progress
+
+**Notes**: Story identified as "hybrid infrastructure story" with automated components (CI workflow, docs) and manual components (Vercel dashboard configuration). Reached HALT condition requiring user to complete manual Vercel setup.
+
+---
+
+### Prompt 118: Confirm Task 9 Requirement
+
+**Phase**: Implementation - Story Development
+**Purpose**: Clarify if end-to-end deployment workflow test (Task 9) is required
+
+**Prompt**:
+
+```
+Do I need to complete the Task 9?
+```
+
+**Task**: Confirm whether Task 9 (end-to-end deployment workflow test) is necessary
+**Output**: Explanation that Task 9 validates the complete pipeline (GitHub Actions CI + Vercel preview deployment + production deployment) and is critical for AC #7 validation
+
+**Notes**: Task 9 ensures entire deployment workflow functions correctly, catching integration issues before considering story complete
+
+---
+
+### Prompt 119: Confirm Proceeding with Task 9
+
+**Phase**: Implementation - Story Development
+**Purpose**: User confirms readiness to proceed with Task 9 guidance
+
+**Prompt**:
+
+```
+yes
+```
+
+**Task**: Confirm proceeding with Task 9 execution
+**Output**: Acknowledgment to provide Task 9 execution guidance
+
+**Notes**: User ready to test deployment workflow end-to-end
+
+---
+
+### Prompt 120: Request Task 9 Guidance
+
+**Phase**: Implementation - Story Development
+**Purpose**: Get specific instructions for executing Task 9
+
+**Prompt**:
+
+```
+task 9
+```
+
+**Task**: Provide detailed guidance for Task 9 execution
+**Output**: Provided step-by-step instructions:
+1. Create test branch: `git checkout -b test/deployment-workflow`
+2. Make small change (test comment in Layout.tsx footer)
+3. Commit and push
+4. Create pull request on GitHub
+5. Verify GitHub Actions CI runs
+6. Verify Vercel preview deployment creates unique URL
+7. Test preview deployment
+8. Merge PR to main
+9. Verify production deployment triggered
+10. Verify production updated with changes
+
+**Notes**: Detailed command-by-command guidance provided for complete deployment workflow validation
+
+---
+
+### Prompt 121: Confirm Ready to Execute Commands
+
+**Phase**: Implementation - Story Development
+**Purpose**: User confirms readiness to run Task 9 commands
+
+**Prompt**:
+
+```
+yes
+```
+
+**Task**: Confirm readiness to execute Task 9 git commands
+**Output**: Confirmed user ready to run commands
+
+**Notes**: User about to create test branch and execute deployment workflow test
+
+---
+
+### Prompt 122: Report CI Failure
+
+**Phase**: Implementation - Troubleshooting
+**Purpose**: Report GitHub Actions CI check failing after PR creation
+
+**Prompt**:
+
+```
+failing checks CI / lint-and-typecheck (20.x) (pull_request)
+CI / lint-and-typecheck (20.x) (pull_request)Failing after 16s
+successful checks
+GitGuardian Security Checks
+GitGuardian Security Checks — No secrets detected ✅
+Vercel
+Vercel — Deployment has completed
+Vercel Preview Comments
+Vercel Preview Comments — ✅ No unresolved feedback
+```
+
+**Task**: Diagnose why GitHub Actions CI check is failing
+**Output**:
+- Ran `npm run lint` locally to reproduce error
+- Identified 11 ESLint errors: `@typescript-eslint/no-explicit-any` violations
+- Errors found in:
+  - src/services/database.ts (1 error: `value: any`)
+  - src/services/firebase/firebaseAuth.ts (4 errors in catch blocks)
+  - src/services/firebase/firebaseDatabase.ts (6 errors in catch blocks)
+- Root cause: Pre-existing type safety issues from previous stories caught by new CI pipeline
+
+**Notes**: CI successfully catching code quality issues. Errors are legitimate type safety problems that need fixing, not false positives.
+
+---
+
+### Prompt 123: Fix TypeScript Type Errors
+
+**Phase**: Implementation - Bug Fix
+**Purpose**: Fix all 11 ESLint type errors to make CI pass
+
+**Task**: Replace all `any` types with proper TypeScript types
+**Output**:
+- **Fixed src/services/database.ts**:
+  - Changed `value: any` → `value: unknown` in QueryFilter interface
+- **Fixed src/services/firebase/firebaseAuth.ts** (4 catch blocks):
+  - Changed `error: any` → `error: unknown`
+  - Added proper type guards: `error instanceof Error ? error.message : 'Unknown error'`
+  - Enhanced signInWithEmail error handling to check for Firebase error codes
+- **Fixed src/services/firebase/firebaseDatabase.ts** (6 catch blocks):
+  - Changed `error: any` → `error: unknown`
+  - Added proper type guards for all error messages
+- **Verification**:
+  - `npm run lint` passed with no errors
+  - `npm run build` passed successfully (9.59s, 149.77 KB gzipped)
+- **Committed and Pushed**:
+  - Commit message: "fix: replace any types with proper TypeScript types for CI compliance"
+  - Pushed to test/deployment-workflow branch
+  - GitHub Actions CI re-triggered automatically
+
+**Notes**: Fixed legitimate type safety issues. The new CI pipeline is working as designed, catching code quality problems. Bundle size remains excellent at 149.77 KB gzipped (under 150KB Epic 1 target).
+
+---
+
+### Prompt 124: Confirm Task Completion and Story Review
+
+**Phase**: Implementation - Story Completion
+**Purpose**: User reports completing all Task 9 steps and updating story file
+
+**Prompt**:
+
+```
+I have done the next steps and filled the story file
+```
+
+**Task**: Acknowledge story completion and update sprint status
+**Output**:
+- Read story file confirming all tasks marked complete
+- Updated sprint-status.yaml: 1-4-deployment-pipeline-hosting (in-progress → review)
+- Provided completion summary:
+  - All 10 acceptance criteria met
+  - GitHub Actions CI pipeline operational
+  - Vercel production deployment successful at https://smart-budget-app.vercel.app
+  - 6 Firebase environment variables configured (Production + Preview)
+  - Preview deployments working
+  - Comprehensive deployment documentation in README
+  - Build metrics: 149.77 KB gzipped (under 150KB target)
+- Fixed bonus: 11 pre-existing TypeScript type safety issues in Firebase service layer
+
+**Notes**: Epic 1: Foundation & Infrastructure now complete with all 4 stories in review status. Ready for Scrum Master code review or Epic 1 retrospective.
+
+---
+
+### Prompt 125: Log Session to Prompts File
+
+**Phase**: Documentation
+**Purpose**: Append Session 13 exchanges to prompts.md
+
+**Prompt**:
+
+```
+log the missing prompts from this session into prompts.md
+```
+
+**Task**: Log Session 13 (Prompts 117-125) documenting Story 1.4 implementation, CI troubleshooting, and completion
+**Output**: This entry - Session 13 complete with full deployment workflow execution and type safety improvements
+
+**Session 13 Summary**:
+- Story 1.4 implemented: Deployment Pipeline & Hosting
+- GitHub Actions CI workflow created and operational
+- Comprehensive deployment documentation added to README
+- Executed Task 9: End-to-end deployment workflow test
+- Diagnosed and fixed CI failure: 11 TypeScript type safety issues
+- All acceptance criteria met, story moved to review
+- Epic 1 complete: All 4 stories in review status
+- Production deployment: https://smart-budget-app.vercel.app
+- Build performance: 149.77 KB gzipped, ~10s build time
+
+**Key Achievements**:
+1. ✅ Automated CI/CD pipeline (GitHub Actions + Vercel)
+2. ✅ Type safety improvements (replaced all `any` types with proper `unknown` + type guards)
+3. ✅ Production deployment verified with HTTPS and all routes working
+4. ✅ Preview deployments operational for PR workflow
+5. ✅ Comprehensive documentation for team deployment workflow
+
+**Next Steps**:
+1. Run code-review workflow for Story 1.4 (or all Epic 1 stories)
+2. Mark Story 1.4 as done after review approval
+3. Run Epic 1 retrospective workflow
+4. Begin Epic 2: User Authentication & Zero-Friction Onboarding
+
+**Notes**: Demonstrates complete BMAD story lifecycle including troubleshooting and quality improvements. CI pipeline immediately proved its value by catching pre-existing type safety issues.
+
+---
+
 ## Template for Future Prompts
 
 ### Prompt [N]: [Brief Title]
