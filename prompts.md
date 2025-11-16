@@ -3078,3 +3078,246 @@ update the prompts.md file with the latest prompts
 
 ---
 
+
+## Session 16 - Story 2.2 Creation and Ready
+
+**Date**: 2025-11-16
+
+### Prompt 135: Create Story 2.2
+
+**Phase**: Implementation (Story Drafting)
+**Purpose**: Create Story 2.2: Account Claiming Flow using BMM create-story workflow
+
+**Prompt**:
+
+
+**Task**: Draft Story 2.2 based on Epic 2 breakdown and tech spec
+**Workflow**: /bmad:bmm:workflows:create-story
+
+**Output**:
+- Story file created: 
+- Sprint status updated: 
+
+**Story Details**:
+- **ID**: 2.2
+- **Title**: Account Claiming Flow
+- **Epic**: 2 (User Authentication & Zero-Friction Onboarding)
+- **User Story**: As an anonymous user, I want to claim my account with email and password, so that my existing data is preserved and I can access it from other devices.
+
+**Key Features Planned**:
+1. Email/password account claim form with validation
+2. Firebase  integration for atomic account conversion
+3. Comprehensive error handling (duplicate email, network failures)
+4. UID preservation ensures seamless data migration
+5. ClaimAccountModal component integrated into existing Header
+
+**Technical Implementation**:
+- 9 tasks with detailed subtasks
+- Extends existing FirebaseAuthService (no new service)
+- Adds  action to existing authStore
+- New ClaimAccountModal component (~120-150 lines)
+- Estimated bundle impact: ~10KB
+
+**Learnings Applied from Story 2.1**:
+- Reused existing authentication infrastructure
+- Followed established error handling patterns
+- Maintained bundle size discipline
+- Applied TypeScript strict mode compliance
+
+**References**:
+- Source: docs/epics.md#Epic-2 - Story 2.2
+- Tech Spec: .bmad-ephemeral/stories/tech-spec-epic-2.md
+- Previous Story: 2-1-anonymous-authentication (status: review)
+- Firebase Docs: Account linking with linkWithCredential()
+
+---
+
+### Prompt 136: Mark Story 2.2 Ready for Development
+
+**Phase**: Implementation (Story Ready)
+**Purpose**: Mark drafted Story 2.2 as ready for development
+
+**Prompt**:
+
+
+**Task**: Update story and sprint status to ready-for-dev
+**Workflow**: /bmad:bmm:workflows:story-ready
+
+**Actions Performed**:
+1. Located drafted story: 
+2. Updated story file status: 
+3. Updated sprint-status.yaml: 
+
+**Output**:
+- Story file updated:  (Status: ready-for-dev)
+- Sprint status updated: 
+
+**Next Steps Recommended**:
+1. Run  workflow to generate comprehensive context XML for DEV agent
+2. Alternative: Skip context and go directly to  workflow
+
+**Current Sprint Status** (Epic 2):
+- 2-1-anonymous-authentication: review
+- 2-2-account-claiming-flow: ready-for-dev ? (newly marked)
+- 2-3-email-password-sign-in-sign-out: backlog
+
+---
+
+### Prompt 137: Update Prompts Log
+
+**Phase**: Documentation
+**Purpose**: Document Session 16 story creation and ready workflow
+
+**Prompt**:
+
+
+**Task**: Log current session to prompts.md
+
+**Session 16 Summary**:
+- Story 2.2 successfully created using SM agent create-story workflow
+- Story marked ready for development
+- Comprehensive story document with 9 tasks, detailed acceptance criteria
+- Applied learnings from Story 2.1 implementation
+- Maintained architectural consistency and bundle discipline
+
+**Key Deliverables**:
+1. Complete Story 2.2 specification document
+2. Updated sprint tracking (drafted ? ready-for-dev)
+3. Integration plan leveraging existing auth infrastructure
+4. Detailed testing strategy (unit, component, E2E)
+
+**Technical Highlights**:
+- Firebase linkWithCredential() for atomic account conversion
+- Error handling for edge cases (duplicate email, network failures)
+- ClaimAccountModal with react-hook-form validation
+- UID preservation guarantees data integrity
+- Bundle size estimate: +10KB (within budget)
+
+**Status**: Story 2.2 ready for DEV agent implementation
+
+---
+
+
+## Session 16 - Story 2.2 Creation and Ready
+
+**Date**: 2025-11-16
+
+### Prompt 135: Create Story 2.2
+
+**Phase**: Implementation (Story Drafting)
+**Purpose**: Create Story 2.2: Account Claiming Flow using BMM create-story workflow
+
+**Prompt**:
+```
+@sm *create-story story2.2
+```
+
+**Task**: Draft Story 2.2 based on Epic 2 breakdown and tech spec
+**Workflow**: /bmad:bmm:workflows:create-story
+
+**Output**:
+- Story file created: `.bmad-ephemeral/stories/2-2-account-claiming-flow.md`
+- Sprint status updated: `2-2-account-claiming-flow: backlog → drafted`
+
+**Story Details**:
+- **ID**: 2.2
+- **Title**: Account Claiming Flow
+- **Epic**: 2 (User Authentication & Zero-Friction Onboarding)
+- **User Story**: As an anonymous user, I want to claim my account with email and password, so that my existing data is preserved and I can access it from other devices.
+
+**Key Features Planned**:
+1. Email/password account claim form with validation
+2. Firebase `linkWithCredential()` integration for atomic account conversion
+3. Comprehensive error handling (duplicate email, network failures)
+4. UID preservation ensures seamless data migration
+5. ClaimAccountModal component integrated into existing Header
+
+**Technical Implementation**:
+- 9 tasks with detailed subtasks
+- Extends existing FirebaseAuthService (no new service)
+- Adds `claimAccount()` action to existing authStore
+- New ClaimAccountModal component (~120-150 lines)
+- Estimated bundle impact: ~10KB
+
+**Learnings Applied from Story 2.1**:
+- Reused existing authentication infrastructure
+- Followed established error handling patterns
+- Maintained bundle size discipline
+- Applied TypeScript strict mode compliance
+
+**References**:
+- Source: docs/epics.md#Epic-2 - Story 2.2
+- Tech Spec: .bmad-ephemeral/stories/tech-spec-epic-2.md
+- Previous Story: 2-1-anonymous-authentication (status: review)
+- Firebase Docs: Account linking with linkWithCredential()
+
+---
+
+### Prompt 136: Mark Story 2.2 Ready for Development
+
+**Phase**: Implementation (Story Ready)
+**Purpose**: Mark drafted Story 2.2 as ready for development
+
+**Prompt**:
+```
+story-ready
+```
+
+**Task**: Update story and sprint status to ready-for-dev
+**Workflow**: /bmad:bmm:workflows:story-ready
+
+**Actions Performed**:
+1. Located drafted story: `2-2-account-claiming-flow`
+2. Updated story file status: `drafted → ready-for-dev`
+3. Updated sprint-status.yaml: `2-2-account-claiming-flow: drafted → ready-for-dev`
+
+**Output**:
+- Story file updated: `.bmad-ephemeral/stories/2-2-account-claiming-flow.md` (Status: ready-for-dev)
+- Sprint status updated: `2-2-account-claiming-flow: ready-for-dev`
+
+**Next Steps Recommended**:
+1. Run `story-context` workflow to generate comprehensive context XML for DEV agent
+2. Alternative: Skip context and go directly to `dev-story` workflow
+
+**Current Sprint Status** (Epic 2):
+- 2-1-anonymous-authentication: review
+- 2-2-account-claiming-flow: ready-for-dev ✓ (newly marked)
+- 2-3-email-password-sign-in-sign-out: backlog
+
+---
+
+### Prompt 137: Update Prompts Log
+
+**Phase**: Documentation
+**Purpose**: Document Session 16 story creation and ready workflow
+
+**Prompt**:
+```
+update the prompts.md file
+```
+
+**Task**: Log current session to prompts.md
+
+**Session 16 Summary**:
+- Story 2.2 successfully created using SM agent create-story workflow
+- Story marked ready for development
+- Comprehensive story document with 9 tasks, detailed acceptance criteria
+- Applied learnings from Story 2.1 implementation
+- Maintained architectural consistency and bundle discipline
+
+**Key Deliverables**:
+1. Complete Story 2.2 specification document
+2. Updated sprint tracking (drafted → ready-for-dev)
+3. Integration plan leveraging existing auth infrastructure
+4. Detailed testing strategy (unit, component, E2E)
+
+**Technical Highlights**:
+- Firebase linkWithCredential() for atomic account conversion
+- Error handling for edge cases (duplicate email, network failures)
+- ClaimAccountModal with react-hook-form validation
+- UID preservation guarantees data integrity
+- Bundle size estimate: +10KB (within budget)
+
+**Status**: Story 2.2 ready for DEV agent implementation
+
+---
