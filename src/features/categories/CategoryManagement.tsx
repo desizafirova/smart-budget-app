@@ -17,26 +17,18 @@
  * - Mobile: Stacked cards
  */
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import { useCategoryStore } from '@/stores/categoryStore';
-import { useAuthStore } from '@/stores/authStore';
 import { AddCategoryModal } from '@/components/categories/AddCategoryModal';
 import { EditCategoryModal } from '@/components/categories/EditCategoryModal';
 import { DeleteCategoryModal } from '@/components/categories/DeleteCategoryModal';
 import type { Category } from '@/types/category';
 
 export default function CategoryManagement() {
-  const user = useAuthStore((state) => state.user);
   const categories = useCategoryStore((state) => state.categories);
   const loading = useCategoryStore((state) => state.loading);
-  const subscribeToCategories = useCategoryStore(
-    (state) => state.subscribeToCategories
-  );
-  const unsubscribeFromCategories = useCategoryStore(
-    (state) => state.unsubscribeFromCategories
-  );
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -45,17 +37,8 @@ export default function CategoryManagement() {
     null
   );
 
-  // Subscribe to categories on mount
-  useEffect(() => {
-    if (user?.uid) {
-      subscribeToCategories(user.uid);
-    }
-
-    return () => {
-      unsubscribeFromCategories();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid]); // Only re-subscribe when user changes
+  // Note: Categories are managed globally by AuthProvider
+  // No need to subscribe/unsubscribe here
 
   /**
    * Open edit modal for a category
