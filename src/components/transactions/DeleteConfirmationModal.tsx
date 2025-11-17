@@ -71,7 +71,7 @@ export function DeleteConfirmationModal({
   }
 
   // Convert Firestore Timestamp to Date if needed (same pattern as TransactionForm)
-  const getDateValue = (dateValue: any): Date => {
+  const getDateValue = (dateValue: Date | { toDate: () => Date } | string | number | null | undefined): Date => {
     if (!dateValue) return new Date();
 
     // Firestore Timestamp has toDate() method
@@ -89,7 +89,7 @@ export function DeleteConfirmationModal({
     }
 
     // Try to parse as string or number
-    const parsedDate = new Date(dateValue);
+    const parsedDate = new Date(dateValue as string | number);
     return !isNaN(parsedDate.getTime()) ? parsedDate : new Date();
   };
 

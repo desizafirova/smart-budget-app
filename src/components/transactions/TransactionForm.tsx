@@ -82,7 +82,7 @@ export function TransactionForm({
               }
 
               // Try to parse as string or number
-              const parsedDate = new Date(dateValue);
+              const parsedDate = new Date(dateValue as string | number);
               return !isNaN(parsedDate.getTime())
                 ? parsedDate.toISOString().split('T')[0]
                 : new Date().toISOString().split('T')[0]; // Fallback to today
@@ -101,7 +101,7 @@ export function TransactionForm({
   const characterCount = description?.length || 0;
 
   // Helper function to convert date values consistently
-  const convertDateToString = (dateValue: any): string => {
+  const convertDateToString = (dateValue: Date | { toDate: () => Date } | string | number | null | undefined): string => {
     if (!dateValue) return new Date().toISOString().split('T')[0];
 
     // Firestore Timestamp has toDate() method
@@ -115,7 +115,7 @@ export function TransactionForm({
     }
 
     // Try to parse as string or number
-    const parsedDate = new Date(dateValue);
+    const parsedDate = new Date(dateValue as string | number);
     return !isNaN(parsedDate.getTime())
       ? parsedDate.toISOString().split('T')[0]
       : new Date().toISOString().split('T')[0]; // Fallback to today
