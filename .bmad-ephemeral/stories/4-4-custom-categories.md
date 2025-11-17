@@ -1,6 +1,6 @@
 # Story 4.4: Custom Categories
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -639,7 +639,7 @@ src/
 
 ### Context Reference
 
-<!-- Path(s) to story context XML will be added here by context workflow -->
+- `.bmad-ephemeral/stories/4-4-custom-categories.context.xml` (Generated: 2025-11-17)
 
 ### Agent Model Used
 
