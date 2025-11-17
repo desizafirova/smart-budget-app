@@ -74,8 +74,13 @@ export async function migrateCategoryIds(userId: string): Promise<number> {
     transactionsSnapshot.forEach((doc) => {
       const data = doc.data() as OldTransaction;
 
-      // Only migrate transactions that have 'category' field but no 'categoryId'
-      if (data.category && typeof data.category === 'string' && !data.categoryId) {
+      // Migrate if transaction has 'category' field (old format)
+      // This includes:
+      // 1. Unmigrated: { category: "Food" } - migrate to categoryId
+      // 2. Partially migrated: { category: null, categoryId: "abc" } - clean up
+      // 3. Partially migrated: { category: "Food", categoryId: "abc" } - clean up
+      // Check if 'category' key exists in the document (using 'in' operator)
+      if ('category' in data) {
         transactionsToMigrate.push({ ...data, id: doc.id });
       }
     });
@@ -104,42 +109,63 @@ export async function migrateCategoryIds(userId: string): Promise<number> {
           `users/${userId}/transactions/${transaction.id}`
         );
 
-        // Look up category ID by name (case-insensitive)
-        const categoryId = categoryNameToId.get(
-          transaction.category!.toLowerCase()
-        );
-
-        if (categoryId) {
-          // Found matching category - migrate to categoryId
+        // Case 1: Transaction already has categoryId (partially migrated with broken code)
+        // Just clean up the old category field
+        if (transaction.categoryId) {
           batch.update(transactionRef, {
-            categoryId: categoryId,
-            category: deleteField(), // Properly delete the old field from Firestore
+            category: deleteField(), // Remove the old category field
           });
           migratedCount++;
-        } else {
-          // Category not found (maybe deleted or renamed)
-          // Find "Uncategorized" or first category as fallback
-          const uncategorized = categories.find(
-            (cat) => cat.name.toLowerCase() === 'uncategorized'
-          );
-          const fallbackCategoryId = uncategorized?.id || categories[0]?.id;
+          continue; // Skip to next transaction
+        }
 
-          if (fallbackCategoryId) {
+        // Case 2: Transaction has category name string - migrate to categoryId
+        if (transaction.category && typeof transaction.category === 'string') {
+          // Look up category ID by name (case-insensitive)
+          const categoryId = categoryNameToId.get(
+            transaction.category.toLowerCase()
+          );
+
+          if (categoryId) {
+            // Found matching category - migrate to categoryId
             batch.update(transactionRef, {
-              categoryId: fallbackCategoryId,
+              categoryId: categoryId,
               category: deleteField(),
             });
-            console.warn(
-              `[Migration] Transaction ${transaction.id} had unknown category "${transaction.category}", assigned to fallback category`
-            );
             migratedCount++;
           } else {
-            // No categories at all - skip this transaction
-            console.error(
-              `[Migration] Cannot migrate transaction ${transaction.id} - no categories available`
+            // Category not found (maybe deleted or renamed)
+            // Find "Uncategorized" or first category as fallback
+            const uncategorized = categories.find(
+              (cat) => cat.name.toLowerCase() === 'uncategorized'
             );
+            const fallbackCategoryId = uncategorized?.id || categories[0]?.id;
+
+            if (fallbackCategoryId) {
+              batch.update(transactionRef, {
+                categoryId: fallbackCategoryId,
+                category: deleteField(),
+              });
+              console.warn(
+                `[Migration] Transaction ${transaction.id} had unknown category "${transaction.category}", assigned to fallback category`
+              );
+              migratedCount++;
+              unmatchedCount++;
+            } else {
+              // No categories at all - skip this transaction
+              console.error(
+                `[Migration] Cannot migrate transaction ${transaction.id} - no categories available`
+              );
+            }
           }
-          unmatchedCount++;
+        } else {
+          // Case 3: Transaction has category field but it's null/other - just remove it
+          batch.update(transactionRef, {
+            category: deleteField(),
+          });
+          console.warn(
+            `[Migration] Transaction ${transaction.id} had null/invalid category field, removing it`
+          );
         }
       }
 
