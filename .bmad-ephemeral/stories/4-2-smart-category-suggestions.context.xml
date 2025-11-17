@@ -64,7 +64,44 @@
   </acceptanceCriteria>
 
   <artifacts>
-    <docs>{{docs_artifacts}}</docs>
+    <docs>
+      <doc>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-4.md</path>
+        <title>Epic 4 Technical Specification: Intelligent Categorization</title>
+        <section>Story 4.2: Smart Category Suggestions - Detailed Design</section>
+        <snippet>Keyword-based suggestion engine with static DEFAULT_KEYWORDS mapping. User learning tracks assignments in UserAssignmentPattern (description, categoryId, count, lastUsed). getSuggestedCategories() prioritizes learned patterns (count >= 3) over keyword matching. Target: &lt;300ms suggestion latency.</snippet>
+      </doc>
+      <doc>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-4.md</path>
+        <title>Epic 4 Technical Specification</title>
+        <section>Services and Modules - Suggestion Engine</section>
+        <snippet>CategoryService.getSuggestedCategories() loads user patterns from Firestore users/{userId}/category-patterns, queries by normalized description. recordCategoryAssignment() increments count or creates new pattern with count=1. Firestore structure: {userId, description: normalized lowercase, categoryId, count, lastUsed}.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic Breakdown</title>
+        <section>Epic 4 - Story 4.2: Smart Category Suggestions</section>
+        <snippet>System suggests 1-3 categories as clickable chips when description matches keywords. Suggestions appear within 300ms. System learns from assignments: after 3+ identical patterns, auto-suggests that category. Keywords: "starbucks" → Food &amp; Dining, "uber" → Transport.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Decision Records</title>
+        <section>ADR-003: State Management (Zustand)</section>
+        <snippet>Zustand v5.0.8 for state management. Hook-based API, ~1KB bundle. CategoryStore manages categories + userPatterns state. Memoized selectors prevent unnecessary re-renders. Works seamlessly with Firebase real-time listeners. Persistence middleware for caching.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Decision Records</title>
+        <section>ADR-006: Form Handling (React Hook Form)</section>
+        <snippet>React Hook Form v7.66.0 for forms. watch() monitors description field changes. setValue() auto-assigns category when suggestion selected. Uncontrolled components minimize re-renders. Mobile-optimized with inputMode attributes.</snippet>
+      </doc>
+      <doc>
+        <path>.bmad-ephemeral/stories/4-1-pre-defined-category-system.md</path>
+        <title>Story 4.1: Pre-defined Category System</title>
+        <section>Learnings from Previous Story</section>
+        <snippet>CategoryService pattern established (ICategoryService interface). CategoryStore (Zustand) with real-time sync. CategoryChip component reusable for suggestions. Category types defined. Firebase collection: users/{userId}/categories. Bundle: 213.84 KB gzipped (42.8% of budget).</snippet>
+      </doc>
+    </docs>
     <code>{{code_artifacts}}</code>
     <dependencies>{{dependencies_artifacts}}</dependencies>
   </artifacts>
