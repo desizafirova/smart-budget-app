@@ -7523,3 +7523,106 @@ User working through Firebase CLI setup on Windows (firebase-tools via npx). Nee
 - Test category suggestions in live environment
 - Mark Story 4.2 as done after validation
 - Begin Story 4.3 (Drag-and-Drop Category Reassignment)
+
+---
+
+## Session: 2025-11-17 - Story Management (Mark 4.2 Done, Create 4.3)
+
+**Agent**: SM (Scrum Master) - Bob
+**User**: Desi
+**Branch**: claude/bmad-bmm-module-01QAvyChfaUvvbnwQoWuU5Ej
+
+### Commands Executed
+
+1. **`/bmad:bmm:agents:sm`** - Activated Scrum Master agent
+2. **`*mark story 4-2 as done`** - Marked Story 4.2 (Smart Category Suggestions) as complete
+3. **`*sreate-story 4-3`** - Created Story 4.3 (Drag-and-Drop Category Reassignment)
+
+### Session Summary
+
+**Story 4.2 Completion:**
+- Updated status from `ready-for-dev` → `done`
+- Added completion notes with date (2025-11-17)
+- Updated `.bmad-ephemeral/stories/4-2-smart-category-suggestions.md`
+- Note: No sprint-status.yaml found initially, would normally update there
+
+**Story 4.3 Creation:**
+- Executed create-story workflow following BMad Method
+- Generated comprehensive story document (718 lines)
+- Updated sprint-status.yaml: `4-3-drag-and-drop-category-reassignment` (backlog → drafted)
+
+### Story 4.3 Details
+
+**File**: `.bmad-ephemeral/stories/4-3-drag-and-drop-category-reassignment.md`
+
+**Key Features:**
+- Desktop HTML5 drag-and-drop implementation
+- Mobile touch alternative (CategoryPickerModal component)
+- Keyboard accessibility (WCAG 2.1 Level AA compliance)
+- Optimistic UI updates with rollback on error
+- Real-time dashboard chart integration
+- Performance target: <500ms update latency
+
+**Acceptance Criteria** (7):
+1. Desktop drag-and-drop works
+2. Visual feedback during drag operation
+3. Mobile touch alternative works
+4. Keyboard accessibility
+5. Optimistic UI updates
+6. Dashboard chart updates in real-time
+7. Batch reassignment (nice-to-have, deferred)
+
+**Tasks** (14):
+1. Implement HTML5 drag-and-drop for desktop
+2. Create CategoryPickerModal component for mobile
+3. Integrate modal trigger in TransactionListItem
+4. Implement keyboard accessibility
+5. Update TransactionStore with optimistic updates
+6. Integrate with dashboard chart for real-time updates
+7. Add visual polish and animations
+8. Component tests for drag-and-drop
+9. Component tests for CategoryPickerModal
+10. Integration testing
+11. End-to-end testing (Playwright)
+12. Accessibility audit
+13. TypeScript strict mode compliance
+14. Performance validation (<500ms)
+
+**Context Sources:**
+- Epic Tech Spec: `.bmad-ephemeral/stories/tech-spec-epic-4.md`
+- Epics: `docs/epics.md` (Story 4.3)
+- PRD: `docs/PRD.md` (FR-3.3: Drag-and-Drop Category Assignment)
+- Architecture: `docs/architecture.md` (ADR-002: Tailwind CSS)
+- Previous Story: Story 4.2 learnings (CategoryChip reuse, CategoryStore patterns)
+
+**Integration Points:**
+- Reuses CategoryChip from Story 4.1
+- Extends TransactionStore with optimistic updates
+- Integrates with Epic 5 Dashboard charts (forward dependency)
+- Uses HTML5 Drag API (no external library, bundle-friendly)
+
+**Bundle Impact:**
+- Expected: ~5-8 KB (CategoryPickerModal + drag handlers)
+- Post-story projection: ~227-234 KB / 500 KB budget (45-47%)
+
+### Commits (2)
+
+1. **`chore: Mark Story 4.2 as done`**
+   - Updated story status and added completion notes
+   - Commit: 52fbf4c
+
+2. **`feat: Create Story 4.3 - Drag-and-Drop Category Reassignment`**
+   - Created comprehensive story draft
+   - Updated sprint-status.yaml
+   - Commit: e5ece81
+
+### Next Steps
+
+1. Review drafted Story 4.3
+2. Run `*story-context` to generate technical context XML
+3. Or run `*story-ready-for-dev` to mark ready without context
+4. Begin implementation when ready
+
+**Status**: 
+- Story 4.2: ✅ Done
+- Story 4.3: 📝 Drafted (ready for context generation)
