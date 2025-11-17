@@ -23,6 +23,7 @@ import {
   getDocs,
   writeBatch,
   doc,
+  deleteField,
 } from 'firebase/firestore';
 
 interface OldTransaction {
@@ -112,7 +113,7 @@ export async function migrateCategoryIds(userId: string): Promise<number> {
           // Found matching category - migrate to categoryId
           batch.update(transactionRef, {
             categoryId: categoryId,
-            category: null, // Remove old field (set to null to delete in Firestore)
+            category: deleteField(), // Properly delete the old field from Firestore
           });
           migratedCount++;
         } else {
@@ -126,7 +127,7 @@ export async function migrateCategoryIds(userId: string): Promise<number> {
           if (fallbackCategoryId) {
             batch.update(transactionRef, {
               categoryId: fallbackCategoryId,
-              category: null,
+              category: deleteField(),
             });
             console.warn(
               `[Migration] Transaction ${transaction.id} had unknown category "${transaction.category}", assigned to fallback category`
