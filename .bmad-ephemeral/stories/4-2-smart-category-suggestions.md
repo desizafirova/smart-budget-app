@@ -85,8 +85,8 @@ So that I spend less time manually categorizing.
   - [x] Ensure all 15 default categories have keyword mappings (5 income + 10 expense)
   - [x] Create unit tests for keyword data structure validation
 
-- [ ] **Task 2: Implement suggestion engine module** (AC: 4.2.2, 4.2.4)
-  - [ ] Create `src/utils/suggestions/category-suggestions.ts` with functions:
+- [x] **Task 2: Implement suggestion engine module** (AC: 4.2.2, 4.2.4)
+  - [x] Create `src/utils/suggestions/category-suggestions.ts` with functions:
     ```typescript
     export interface SuggestionResult {
       category: Category;
@@ -112,21 +112,21 @@ So that I spend less time manually categorizing.
       userPatterns: UserAssignmentPattern[]
     ): Category[]; // Returns max 3 suggestions
     ```
-  - [ ] Implement `matchKeywords()`:
+  - [x] Implement `matchKeywords()`:
     - Normalize description (lowercase, trim, remove special characters)
     - Check each keyword in DEFAULT_KEYWORDS for substring match
     - Return matching categories (max 3)
     - Implement fuzzy matching using Levenshtein distance (threshold: 2 chars difference)
-  - [ ] Implement `findLearnedPatterns()`:
+  - [x] Implement `findLearnedPatterns()`:
     - Filter patterns where `count >= 3` (learned threshold)
     - Sort by count DESC (most frequently used first)
     - Return top 3 categories
-  - [ ] Implement `getSuggestedCategories()`:
+  - [x] Implement `getSuggestedCategories()`:
     - Check learned patterns first (prioritize user's history)
     - If learned patterns found (count >= 3), return those
     - Else, fall back to keyword matching
     - Return max 3 suggestions total
-  - [ ] Create comprehensive unit tests:
+  - [x] Create comprehensive unit tests:
     - Test keyword matching with exact matches
     - Test fuzzy matching with typos ("starbks" → "starbucks")
     - Test learned pattern prioritization
