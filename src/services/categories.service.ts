@@ -21,11 +21,15 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  getDoc,
+  setDoc,
+  increment,
 } from 'firebase/firestore';
-import type { DocumentData } from 'firebase/firestore';
+import type { DocumentData, Timestamp } from 'firebase/firestore';
 import { db } from './firebase/firebaseConfig';
-import type { Category, NewCategory } from '@/types/category';
+import type { Category, NewCategory, UserAssignmentPattern } from '@/types/category';
 import { DEFAULT_CATEGORIES } from '@/config/categories-seed';
+import { getSuggestedCategories as getSuggestions, normalizeDescription } from '@/utils/suggestions/category-suggestions';
 
 /**
  * Category Service Interface
@@ -62,6 +66,31 @@ export interface ICategoryService {
    * Note: Should validate that category has no associated transactions before deleting
    */
   deleteCategory(userId: string, categoryId: string): Promise<void>;
+
+  /**
+   * Get suggested categories based on transaction description
+   * Uses keyword matching and learned user patterns (prioritizes patterns with count >= 3)
+   *
+   * @param userId - User ID to get suggestions for
+   * @param description - Transaction description to analyze
+   * @returns Array of up to 3 suggested categories
+   */
+  getSuggestedCategories(userId: string, description: string): Promise<Category[]>;
+
+  /**
+   * Record a category assignment for learning
+   * Creates or updates a pattern document in Firestore
+   * Fire-and-forget operation (doesn't block transaction save)
+   *
+   * @param userId - User ID recording the assignment
+   * @param description - Transaction description
+   * @param categoryId - Category ID assigned to this description
+   */
+  recordCategoryAssignment(
+    userId: string,
+    description: string,
+    categoryId: string
+  ): Promise<void>;
 }
 
 /**
@@ -230,6 +259,119 @@ class CategoryService implements ICategoryService {
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       throw new Error(`Failed to delete category: ${message}`);
+    }
+  }
+
+  /**
+   * Get suggested categories based on transaction description
+   *
+   * Algorithm:
+   * 1. Fetch user's learned patterns from Firestore
+   * 2. Get all available categories for the user
+   * 3. Pass to suggestion engine (prioritizes learned patterns, falls back to keywords)
+   * 4. Return max 3 suggestions
+   *
+   * Performance: Target <300ms latency (95th percentile)
+   *
+   * @param userId - User ID to get suggestions for
+   * @param description - Transaction description to analyze
+   * @returns Array of up to 3 suggested categories
+   */
+  async getSuggestedCategories(
+    userId: string,
+    description: string
+  ): Promise<Category[]> {
+    try {
+      // Fetch learned patterns from Firestore
+      const patternsRef = collection(db, `users/${userId}/category-patterns`);
+      const patternsSnapshot = await getDocs(patternsRef);
+
+      const patterns: UserAssignmentPattern[] = [];
+      patternsSnapshot.forEach((doc) => {
+        const data = doc.data();
+        patterns.push({
+          id: doc.id,
+          userId: data.userId,
+          description: data.description,
+          categoryId: data.categoryId,
+          count: data.count,
+          lastUsed: (data.lastUsed as Timestamp).toDate(),
+        });
+      });
+
+      // Get all categories for the user
+      const categories = await this.getCategories(userId);
+
+      // Call suggestion engine
+      const suggestions = getSuggestions(description, categories, patterns);
+
+      return suggestions;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to get suggested categories: ${message}`);
+    }
+  }
+
+  /**
+   * Record a category assignment for learning
+   *
+   * Creates or updates a pattern document in Firestore:
+   * - Document ID: normalized description (lowercase, trimmed)
+   * - If exists: increment count, update lastUsed
+   * - If not: create new with count=1
+   *
+   * This is a fire-and-forget operation that doesn't block transaction save.
+   * Patterns with count >= 3 will be used for suggestions.
+   *
+   * @param userId - User ID recording the assignment
+   * @param description - Transaction description
+   * @param categoryId - Category ID assigned to this description
+   */
+  async recordCategoryAssignment(
+    userId: string,
+    description: string,
+    categoryId: string
+  ): Promise<void> {
+    try {
+      // Normalize description for consistent matching
+      const normalized = normalizeDescription(description);
+
+      // Empty description check
+      if (!normalized) {
+        return; // Skip recording for empty descriptions
+      }
+
+      // Reference to pattern document (use normalized description as ID)
+      const patternRef = doc(
+        db,
+        `users/${userId}/category-patterns`,
+        normalized
+      );
+
+      // Check if pattern already exists
+      const patternDoc = await getDoc(patternRef);
+
+      if (patternDoc.exists()) {
+        // Pattern exists: increment count and update lastUsed
+        await updateDoc(patternRef, {
+          count: increment(1),
+          lastUsed: serverTimestamp(),
+        } as DocumentData);
+      } else {
+        // Pattern doesn't exist: create new
+        await setDoc(patternRef, {
+          userId,
+          description: normalized,
+          categoryId,
+          count: 1,
+          lastUsed: serverTimestamp(),
+        } as DocumentData);
+      }
+    } catch (error: unknown) {
+      // Fire-and-forget: log error but don't throw
+      // This prevents pattern recording from blocking transaction save
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      console.error(`Failed to record category assignment: ${message}`);
     }
   }
 }

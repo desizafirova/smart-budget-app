@@ -25,6 +25,9 @@ vi.mock('firebase/firestore', () => ({
   addDoc: vi.fn(),
   updateDoc: vi.fn(),
   deleteDoc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  increment: vi.fn((value) => ({ _methodName: 'increment', _value: value })),
 }));
 
 // Mock firebaseConfig
@@ -38,6 +41,12 @@ vi.mock('@/config/categories-seed', () => ({
     { name: 'Salary', type: 'income', icon: 'DollarSign', color: '#10b981', isDefault: true },
     { name: 'Food & Dining', type: 'expense', icon: 'Utensils', color: '#f59e0b', isDefault: true },
   ],
+}));
+
+// Mock suggestion engine
+vi.mock('@/utils/suggestions/category-suggestions', () => ({
+  getSuggestedCategories: vi.fn(),
+  normalizeDescription: vi.fn((desc: string) => desc.trim().toLowerCase()),
 }));
 
 describe('CategoryService', () => {
@@ -294,6 +303,237 @@ describe('CategoryService', () => {
       await expect(
         categoryService.deleteCategory('user123', 'cat123')
       ).rejects.toThrow('Failed to delete category');
+    });
+  });
+
+  describe('getSuggestedCategories', () => {
+    it('should fetch patterns and return suggestions', async () => {
+      const {
+        collection: collectionMock,
+        getDocs: getDocsMock,
+        query: queryMock,
+        orderBy: orderByMock,
+      } = await import('firebase/firestore');
+      const { getSuggestedCategories: getSuggestionsMock } = await import(
+        '@/utils/suggestions/category-suggestions'
+      );
+
+      // Mock patterns from Firestore
+      (collectionMock as ReturnType<typeof vi.fn>).mockReturnValue({});
+      (getDocsMock as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        forEach: (callback: (doc: unknown) => void) => {
+          callback({
+            id: 'starbucks',
+            data: () => ({
+              userId: 'user123',
+              description: 'starbucks',
+              categoryId: 'cat-food',
+              count: 5,
+              lastUsed: { toDate: () => new Date() },
+            }),
+          });
+        },
+      });
+
+      // Mock categories from getCategories (called internally)
+      (queryMock as ReturnType<typeof vi.fn>).mockReturnValue({});
+      (orderByMock as ReturnType<typeof vi.fn>).mockReturnValue({});
+      (getDocsMock as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        forEach: (callback: (doc: unknown) => void) => {
+          callback({
+            id: 'cat-food',
+            data: () => ({
+              name: 'Food & Dining',
+              type: 'expense',
+              icon: 'Utensils',
+              color: '#f59e0b',
+              isDefault: true,
+              userId: 'user123',
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            }),
+          });
+        },
+      });
+
+      // Mock suggestion engine response
+      (getSuggestionsMock as ReturnType<typeof vi.fn>).mockReturnValue([
+        {
+          id: 'cat-food',
+          name: 'Food & Dining',
+          type: 'expense',
+          icon: 'Utensils',
+          color: '#f59e0b',
+          isDefault: true,
+          userId: 'user123',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ]);
+
+      const suggestions = await categoryService.getSuggestedCategories(
+        'user123',
+        'starbucks coffee'
+      );
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].name).toBe('Food & Dining');
+      expect(getSuggestionsMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle empty patterns gracefully', async () => {
+      const {
+        collection: collectionMock,
+        getDocs: getDocsMock,
+        query: queryMock,
+        orderBy: orderByMock,
+      } = await import('firebase/firestore');
+      const { getSuggestedCategories: getSuggestionsMock } = await import(
+        '@/utils/suggestions/category-suggestions'
+      );
+
+      // Mock empty patterns
+      (collectionMock as ReturnType<typeof vi.fn>).mockReturnValue({});
+      (getDocsMock as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        forEach: () => {}, // Empty
+      });
+
+      // Mock categories
+      (queryMock as ReturnType<typeof vi.fn>).mockReturnValue({});
+      (orderByMock as ReturnType<typeof vi.fn>).mockReturnValue({});
+      (getDocsMock as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        forEach: (callback: (doc: unknown) => void) => {
+          callback({
+            id: 'cat-food',
+            data: () => ({
+              name: 'Food & Dining',
+              type: 'expense',
+              icon: 'Utensils',
+              color: '#f59e0b',
+              isDefault: true,
+              userId: 'user123',
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            }),
+          });
+        },
+      });
+
+      (getSuggestionsMock as ReturnType<typeof vi.fn>).mockReturnValue([]);
+
+      const suggestions = await categoryService.getSuggestedCategories(
+        'user123',
+        'random text'
+      );
+
+      expect(suggestions).toHaveLength(0);
+    });
+
+    it('should throw error on Firestore failure', async () => {
+      const { getDocs: getDocsMock } = await import('firebase/firestore');
+
+      (getDocsMock as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error('Firestore error')
+      );
+
+      await expect(
+        categoryService.getSuggestedCategories('user123', 'test')
+      ).rejects.toThrow('Failed to get suggested categories');
+    });
+  });
+
+  describe('recordCategoryAssignment', () => {
+    it('should create new pattern if not exists', async () => {
+      const {
+        doc: docMock,
+        getDoc: getDocMock,
+        setDoc: setDocMock,
+      } = await import('firebase/firestore');
+      const { normalizeDescription } = await import(
+        '@/utils/suggestions/category-suggestions'
+      );
+
+      (docMock as ReturnType<typeof vi.fn>).mockReturnValue({});
+      (getDocMock as ReturnType<typeof vi.fn>).mockResolvedValue({
+        exists: () => false,
+      });
+      (setDocMock as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+
+      await categoryService.recordCategoryAssignment(
+        'user123',
+        'Starbucks Coffee',
+        'cat-food'
+      );
+
+      expect(normalizeDescription).toHaveBeenCalledWith('Starbucks Coffee');
+      expect(setDocMock).toHaveBeenCalledTimes(1);
+      expect(setDocMock).toHaveBeenCalledWith(
+        {},
+        expect.objectContaining({
+          userId: 'user123',
+          description: 'starbucks coffee', // normalized
+          categoryId: 'cat-food',
+          count: 1,
+        })
+      );
+    });
+
+    it('should update existing pattern', async () => {
+      const {
+        doc: docMock,
+        getDoc: getDocMock,
+        updateDoc: updateDocMock,
+        increment: incrementMock,
+      } = await import('firebase/firestore');
+
+      (docMock as ReturnType<typeof vi.fn>).mockReturnValue({});
+      (getDocMock as ReturnType<typeof vi.fn>).mockResolvedValue({
+        exists: () => true,
+        data: () => ({
+          userId: 'user123',
+          description: 'starbucks',
+          categoryId: 'cat-food',
+          count: 3,
+        }),
+      });
+      (updateDocMock as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+
+      await categoryService.recordCategoryAssignment(
+        'user123',
+        'starbucks',
+        'cat-food'
+      );
+
+      expect(updateDocMock).toHaveBeenCalledTimes(1);
+      expect(incrementMock).toHaveBeenCalledWith(1);
+    });
+
+    it('should skip recording for empty descriptions', async () => {
+      const { setDoc: setDocMock, updateDoc: updateDocMock } =
+        await import('firebase/firestore');
+
+      await categoryService.recordCategoryAssignment('user123', '', 'cat-food');
+      await categoryService.recordCategoryAssignment(
+        'user123',
+        '   ',
+        'cat-food'
+      );
+
+      expect(setDocMock).not.toHaveBeenCalled();
+      expect(updateDocMock).not.toHaveBeenCalled();
+    });
+
+    it('should not throw error on Firestore failure (fire-and-forget)', async () => {
+      const { getDoc: getDocMock } = await import('firebase/firestore');
+
+      (getDocMock as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error('Firestore error')
+      );
+
+      // Should not throw, just log error
+      await expect(
+        categoryService.recordCategoryAssignment('user123', 'test', 'cat-food')
+      ).resolves.toBeUndefined();
     });
   });
 });

@@ -44,3 +44,31 @@ export interface Category {
  * Omits auto-generated fields: id, userId, createdAt, updatedAt
  */
 export type NewCategory = Omit<Category, 'id' | 'userId' | 'createdAt' | 'updatedAt'>;
+
+/**
+ * UserAssignmentPattern tracks learned category assignments for intelligent suggestions
+ *
+ * Firestore collection path: users/{userId}/category-patterns/{normalizedDescription}
+ *
+ * When a user assigns a transaction description to a category multiple times,
+ * the system learns this pattern and suggests it automatically in the future.
+ */
+export interface UserAssignmentPattern {
+  /** Firestore document ID (normalized description) */
+  id: string;
+
+  /** User ID from authentication (foreign key) */
+  userId: string;
+
+  /** Normalized description (lowercase, trimmed) */
+  description: string;
+
+  /** Category ID this description is typically assigned to */
+  categoryId: string;
+
+  /** Number of times this pattern has been assigned (threshold: 3) */
+  count: number;
+
+  /** Timestamp of most recent assignment */
+  lastUsed: Date;
+}

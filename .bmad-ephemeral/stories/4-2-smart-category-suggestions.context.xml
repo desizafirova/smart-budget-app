@@ -1,0 +1,259 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>4.2</storyId>
+    <title>Smart Category Suggestions</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-17</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>.bmad-ephemeral/stories/4-2-smart-category-suggestions.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>the app to suggest categories based on my transaction description</iWant>
+    <soThat>I spend less time manually categorizing</soThat>
+    <tasks>
+      - Task 1: Create static keyword dictionary (AC: 4.2.2)
+      - Task 2: Implement suggestion engine module (AC: 4.2.2, 4.2.4)
+      - Task 3: Extend CategoryService with suggestion operations (AC: 4.2.3, 4.2.4)
+      - Task 4: Add UserAssignmentPattern type to category types (AC: 4.2.3)
+      - Task 5: Create CategorySuggestions component (AC: 4.2.1, 4.2.5)
+      - Task 6: Integrate suggestions into TransactionForm (AC: 4.2.1)
+      - Task 7: Call recordCategoryAssignment on transaction save (AC: 4.2.3)
+      - Task 8: Update categoryStore with suggestion actions (AC: 4.2.4)
+      - Task 9: Add Firestore Security Rules for category-patterns (AC: 4.2.3)
+      - Task 10: TypeScript strict mode compliance (AC: All)
+      - Task 11: Performance validation - &lt;300ms suggestion latency (AC: 4.2.5)
+      - Task 12: Unit and component tests (AC: All)
+      - Task 13: Integration testing (AC: All)
+      - Task 14: End-to-end testing (AC: All)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    AC 4.2.1: Keyword-based suggestions appear in transaction form
+    - System suggests 1-3 relevant categories as clickable chips below description field
+    - Suggestions appear within 300ms of typing (95th percentile)
+    - Chips display category icon and name using CategoryChip component
+    - Tapping a suggestion chip auto-selects the category in the form
+
+    AC 4.2.2: Static keyword matching works for common merchants/terms
+    - Keyword dictionary maps terms to categories: "starbucks"→"Food &amp; Dining", "uber"→"Transport", etc.
+    - Keyword matching is case-insensitive
+    - Partial matches work with fuzzy matching (e.g., "starbks" matches "starbucks")
+
+    AC 4.2.3: User learning system tracks category assignments
+    - System records assignments in Firestore: users/{userId}/category-patterns/{normalizedDescription}
+    - Pattern document: {userId, description, categoryId, count: 1, lastUsed: Date}
+    - If pattern exists, increment count and update lastUsed
+    - Operation completes in background (doesn't block transaction save)
+
+    AC 4.2.4: Learned patterns prioritize user's preferences
+    - After 3+ assignments, suggestion engine prioritizes learned pattern over static keywords
+    - Learned category appears first in suggestion list
+
+    AC 4.2.5: Suggestions are debounced for performance
+    - Suggestion engine waits 300ms after last keystroke before running
+    - Prevents excessive Firebase queries
+    - User experience feels responsive (no lag)
+
+    AC 4.2.6: Suggestions work offline
+    - Suggestions appear using cached user patterns + static keyword dictionary
+    - New pattern assignments queue for sync when back online
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-4.md</path>
+        <title>Epic 4 Technical Specification: Intelligent Categorization</title>
+        <section>Story 4.2: Smart Category Suggestions - Detailed Design</section>
+        <snippet>Keyword-based suggestion engine with static DEFAULT_KEYWORDS mapping. User learning tracks assignments in UserAssignmentPattern (description, categoryId, count, lastUsed). getSuggestedCategories() prioritizes learned patterns (count >= 3) over keyword matching. Target: &lt;300ms suggestion latency.</snippet>
+      </doc>
+      <doc>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-4.md</path>
+        <title>Epic 4 Technical Specification</title>
+        <section>Services and Modules - Suggestion Engine</section>
+        <snippet>CategoryService.getSuggestedCategories() loads user patterns from Firestore users/{userId}/category-patterns, queries by normalized description. recordCategoryAssignment() increments count or creates new pattern with count=1. Firestore structure: {userId, description: normalized lowercase, categoryId, count, lastUsed}.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic Breakdown</title>
+        <section>Epic 4 - Story 4.2: Smart Category Suggestions</section>
+        <snippet>System suggests 1-3 categories as clickable chips when description matches keywords. Suggestions appear within 300ms. System learns from assignments: after 3+ identical patterns, auto-suggests that category. Keywords: "starbucks" → Food &amp; Dining, "uber" → Transport.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Decision Records</title>
+        <section>ADR-003: State Management (Zustand)</section>
+        <snippet>Zustand v5.0.8 for state management. Hook-based API, ~1KB bundle. CategoryStore manages categories + userPatterns state. Memoized selectors prevent unnecessary re-renders. Works seamlessly with Firebase real-time listeners. Persistence middleware for caching.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Decision Records</title>
+        <section>ADR-006: Form Handling (React Hook Form)</section>
+        <snippet>React Hook Form v7.66.0 for forms. watch() monitors description field changes. setValue() auto-assigns category when suggestion selected. Uncontrolled components minimize re-renders. Mobile-optimized with inputMode attributes.</snippet>
+      </doc>
+      <doc>
+        <path>.bmad-ephemeral/stories/4-1-pre-defined-category-system.md</path>
+        <title>Story 4.1: Pre-defined Category System</title>
+        <section>Learnings from Previous Story</section>
+        <snippet>CategoryService pattern established (ICategoryService interface). CategoryStore (Zustand) with real-time sync. CategoryChip component reusable for suggestions. Category types defined. Firebase collection: users/{userId}/categories. Bundle: 213.84 KB gzipped (42.8% of budget).</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/services/categories.service.ts</path>
+        <kind>service</kind>
+        <symbol>ICategoryService</symbol>
+        <lines>34-65</lines>
+        <reason>EXTEND interface with getSuggestedCategories() and recordCategoryAssignment() methods for Story 4.2 suggestion engine</reason>
+      </artifact>
+      <artifact>
+        <path>src/types/category.ts</path>
+        <kind>types</kind>
+        <symbol>Category</symbol>
+        <lines>13-40</lines>
+        <reason>ADD UserAssignmentPattern interface for tracking user learning patterns (description, categoryId, count, lastUsed)</reason>
+      </artifact>
+      <artifact>
+        <path>src/stores/categoryStore.ts</path>
+        <kind>store</kind>
+        <symbol>categoryStore</symbol>
+        <lines>N/A</lines>
+        <reason>EXTEND with userPatterns state, loadPatterns() action, and getSuggestionsForDescription() selector</reason>
+      </artifact>
+      <artifact>
+        <path>src/components/transactions/TransactionForm.tsx</path>
+        <kind>component</kind>
+        <symbol>TransactionForm</symbol>
+        <lines>44-80</lines>
+        <reason>INTEGRATE CategorySuggestions component below description input. Use watch() to monitor description changes, setValue() to auto-assign category</reason>
+      </artifact>
+      <artifact>
+        <path>src/components/categories/CategoryChip.tsx</path>
+        <kind>component</kind>
+        <symbol>CategoryChip</symbol>
+        <lines>N/A</lines>
+        <reason>REUSE for displaying suggestion chips with icon and color. Already styled per UX spec with size variants (sm/md/lg)</reason>
+      </artifact>
+      <artifact>
+        <path>src/config/categories-seed.ts</path>
+        <kind>config</kind>
+        <symbol>DEFAULT_CATEGORIES</symbol>
+        <lines>N/A</lines>
+        <reason>REFERENCE for mapping keyword slugs to category names. Contains 15 default categories (5 income, 10 expense)</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package name="firebase" version="^12.4.0" usage="Firestore for category-patterns collection, onSnapshot for real-time sync"/>
+        <package name="react-hook-form" version="^7.66.0" usage="watch() for description monitoring, setValue() for category auto-assignment"/>
+        <package name="zustand" version="^5.0.8" usage="CategoryStore extension with userPatterns state management"/>
+        <package name="lucide-react" version="^0.553.0" usage="Icons for CategoryChip component (reused from Story 4.1)"/>
+        <package name="dayjs" version="^1.11.18" usage="Date handling for lastUsed timestamps in patterns"/>
+      </node>
+      <testing>
+        <package name="vitest" version="2.0" usage="Unit tests for suggestion engine, service methods"/>
+        <package name="@testing-library/react" version="16.1" usage="Component tests for CategorySuggestions"/>
+        <package name="playwright" version="1.50" usage="E2E tests for suggestion flow, user learning"/>
+      </testing>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - PERFORMANCE CRITICAL: Suggestion latency MUST be &lt;300ms (95th percentile) per PRD requirement
+    - Debounce input to 300ms to prevent excessive Firebase queries
+    - Use Firebase cache for offline support (patterns + static keywords)
+    - ALL code must pass TypeScript strict mode (no 'any' types)
+    - Fire-and-forget pattern recording (don't block transaction save)
+    - Learned pattern threshold: count >= 3 before prioritizing over keywords
+    - Max 3 suggestions returned (UX requirement)
+    - Description normalization: lowercase, trim for consistent pattern matching
+    - Must work offline using cached patterns + static keyword dictionary
+    - REUSE CategoryChip from Story 4.1 (don't recreate)
+    - EXTEND CategoryService interface (don't modify existing methods)
+    - Follow Firebase abstraction layer pattern from ADR-001
+    - Mobile touch targets: min 44x44px for suggestion chips
+    - Bundle impact: target +8-12 KB (total ~222-226 KB, under 500KB budget)
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>ICategoryService.getSuggestedCategories</name>
+      <kind>async function</kind>
+      <signature>getSuggestedCategories(userId: string, description: string): Promise&lt;Category[]&gt;</signature>
+      <path>src/services/categories.service.ts</path>
+    </interface>
+    <interface>
+      <name>ICategoryService.recordCategoryAssignment</name>
+      <kind>async function</kind>
+      <signature>recordCategoryAssignment(userId: string, description: string, categoryId: string): Promise&lt;void&gt;</signature>
+      <path>src/services/categories.service.ts</path>
+    </interface>
+    <interface>
+      <name>UserAssignmentPattern</name>
+      <kind>interface</kind>
+      <signature>{id: string, userId: string, description: string, categoryId: string, count: number, lastUsed: Date}</signature>
+      <path>src/types/category.ts</path>
+    </interface>
+    <interface>
+      <name>CategorySuggestions component</name>
+      <kind>React component</kind>
+      <signature>CategorySuggestions({description, onSelect, userId}: Props): JSX.Element</signature>
+      <path>src/components/categories/CategorySuggestions.tsx</path>
+    </interface>
+    <interface>
+      <name>Firestore collection</name>
+      <kind>database</kind>
+      <signature>users/{userId}/category-patterns/{normalizedDescription}</signature>
+      <path>Firebase Firestore</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Vitest v2.0 for unit/integration tests with Firebase mocking. @testing-library/react v16.1 for component tests. Playwright v1.50 for E2E tests. Pattern: Describe blocks by feature, mock Firebase firestore methods, test happy path + edge cases. TypeScript strict mode enforced. Test file co-location: src/[feature]/[file].test.ts. Performance tests measure p50/p95/p99 latencies.
+    </standards>
+    <locations>
+      - Unit tests: src/utils/suggestions/category-suggestions.test.ts
+      - Service tests: src/services/categories.service.test.ts (extend existing)
+      - Store tests: src/stores/categoryStore.test.ts (extend existing)
+      - Component tests: src/components/categories/CategorySuggestions.test.tsx
+      - Integration tests: src/__tests__/integration/suggestion-flow.test.ts
+      - Performance tests: src/utils/suggestions/category-suggestions.perf.test.ts
+      - E2E tests: e2e/category-suggestions.spec.ts
+    </locations>
+    <ideas>
+      <test id="AC-4.2.1" description="Keyword suggestions appear in form">
+        Unit: matchKeywords() returns correct categories for "starbucks", "uber", "netflix"
+        Component: CategorySuggestions renders chips when description matches keywords
+        E2E: Type "starbucks" → verify "Food &amp; Dining" chip appears within 300ms
+      </test>
+      <test id="AC-4.2.2" description="Static keyword matching">
+        Unit: Test case-insensitive matching ("STARBUCKS" → "Food &amp; Dining")
+        Unit: Test fuzzy matching ("starbks" with typo → still matches "starbucks")
+        Unit: Test partial matching ("coffee" substring in "coffee shop")
+      </test>
+      <test id="AC-4.2.3" description="User learning tracks assignments">
+        Service: recordCategoryAssignment() creates new pattern with count=1
+        Service: recordCategoryAssignment() increments existing pattern count
+        Integration: Save transaction → verify pattern recorded in Firestore
+      </test>
+      <test id="AC-4.2.4" description="Learned patterns prioritize">
+        Unit: findLearnedPatterns() filters count >= 3, sorts by count DESC
+        Service: getSuggestedCategories() returns learned pattern when count >= 3
+        Integration: Assign "starbucks" 3x → verify learned suggestion appears first
+      </test>
+      <test id="AC-4.2.5" description="Debounced performance">
+        Component: Rapid typing triggers only 1 query after 300ms pause
+        Performance: Measure getSuggestedCategories() p95 latency &lt; 300ms
+        Performance: Test with 1000+ patterns, assert latency still &lt; 300ms
+      </test>
+      <test id="AC-4.2.6" description="Offline suggestions">
+        Integration: Go offline → type "coffee" → verify cached/keyword suggestions
+        Integration: Offline pattern recording queues for sync on reconnect
+      </test>
+    </ideas>
+  </tests>
+</story-context>
