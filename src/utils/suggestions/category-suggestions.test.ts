@@ -10,10 +10,8 @@ import {
   findLearnedPatterns,
   getSuggestedCategories,
   normalizeDescription,
-  type UserAssignmentPattern,
-  type SuggestionResult,
 } from './category-suggestions';
-import type { Category } from '@/types/category';
+import type { Category, UserAssignmentPattern } from '@/types/category';
 
 // Mock categories for testing
 const mockCategories: Category[] = [

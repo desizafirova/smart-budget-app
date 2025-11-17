@@ -17,6 +17,7 @@ import { useTransactionStore } from '@/stores/transactionStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useCategoryStore } from '@/stores/categoryStore';
 import type { CreateTransactionInput, Transaction } from '@/types/transaction';
+import { CategorySuggestions } from '@/components/categories/CategorySuggestions';
 
 interface TransactionFormProps {
   /** Whether the modal is open */
@@ -50,7 +51,12 @@ export function TransactionForm({
 }: TransactionFormProps) {
   const { addTransaction, updateTransaction, isSaving } = useTransactionStore();
   const { user } = useAuthStore();
-  const { getIncomeCategories, getExpenseCategories } = useCategoryStore();
+  const {
+    getIncomeCategories,
+    getExpenseCategories,
+    categories,
+    recordCategoryAssignment,
+  } = useCategoryStore();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
@@ -64,6 +70,7 @@ export function TransactionForm({
     formState: { errors, isValid },
     reset,
     control,
+    setValue,
   } = useForm<TransactionFormData>({
     mode: 'onChange', // Real-time validation
     defaultValues:
@@ -160,6 +167,14 @@ export function TransactionForm({
     onClose();
   };
 
+  // Handle category suggestion click
+  const handleSelectCategory = (categoryName: string) => {
+    setValue('category', categoryName, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
+
   const onSubmit = async (data: TransactionFormData) => {
     if (!user?.uid) {
       setSubmitError('You must be signed in to manage transactions');
@@ -185,6 +200,21 @@ export function TransactionForm({
         // Create new transaction
         const input: CreateTransactionInput = transactionData;
         await addTransaction(user.uid, input);
+      }
+
+      // Record category assignment for learning (fire-and-forget)
+      // Find category ID from category name
+      const selectedCategory = categories.find((c) => c.name === data.category);
+      if (selectedCategory && data.description.trim()) {
+        // Don't await - this is fire-and-forget
+        recordCategoryAssignment(
+          user.uid,
+          data.description.trim(),
+          selectedCategory.id
+        ).catch((err) => {
+          // Log error but don't block UI
+          console.error('Failed to record category assignment:', err);
+        });
       }
 
       // Success!
@@ -381,6 +411,14 @@ export function TransactionForm({
                   >
                     {errors.description.message}
                   </p>
+                )}
+
+                {/* Category Suggestions */}
+                {mode === 'create' && (
+                  <CategorySuggestions
+                    description={description || ''}
+                    onSelectCategory={handleSelectCategory}
+                  />
                 )}
               </div>
 

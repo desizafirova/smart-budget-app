@@ -10,6 +10,7 @@ import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import type { Unsubscribe } from 'firebase/firestore';
 import { db } from '@/services/firebase/firebaseConfig';
 import type { Category } from '@/types/category';
+import { categoryService } from '@/services/categories.service';
 
 /**
  * Category store state interface
@@ -55,6 +56,16 @@ interface CategoryActions {
 
   /** Set error message */
   setError: (error: string | null) => void;
+
+  /** Get suggested categories based on transaction description */
+  getSuggestedCategories: (userId: string, description: string) => Promise<Category[]>;
+
+  /** Record category assignment for learning */
+  recordCategoryAssignment: (
+    userId: string,
+    description: string,
+    categoryId: string
+  ) => Promise<void>;
 }
 
 /**
@@ -173,5 +184,33 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
   getExpenseCategories: () => {
     const { categories } = get();
     return categories.filter((category) => category.type === 'expense');
+  },
+
+  /**
+   * Get suggested categories based on transaction description
+   * Delegates to categoryService which handles:
+   * - Fetching user patterns from Firestore
+   * - Keyword matching with fuzzy logic
+   * - Learned pattern prioritization (count >= 3)
+   * - Returns max 3 suggestions
+   */
+  getSuggestedCategories: async (userId: string, description: string) => {
+    return await categoryService.getSuggestedCategories(userId, description);
+  },
+
+  /**
+   * Record category assignment for learning
+   * Fire-and-forget operation that doesn't block transaction save
+   * Delegates to categoryService which handles:
+   * - Normalizing description
+   * - Upserting pattern document in Firestore
+   * - Incrementing count for existing patterns
+   */
+  recordCategoryAssignment: async (
+    userId: string,
+    description: string,
+    categoryId: string
+  ) => {
+    await categoryService.recordCategoryAssignment(userId, description, categoryId);
   },
 }));

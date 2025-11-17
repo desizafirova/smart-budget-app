@@ -8,21 +8,8 @@
  * Performance target: <300ms latency (95th percentile) per PRD requirement
  */
 
-import type { Category } from '@/types/category';
+import type { Category, UserAssignmentPattern } from '@/types/category';
 import { DEFAULT_KEYWORDS, CATEGORY_NAME_MAP } from '@/config/keywords-seed';
-
-/**
- * User assignment pattern (stored in Firestore)
- * Tracks how many times a user assigned a description to a category
- */
-export interface UserAssignmentPattern {
-  id: string; // Firestore document ID (normalized description)
-  userId: string;
-  description: string; // Normalized (lowercase, trimmed)
-  categoryId: string;
-  count: number; // Increments each time
-  lastUsed: Date;
-}
 
 /**
  * Suggestion result with source tracking
