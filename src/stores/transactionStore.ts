@@ -230,18 +230,41 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
   },
 
   /**
-   * Update an existing transaction
-   * Real-time subscription will automatically reflect the update in the UI
+   * Update an existing transaction with optimistic updates
+   * 1. Immediately update UI state (optimistic update)
+   * 2. Attempt Firebase write
+   * 3. Rollback on error with toast notification (AC 4.3.5)
+   *
+   * Implements optimistic update pattern for instant UI feedback (<500ms target)
    */
   updateTransaction: async (
     userId: string,
     transactionId: string,
     updates: Partial<Transaction>
   ) => {
-    set({ isSaving: true, error: null });
+    // Get current state to capture original transaction for rollback
+    const state = useTransactionStore.getState();
+    const originalTransaction = state.transactions.find((t) => t.id === transactionId);
+
+    if (!originalTransaction) {
+      const errorMessage = 'Transaction not found';
+      set({ error: errorMessage });
+      throw new Error(errorMessage);
+    }
+
+    // 1. Optimistic update: Update UI immediately
+    set((state) => ({
+      transactions: state.transactions.map((t) =>
+        t.id === transactionId
+          ? { ...t, ...updates, updatedAt: new Date() }
+          : t
+      ),
+      isSaving: true,
+      error: null,
+    }));
 
     try {
-      // Call database service to update Firestore document
+      // 2. Attempt Firebase write
       // updatedAt timestamp is handled automatically by the database service
       await databaseService.updateDocument(
         `users/${userId}/transactions`,
@@ -250,17 +273,23 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
       );
 
       set({ isSaving: false });
-      // Real-time subscription will update the transactions array automatically
-      // No need to manually update state here
+      // Real-time subscription will reconcile with server state
     } catch (error) {
+      // 3. Rollback on error: Restore original transaction
       const errorMessage =
         error instanceof Error
           ? error.message
-          : 'Failed to update transaction';
+          : 'Failed to update category. Please try again.';
 
-      set({ error: errorMessage, isSaving: false });
+      set((state) => ({
+        transactions: state.transactions.map((t) =>
+          t.id === transactionId ? originalTransaction : t
+        ),
+        error: errorMessage,
+        isSaving: false,
+      }));
 
-      // Re-throw error for caller to handle
+      // Re-throw error for caller to handle (e.g., show toast)
       throw new Error(errorMessage);
     }
   },
