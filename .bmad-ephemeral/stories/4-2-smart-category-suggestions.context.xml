@@ -102,12 +102,115 @@
         <snippet>CategoryService pattern established (ICategoryService interface). CategoryStore (Zustand) with real-time sync. CategoryChip component reusable for suggestions. Category types defined. Firebase collection: users/{userId}/categories. Bundle: 213.84 KB gzipped (42.8% of budget).</snippet>
       </doc>
     </docs>
-    <code>{{code_artifacts}}</code>
-    <dependencies>{{dependencies_artifacts}}</dependencies>
+    <code>
+      <artifact>
+        <path>src/services/categories.service.ts</path>
+        <kind>service</kind>
+        <symbol>ICategoryService</symbol>
+        <lines>34-65</lines>
+        <reason>EXTEND interface with getSuggestedCategories() and recordCategoryAssignment() methods for Story 4.2 suggestion engine</reason>
+      </artifact>
+      <artifact>
+        <path>src/types/category.ts</path>
+        <kind>types</kind>
+        <symbol>Category</symbol>
+        <lines>13-40</lines>
+        <reason>ADD UserAssignmentPattern interface for tracking user learning patterns (description, categoryId, count, lastUsed)</reason>
+      </artifact>
+      <artifact>
+        <path>src/stores/categoryStore.ts</path>
+        <kind>store</kind>
+        <symbol>categoryStore</symbol>
+        <lines>N/A</lines>
+        <reason>EXTEND with userPatterns state, loadPatterns() action, and getSuggestionsForDescription() selector</reason>
+      </artifact>
+      <artifact>
+        <path>src/components/transactions/TransactionForm.tsx</path>
+        <kind>component</kind>
+        <symbol>TransactionForm</symbol>
+        <lines>44-80</lines>
+        <reason>INTEGRATE CategorySuggestions component below description input. Use watch() to monitor description changes, setValue() to auto-assign category</reason>
+      </artifact>
+      <artifact>
+        <path>src/components/categories/CategoryChip.tsx</path>
+        <kind>component</kind>
+        <symbol>CategoryChip</symbol>
+        <lines>N/A</lines>
+        <reason>REUSE for displaying suggestion chips with icon and color. Already styled per UX spec with size variants (sm/md/lg)</reason>
+      </artifact>
+      <artifact>
+        <path>src/config/categories-seed.ts</path>
+        <kind>config</kind>
+        <symbol>DEFAULT_CATEGORIES</symbol>
+        <lines>N/A</lines>
+        <reason>REFERENCE for mapping keyword slugs to category names. Contains 15 default categories (5 income, 10 expense)</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package name="firebase" version="^12.4.0" usage="Firestore for category-patterns collection, onSnapshot for real-time sync"/>
+        <package name="react-hook-form" version="^7.66.0" usage="watch() for description monitoring, setValue() for category auto-assignment"/>
+        <package name="zustand" version="^5.0.8" usage="CategoryStore extension with userPatterns state management"/>
+        <package name="lucide-react" version="^0.553.0" usage="Icons for CategoryChip component (reused from Story 4.1)"/>
+        <package name="dayjs" version="^1.11.18" usage="Date handling for lastUsed timestamps in patterns"/>
+      </node>
+      <testing>
+        <package name="vitest" version="2.0" usage="Unit tests for suggestion engine, service methods"/>
+        <package name="@testing-library/react" version="16.1" usage="Component tests for CategorySuggestions"/>
+        <package name="playwright" version="1.50" usage="E2E tests for suggestion flow, user learning"/>
+      </testing>
+    </dependencies>
   </artifacts>
 
-  <constraints>{{constraints}}</constraints>
-  <interfaces>{{interfaces}}</interfaces>
+  <constraints>
+    - PERFORMANCE CRITICAL: Suggestion latency MUST be &lt;300ms (95th percentile) per PRD requirement
+    - Debounce input to 300ms to prevent excessive Firebase queries
+    - Use Firebase cache for offline support (patterns + static keywords)
+    - ALL code must pass TypeScript strict mode (no 'any' types)
+    - Fire-and-forget pattern recording (don't block transaction save)
+    - Learned pattern threshold: count >= 3 before prioritizing over keywords
+    - Max 3 suggestions returned (UX requirement)
+    - Description normalization: lowercase, trim for consistent pattern matching
+    - Must work offline using cached patterns + static keyword dictionary
+    - REUSE CategoryChip from Story 4.1 (don't recreate)
+    - EXTEND CategoryService interface (don't modify existing methods)
+    - Follow Firebase abstraction layer pattern from ADR-001
+    - Mobile touch targets: min 44x44px for suggestion chips
+    - Bundle impact: target +8-12 KB (total ~222-226 KB, under 500KB budget)
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>ICategoryService.getSuggestedCategories</name>
+      <kind>async function</kind>
+      <signature>getSuggestedCategories(userId: string, description: string): Promise&lt;Category[]&gt;</signature>
+      <path>src/services/categories.service.ts</path>
+    </interface>
+    <interface>
+      <name>ICategoryService.recordCategoryAssignment</name>
+      <kind>async function</kind>
+      <signature>recordCategoryAssignment(userId: string, description: string, categoryId: string): Promise&lt;void&gt;</signature>
+      <path>src/services/categories.service.ts</path>
+    </interface>
+    <interface>
+      <name>UserAssignmentPattern</name>
+      <kind>interface</kind>
+      <signature>{id: string, userId: string, description: string, categoryId: string, count: number, lastUsed: Date}</signature>
+      <path>src/types/category.ts</path>
+    </interface>
+    <interface>
+      <name>CategorySuggestions component</name>
+      <kind>React component</kind>
+      <signature>CategorySuggestions({description, onSelect, userId}: Props): JSX.Element</signature>
+      <path>src/components/categories/CategorySuggestions.tsx</path>
+    </interface>
+    <interface>
+      <name>Firestore collection</name>
+      <kind>database</kind>
+      <signature>users/{userId}/category-patterns/{normalizedDescription}</signature>
+      <path>Firebase Firestore</path>
+    </interface>
+  </interfaces>
   <tests>
     <standards>{{test_standards}}</standards>
     <locations>{{test_locations}}</locations>
