@@ -212,8 +212,48 @@
     </interface>
   </interfaces>
   <tests>
-    <standards>{{test_standards}}</standards>
-    <locations>{{test_locations}}</locations>
-    <ideas>{{test_ideas}}</ideas>
+    <standards>
+      Vitest v2.0 for unit/integration tests with Firebase mocking. @testing-library/react v16.1 for component tests. Playwright v1.50 for E2E tests. Pattern: Describe blocks by feature, mock Firebase firestore methods, test happy path + edge cases. TypeScript strict mode enforced. Test file co-location: src/[feature]/[file].test.ts. Performance tests measure p50/p95/p99 latencies.
+    </standards>
+    <locations>
+      - Unit tests: src/utils/suggestions/category-suggestions.test.ts
+      - Service tests: src/services/categories.service.test.ts (extend existing)
+      - Store tests: src/stores/categoryStore.test.ts (extend existing)
+      - Component tests: src/components/categories/CategorySuggestions.test.tsx
+      - Integration tests: src/__tests__/integration/suggestion-flow.test.ts
+      - Performance tests: src/utils/suggestions/category-suggestions.perf.test.ts
+      - E2E tests: e2e/category-suggestions.spec.ts
+    </locations>
+    <ideas>
+      <test id="AC-4.2.1" description="Keyword suggestions appear in form">
+        Unit: matchKeywords() returns correct categories for "starbucks", "uber", "netflix"
+        Component: CategorySuggestions renders chips when description matches keywords
+        E2E: Type "starbucks" → verify "Food &amp; Dining" chip appears within 300ms
+      </test>
+      <test id="AC-4.2.2" description="Static keyword matching">
+        Unit: Test case-insensitive matching ("STARBUCKS" → "Food &amp; Dining")
+        Unit: Test fuzzy matching ("starbks" with typo → still matches "starbucks")
+        Unit: Test partial matching ("coffee" substring in "coffee shop")
+      </test>
+      <test id="AC-4.2.3" description="User learning tracks assignments">
+        Service: recordCategoryAssignment() creates new pattern with count=1
+        Service: recordCategoryAssignment() increments existing pattern count
+        Integration: Save transaction → verify pattern recorded in Firestore
+      </test>
+      <test id="AC-4.2.4" description="Learned patterns prioritize">
+        Unit: findLearnedPatterns() filters count >= 3, sorts by count DESC
+        Service: getSuggestedCategories() returns learned pattern when count >= 3
+        Integration: Assign "starbucks" 3x → verify learned suggestion appears first
+      </test>
+      <test id="AC-4.2.5" description="Debounced performance">
+        Component: Rapid typing triggers only 1 query after 300ms pause
+        Performance: Measure getSuggestedCategories() p95 latency &lt; 300ms
+        Performance: Test with 1000+ patterns, assert latency still &lt; 300ms
+      </test>
+      <test id="AC-4.2.6" description="Offline suggestions">
+        Integration: Go offline → type "coffee" → verify cached/keyword suggestions
+        Integration: Offline pattern recording queues for sync on reconnect
+      </test>
+    </ideas>
   </tests>
 </story-context>
