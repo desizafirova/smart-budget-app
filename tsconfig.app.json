@@ -9,7 +9,8 @@
       "@/utils/*": ["src/utils/*"],
       "@/types/*": ["src/types/*"],
       "@/hooks/*": ["src/hooks/*"],
-      "@/providers/*": ["src/providers/*"]
+      "@/providers/*": ["src/providers/*"],
+      "@/config/*": ["src/config/*"]
     },
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2022",

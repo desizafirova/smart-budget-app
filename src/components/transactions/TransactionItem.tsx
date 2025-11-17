@@ -12,6 +12,8 @@ import type { Transaction } from '@/types/transaction';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { formatTransactionDate } from '@/utils/formatDate';
 import { TrendingUp, TrendingDown, Edit2, Trash2 } from 'lucide-react';
+import { useCategoryStore } from '@/stores/categoryStore';
+import { CategoryChip } from '@/components/categories/CategoryChip';
 
 interface TransactionItemProps {
   /** Transaction to display */
@@ -32,6 +34,10 @@ export function TransactionItem({
   onDelete,
 }: TransactionItemProps) {
   const isIncome = transaction.amount > 0;
+  const { categories } = useCategoryStore();
+
+  // Find category by name (transaction stores category name, not ID)
+  const category = categories.find((cat) => cat.name === transaction.category);
 
   // Visual styling based on transaction type
   const amountColor = isIncome ? 'text-green-600' : 'text-red-600';
@@ -67,9 +73,13 @@ export function TransactionItem({
 
           {/* Category and Date */}
           <div className="flex items-center gap-2 mt-1 text-xs text-gray-600">
-            <span className="px-2 py-0.5 bg-white rounded border border-gray-200">
-              {transaction.category}
-            </span>
+            {category ? (
+              <CategoryChip category={category} size="sm" />
+            ) : (
+              <span className="px-2 py-0.5 bg-gray-100 rounded-full text-gray-700 text-xs">
+                {transaction.category}
+              </span>
+            )}
             <span>•</span>
             <time dateTime={transaction.date.toString()}>
               {formatTransactionDate(transaction.date)}

@@ -11,6 +11,8 @@
 import { useEffect, useState } from 'react';
 import { authService } from '@/services/firebase/firebaseAuth';
 import { useAuthStore } from '@/stores/authStore';
+import { useCategoryStore } from '@/stores/categoryStore';
+import { categoryService } from '@/services/categories.service';
 import type { AuthError } from '@/types/errors';
 
 interface AuthProviderProps {
@@ -23,6 +25,7 @@ interface AuthProviderProps {
  */
 export function AuthProvider({ children }: AuthProviderProps) {
   const { setUser, setLoading, setError } = useAuthStore();
+  const { subscribeToCategories, unsubscribeFromCategories } = useCategoryStore();
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
@@ -37,6 +40,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
           if (user) {
             // User is signed in (anonymous or authenticated)
             setUser(user);
+
+            // Seed default categories for new users (idempotent - safe to call every sign-in)
+            try {
+              await categoryService.seedDefaultCategories(user.uid);
+            } catch (error) {
+              // Log error but don't block app initialization
+              console.error('Failed to seed default categories:', error);
+            }
+
+            // Subscribe to real-time category updates
+            subscribeToCategories(user.uid);
+
             setLoading(false);
             setIsInitialized(true);
           } else {
@@ -44,6 +59,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
             try {
               const anonymousUser = await authService.signInAnonymously();
               setUser(anonymousUser);
+
+              // Seed default categories for new anonymous user
+              try {
+                await categoryService.seedDefaultCategories(anonymousUser.uid);
+              } catch (categoryError) {
+                // Log error but don't block app initialization
+                console.error('Failed to seed default categories:', categoryError);
+              }
+
+              // Subscribe to real-time category updates
+              subscribeToCategories(anonymousUser.uid);
+
               setLoading(false);
               setIsInitialized(true);
             } catch (error) {
@@ -74,13 +101,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     initializeAuth();
 
-    // Cleanup: Unsubscribe from auth state changes on unmount
+    // Cleanup: Unsubscribe from auth state changes and categories on unmount
     return () => {
       if (unsubscribe) {
         unsubscribe();
       }
+      unsubscribeFromCategories();
     };
-  }, [setUser, setLoading, setError]);
+  }, [setUser, setLoading, setError, subscribeToCategories, unsubscribeFromCategories]);
 
   // Show loading spinner while initializing auth
   if (!isInitialized) {
