@@ -54,7 +54,8 @@ export default function CategoryManagement() {
     return () => {
       unsubscribeFromCategories();
     };
-  }, [user?.uid, subscribeToCategories, unsubscribeFromCategories]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid]); // Only re-subscribe when user changes
 
   /**
    * Open edit modal for a category

@@ -108,7 +108,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
       unsubscribeFromCategories();
     };
-  }, [setUser, setLoading, setError, subscribeToCategories, unsubscribeFromCategories]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount - auth subscription handles all state changes
 
   // Show loading spinner while initializing auth
   if (!isInitialized) {
