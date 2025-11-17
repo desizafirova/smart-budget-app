@@ -1,6 +1,6 @@
 # Story 4.1: Pre-defined Category System
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -588,7 +588,7 @@ src/
 
 ### Context Reference
 
-<!-- Path(s) to story context XML will be added here by context workflow -->
+- `.bmad-ephemeral/stories/4-1-pre-defined-category-system.context.xml`
 
 ### Agent Model Used
 

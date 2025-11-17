@@ -1,0 +1,522 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>4.1</storyId>
+    <title>Pre-defined Category System</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-17</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>.bmad-ephemeral/stories/4-1-pre-defined-category-system.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>a set of common categories available from the start</iWant>
+    <soThat>I can immediately organize my transactions without setup work</soThat>
+    <tasks>
+      - **Task 1: Create Category data model and seed config** (AC: 4.1.1, 4.1.3, 4.1.4)
+        - Create `src/types/category.ts` with Category interface (id, userId, name, type, icon, color, isDefault, createdAt, updatedAt)
+        - Create `src/config/categories-seed.ts` with DEFAULT_CATEGORIES array (5 income, 10 expense)
+
+      - **Task 2: Create CategoryService with seeding logic** (AC: 4.1.1, 4.1.5)
+        - Create `src/services/categories.service.ts` with ICategoryService interface
+        - Implement seedDefaultCategories(), getCategories(), createCategory(), updateCategory(), deleteCategory()
+        - Use Firebase abstraction layer (IDatabaseService) for all operations
+
+      - **Task 3: Trigger category seeding on first user sign-in** (AC: 4.1.1)
+        - Open `src/features/auth/AuthCallback.tsx` or equivalent auth initialization file
+        - After successful authentication, check if user is new and call seedDefaultCategories(user.uid)
+        - Idempotent seeding: only seed if categories subcollection is empty
+
+      - **Task 4: Create categoryStore with Zustand** (AC: 4.1.2, 4.1.5)
+        - Create `src/stores/categoryStore.ts` with state (categories, loading, error)
+        - Implement actions: loadCategories(), subscribeToCategories()
+        - Implement selectors: getCategoryById(), getIncomeCategories(), getExpenseCategories()
+        - Follow Zustand patterns from transactionStore
+
+      - **Task 5: Create CategoryChip component** (AC: 4.1.3, 4.1.4)
+        - Create `src/components/categories/CategoryChip.tsx` with props (category, size)
+        - Display category icon (Lucide) with category color
+        - Background: light version of category color (opacity 10-20%)
+
+      - **Task 6: Add category dropdown to TransactionForm** (AC: 4.1.2)
+        - Open `src/components/transactions/TransactionForm.tsx`
+        - Add category field using React Hook Form
+        - Load categories from categoryStore using Zustand selectors
+        - Group categories: Income first, then Expense
+
+      - **Task 7: Display categories in TransactionList** (AC: 4.1.3, 4.1.4)
+        - Open `src/components/transactions/TransactionItem.tsx`
+        - Add CategoryChip component to display transaction's category
+        - Load category by ID from categoryStore
+
+      - **Task 8: Initialize category subscription on app load** (AC: 4.1.5)
+        - Open `src/App.tsx` or main layout component
+        - Add useEffect() to subscribe to categories when user is authenticated
+        - Handle cleanup when user signs out (unsubscribe)
+
+      - **Task 9: TypeScript strict mode compliance** (AC: All)
+        - Run `npm run build` and verify zero TypeScript errors
+        - No `any` types used, all Lucide icon imports have correct types
+
+      - **Task 10: Color contrast validation** (AC: 4.1.3)
+        - Verify all category colors pass WCAG AA contrast (4.5:1 on white)
+
+      - **Task 11: Bundle size validation** (AC: All)
+        - Run `npm run build` and check dist/ output
+        - Estimate Story 4.1 impact: ~10-15 KB (15 Lucide icons × ~0.5 KB = ~7.5 KB)
+        - Verify total bundle size still &lt;500KB gzipped
+
+      - **Task 12: End-to-end testing** (AC: All)
+        - Sign out and delete local storage/IndexedDB
+        - Sign in as new anonymous user and verify 15 default categories seeded automatically
+        - Test category dropdown, icons, colors, real-time sync, and offline mode
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    **AC 4.1.1: Default categories seeded on first sign-in**
+    - Given I'm a new user signing in for the first time (anonymous or claimed account)
+    - When authentication completes and my user document is created in Firestore
+    - Then 15 pre-defined categories are automatically seeded in my account:
+      - Income (5): Salary, Freelance, Investment, Gift, Other Income
+      - Expense (10): Food &amp; Dining, Transport, Shopping, Entertainment, Rent, Utilities, Health, Education, Other Expense
+    - And each category has: name, type (income/expense), icon (Lucide icon name), color (hex code), isDefault: true
+    - And categories are stored in Firestore: users/{userId}/categories subcollection
+    - And seeding is idempotent (check if categories exist before seeding to avoid duplicates)
+
+    **AC 4.1.2: Categories available in transaction form**
+    - Given I have default categories seeded in my account
+    - When I open the transaction form to add a new transaction
+    - Then I can select a category from a dropdown showing all 15 pre-defined categories
+    - And each category displays its icon and name in the dropdown
+    - And categories are grouped by type: Income categories first, then Expense categories
+    - And the dropdown is searchable/filterable for quick selection
+
+    **AC 4.1.3: Category colors match UX specification**
+    - Given I'm viewing transactions or categories anywhere in the app
+    - When a category is displayed (badge, chip, chart legend, dropdown)
+    - Then the category uses its assigned color from the UX design specification:
+      - Food &amp; Dining: #f59e0b (Amber), Transport: #3b82f6 (Blue), Shopping: #8b5cf6 (Purple)
+      - Entertainment: #ec4899 (Pink), Health: #10b981 (Green), Education: #6366f1 (Indigo)
+      - Rent: #ef4444 (Red), Utilities: #f97316 (Orange)
+      - Income categories: #10b981 (Green), Other/Uncategorized: #6b7280 (Gray)
+    - And colors pass WCAG AA contrast requirements (4.5:1 ratio on white background)
+    - And color consistency is maintained across all UI elements (charts, badges, transaction list)
+
+    **AC 4.1.4: Category icons display correctly**
+    - Given I'm viewing categories in the app
+    - When a category is displayed (dropdown, badge, transaction list)
+    - Then the category shows its assigned Lucide icon (Salary: DollarSign, Food &amp; Dining: Utensils, etc.)
+    - And icons are rendered at consistent size (w-5 h-5 or 20px)
+    - And icons use the category's color for visual distinction
+
+    **AC 4.1.5: Real-time category sync**
+    - Given I have categories seeded in my account
+    - When categories are loaded from Firestore
+    - Then the app uses real-time onSnapshot() listener to subscribe to category changes
+    - And category updates propagate to the UI within 3 seconds (per PRD)
+    - And categories work offline using Firebase offline persistence
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <!-- Epic 4 Technical Specification -->
+      <doc>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-4.md</path>
+        <title>Epic Technical Specification: Intelligent Categorization</title>
+        <section>Data Models and Contracts</section>
+        <snippet>
+          Category interface: {id, userId, name, type, icon, color, isDefault, createdAt, updatedAt}.
+          DEFAULT_CATEGORIES seed data: 5 income (green #10b981), 10 expense (UX spec colors).
+          CategoryService interface with seedDefaultCategories(), getCategories(), createCategory(), etc.
+        </snippet>
+      </doc>
+
+      <doc>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-4.md</path>
+        <title>Epic Technical Specification: Intelligent Categorization</title>
+        <section>APIs and Interfaces</section>
+        <snippet>
+          Real-time category subscription using Firestore onSnapshot().
+          seedDefaultCategories(): idempotent batch write of 15 default categories.
+          Firebase Security Rules: categories collection restricted to authenticated users, name validation (1-50 chars).
+        </snippet>
+      </doc>
+
+      <doc>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-4.md</path>
+        <title>Epic Technical Specification: Intelligent Categorization</title>
+        <section>Workflows and Sequencing</section>
+        <snippet>
+          First User Sign-In Flow: Auth service creates user → Check if categories empty → If empty: batch write DEFAULT_CATEGORIES → Categories available via onSnapshot() → Transaction form shows category dropdown.
+        </snippet>
+      </doc>
+
+      <!-- Architecture Documentation -->
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>SmartBudget - Technical Architecture</title>
+        <section>Decision 1: Backend-as-a-Service Provider (Firebase)</section>
+        <snippet>
+          Firebase Firestore with modular API. BaaS Abstraction Layer Pattern: IAuthService and IDatabaseService interfaces to mitigate vendor lock-in. All Firebase operations go through abstraction layer (src/services/database.ts, src/services/firebase/firebaseDatabase.ts).
+        </snippet>
+      </doc>
+
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>SmartBudget - Technical Architecture</title>
+        <section>Decision 2: CSS/Styling Solution (Tailwind CSS v4.1)</section>
+        <snippet>
+          Tailwind CSS v4.1 for minimal bundle size (~5-15KB gzipped). Utility-first approach with mobile-first responsive design. Zero runtime overhead, supports &lt;500ms chart update requirement.
+        </snippet>
+      </doc>
+
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>SmartBudget - Technical Architecture</title>
+        <section>Decision 3: State Management (Zustand)</section>
+        <snippet>
+          Zustand for global state management. Lightweight (&lt;1KB), supports optimistic updates, memoized selectors. Pattern: categoryStore.ts follows transactionStore.ts structure (state, actions, selectors).
+        </snippet>
+      </doc>
+
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>SmartBudget - Technical Architecture</title>
+        <section>Decision 9: Icon Library (Lucide React)</section>
+        <snippet>
+          Lucide React v0.553.0 for icon system. Tree-shakable imports (~0.5KB per icon). 14 new icons for Story 4.1: DollarSign, Briefcase, TrendingUp, Gift, Plus, Utensils, Car, ShoppingBag, Film, Home, Zap, Heart, BookOpen, Tag.
+        </snippet>
+      </doc>
+
+      <!-- Epics Documentation -->
+      <doc>
+        <path>docs/epics.md</path>
+        <title>SmartBudget Epics</title>
+        <section>Epic 4 - Story 4.1: Pre-defined Category System</section>
+        <snippet>
+          Seed default categories on first user sign-in (anonymous or claimed). 15 categories: 5 income (Salary, Freelance, Investment, Gift, Other Income), 10 expense (Food &amp; Dining, Transport, Shopping, Entertainment, Rent, Utilities, Health, Education, Other Expense). Each category has name, type, icon (Lucide), color (hex from UX spec), isDefault: true. Stored in Firestore: users/{userId}/categories.
+        </snippet>
+      </doc>
+
+      <!-- UX Design Specification -->
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>3.1 Category Color Palette</section>
+        <snippet>
+          Food &amp; Dining: #f59e0b (Amber), Transport: #3b82f6 (Blue), Shopping: #8b5cf6 (Purple), Entertainment: #ec4899 (Pink), Health: #10b981 (Green), Education: #6366f1 (Indigo), Rent: #ef4444 (Red), Utilities: #f97316 (Orange), Income: #10b981 (Green), Other: #6b7280 (Gray). All colors WCAG AA compliant (4.5:1 contrast).
+        </snippet>
+      </doc>
+
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>6.2 CategoryChip Component</section>
+        <snippet>
+          Badge with rounded corners (rounded-full), light background (category color at 10-20% opacity), icon and text in full category color, padding: px-2.5 py-1, gap between icon and text: gap-1.5.
+        </snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <!-- Existing Database Service Pattern -->
+      <artifact>
+        <path>src/services/database.ts</path>
+        <kind>service</kind>
+        <symbol>IDatabaseService</symbol>
+        <lines>1-89</lines>
+        <reason>
+          Firebase abstraction layer interface that CategoryService must use for all Firestore operations.
+          Key methods: createDocument(), queryDocuments(), subscribeToCollection(), subscribeToUserTransactions().
+          Ensures future migration flexibility and testability.
+        </reason>
+      </artifact>
+
+      <artifact>
+        <path>src/services/firebase/firebaseDatabase.ts</path>
+        <kind>service</kind>
+        <symbol>FirebaseDatabaseService</symbol>
+        <lines>N/A</lines>
+        <reason>
+          Firebase implementation of IDatabaseService. Reference this implementation for category operations.
+          Includes batch write patterns, onSnapshot() real-time listeners, offline persistence.
+        </reason>
+      </artifact>
+
+      <!-- Existing Zustand Store Pattern -->
+      <artifact>
+        <path>src/stores/transactionStore.ts</path>
+        <kind>store</kind>
+        <symbol>useTransactionStore</symbol>
+        <lines>1-298</lines>
+        <reason>
+          Zustand store pattern to replicate for categoryStore.
+          Key patterns: state interface (data, loading, error), actions (CRUD operations), selectors (memoized queries),
+          subscribeToTransactions() with real-time listener, optimistic updates for instant UI feedback.
+        </reason>
+      </artifact>
+
+      <!-- Existing Type Definitions -->
+      <artifact>
+        <path>src/types/transaction.ts</path>
+        <kind>types</kind>
+        <symbol>Transaction, CreateTransactionInput</symbol>
+        <lines>1-85</lines>
+        <reason>
+          Type definition pattern to follow for Category interface.
+          Structure: Full entity type with all fields, CreateInput type omitting auto-generated fields (id, createdAt, updatedAt).
+        </reason>
+      </artifact>
+
+      <!-- Transaction Form Component -->
+      <artifact>
+        <path>src/components/transactions/TransactionForm.tsx</path>
+        <kind>component</kind>
+        <symbol>TransactionForm</symbol>
+        <lines>N/A</lines>
+        <reason>
+          Modify to add category dropdown. Uses React Hook Form for validation.
+          Add category field with validation (required), load categories from categoryStore, group by type (income/expense).
+        </reason>
+      </artifact>
+
+      <!-- Transaction Item Component -->
+      <artifact>
+        <path>src/components/transactions/TransactionItem.tsx</path>
+        <kind>component</kind>
+        <symbol>TransactionItem</symbol>
+        <lines>N/A</lines>
+        <reason>
+          Modify to display CategoryChip. Load category by ID from categoryStore.getCategoryById().
+          If category not found, show "Uncategorized" with gray color.
+        </reason>
+      </artifact>
+
+      <!-- Auth Store for User ID -->
+      <artifact>
+        <path>src/stores/authStore.ts</path>
+        <kind>store</kind>
+        <symbol>useAuthStore</symbol>
+        <lines>N/A</lines>
+        <reason>
+          Source of authenticated user.uid for category operations.
+          Pattern: useAuthStore().user?.uid to get current user ID for category queries.
+        </reason>
+      </artifact>
+    </code>
+
+    <dependencies>
+      <node>
+        <package>firebase</package>
+        <version>^12.4.0</version>
+        <usage>Firestore for category storage, batch writes (writeBatch), real-time listeners (onSnapshot), offline persistence</usage>
+      </node>
+      <node>
+        <package>zustand</package>
+        <version>^5.0.8</version>
+        <usage>categoryStore for client-side state management, memoized selectors</usage>
+      </node>
+      <node>
+        <package>lucide-react</package>
+        <version>^0.553.0</version>
+        <usage>14 category icons (DollarSign, Briefcase, TrendingUp, Gift, Plus, Utensils, Car, ShoppingBag, Film, Home, Zap, Heart, BookOpen, Tag). Tree-shakable imports.</usage>
+      </node>
+      <node>
+        <package>react-hook-form</package>
+        <version>^7.66.0</version>
+        <usage>Category dropdown in TransactionForm with validation (category required field)</usage>
+      </node>
+      <node>
+        <package>tailwindcss</package>
+        <version>4.1</version>
+        <usage>CategoryChip styling (badge with rounded corners, color opacity, padding, gap utilities)</usage>
+      </node>
+      <node>
+        <package>react</package>
+        <version>^19.2.0</version>
+        <usage>React hooks (useEffect) for category subscription lifecycle</usage>
+      </node>
+      <node>
+        <package>typescript</package>
+        <version>~5.9.3</version>
+        <usage>Type definitions for Category, NewCategory, ICategoryService interfaces. Strict mode compliance (no any types).</usage>
+      </node>
+      <node>
+        <package>vitest</package>
+        <version>2.0</version>
+        <usage>Unit tests for seedDefaultCategories(), categoryStore actions/selectors, CategoryChip component</usage>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - **Firebase Abstraction Layer:** All category operations MUST use IDatabaseService interface, not Firebase SDK directly. Ensures future migration flexibility.
+    - **Real-Time Sync Required:** Categories MUST use onSnapshot() for real-time updates (AC 4.1.5). Updates propagate within 3 seconds per PRD.
+    - **Offline Support:** Categories MUST work offline using Firebase offline persistence (enableIndexedDbPersistence).
+    - **Idempotent Seeding:** seedDefaultCategories() MUST check if categories exist before writing to prevent duplicates. Safe to call multiple times.
+    - **Batch Write Pattern:** Default category seeding MUST use Firestore writeBatch() for atomic operation (all 15 categories or none).
+    - **Color Contrast (WCAG AA):** All category colors MUST pass 4.5:1 contrast ratio on white background. Verify before deployment.
+    - **Bundle Size Budget:** Story 4.1 impact ~10-15 KB. Total bundle must stay &lt;500KB gzipped. Use tree-shakable Lucide icon imports.
+    - **Firestore Collection Path:** Categories stored in users/{userId}/categories subcollection. Isolates user data, enforces security rules.
+    - **Category Schema:** Each category MUST have: id, userId, name, type (income|expense), icon, color, isDefault, createdAt, updatedAt.
+    - **Zustand Store Pattern:** categoryStore MUST follow transactionStore structure (state, actions, selectors). Use memoized selectors for getIncomeCategories(), getExpenseCategories().
+    - **TypeScript Strict Mode:** No any types allowed. All Category fields must have explicit types. Lucide icon imports must be typed.
+    - **Component Reusability:** CategoryChip MUST be reusable across transaction list, forms, dashboard charts. Accept category and size props.
+    - **Transaction Integration:** TransactionForm MUST group categories by type (Income first, Expense second). Category field is required with validation.
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>ICategoryService</name>
+      <kind>Service Interface</kind>
+      <signature>
+        interface ICategoryService {
+          seedDefaultCategories(userId: string): Promise&lt;void&gt;;
+          getCategories(userId: string): Promise&lt;Category[]&gt;;
+          createCategory(userId: string, category: NewCategory): Promise&lt;Category&gt;;
+          updateCategory(userId: string, categoryId: string, updates: Partial&lt;Category&gt;): Promise&lt;void&gt;;
+          deleteCategory(userId: string, categoryId: string): Promise&lt;void&gt;;
+        }
+      </signature>
+      <path>src/services/categories.service.ts (NEW)</path>
+    </interface>
+
+    <interface>
+      <name>Category</name>
+      <kind>TypeScript Interface</kind>
+      <signature>
+        interface Category {
+          id: string;
+          userId: string;
+          name: string;
+          type: 'income' | 'expense';
+          icon: string; // Lucide icon name
+          color: string; // Hex color
+          isDefault: boolean;
+          createdAt: Date;
+          updatedAt: Date;
+        }
+      </signature>
+      <path>src/types/category.ts (NEW)</path>
+    </interface>
+
+    <interface>
+      <name>NewCategory</name>
+      <kind>TypeScript Interface</kind>
+      <signature>
+        type NewCategory = Omit&lt;Category, 'id' | 'userId' | 'createdAt' | 'updatedAt'&gt;
+      </signature>
+      <path>src/types/category.ts (NEW)</path>
+    </interface>
+
+    <interface>
+      <name>CategoryStore</name>
+      <kind>Zustand Store Interface</kind>
+      <signature>
+        interface CategoryStore {
+          categories: Category[];
+          loading: boolean;
+          error: string | null;
+          loadCategories: (userId: string) =&gt; Promise&lt;void&gt;;
+          subscribeToCategories: (userId: string) =&gt; () =&gt; void;
+          getCategoryById: (id: string) =&gt; Category | undefined;
+          getIncomeCategories: () =&gt; Category[];
+          getExpenseCategories: () =&gt; Category[];
+        }
+      </signature>
+      <path>src/stores/categoryStore.ts (NEW)</path>
+    </interface>
+
+    <interface>
+      <name>IDatabaseService.subscribeToCollection</name>
+      <kind>Database Service Method</kind>
+      <signature>
+        subscribeToCollection&lt;T&gt;(
+          collection: string,
+          callback: (docs: T[]) =&gt; void
+        ): () =&gt; void
+      </signature>
+      <path>src/services/database.ts (EXISTING)</path>
+    </interface>
+
+    <interface>
+      <name>Firestore writeBatch</name>
+      <kind>Firebase API</kind>
+      <signature>
+        import { writeBatch, doc, collection } from 'firebase/firestore';
+        const batch = writeBatch(db);
+        batch.set(docRef, data);
+        await batch.commit();
+      </signature>
+      <path>Firebase Firestore SDK</path>
+    </interface>
+
+    <interface>
+      <name>CategoryChip Props</name>
+      <kind>React Component Props</kind>
+      <signature>
+        interface CategoryChipProps {
+          category: Category;
+          size?: 'sm' | 'md' | 'lg';
+        }
+      </signature>
+      <path>src/components/categories/CategoryChip.tsx (NEW)</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      SmartBudget uses Vitest for unit and integration tests, @testing-library/react for component tests, and Playwright for E2E tests (Epic 7.6).
+      All tests are located in src/ alongside implementation files with .test.ts or .test.tsx extensions.
+      Firebase Emulator is used for integration tests to avoid hitting production Firestore.
+      Test coverage target: &gt;80% for critical paths (authentication, transaction CRUD, category seeding).
+      Pattern: Arrange-Act-Assert with descriptive test names ("should seed 15 default categories on first sign-in").
+    </standards>
+
+    <locations>
+      - src/services/categories.service.test.ts (NEW - unit tests for CategoryService)
+      - src/stores/categoryStore.test.ts (NEW - unit tests for Zustand store)
+      - src/components/categories/CategoryChip.test.tsx (NEW - component tests)
+      - src/config/categories-seed.test.ts (NEW - validate DEFAULT_CATEGORIES array)
+      - Integration tests in src/services/firebase/ using Firebase Emulator
+    </locations>
+
+    <ideas>
+      **AC 4.1.1 Tests (Default categories seeded on first sign-in):**
+      - Test seedDefaultCategories(): Mock Firestore, verify batch write with 15 categories
+      - Test idempotency: Call seedDefaultCategories() twice, verify only 15 categories exist (no duplicates)
+      - Test category schema: Verify each seeded category has all required fields (id, userId, name, type, icon, color, isDefault, createdAt, updatedAt)
+      - Test category types: Verify 5 income categories, 10 expense categories
+      - Test category colors: Verify all colors match UX spec (Food &amp; Dining: #f59e0b, etc.)
+
+      **AC 4.1.2 Tests (Categories available in transaction form):**
+      - Test TransactionForm: Render with categories, verify dropdown shows all 15 categories
+      - Test category grouping: Verify Income categories displayed first, then Expense categories
+      - Test category validation: Submit form without category, verify "Category is required" error
+
+      **AC 4.1.3 Tests (Category colors match UX specification):**
+      - Test CategoryChip: Render with Food &amp; Dining category, verify color is #f59e0b (Amber)
+      - Test color contrast: Verify all 15 category colors pass WCAG AA (4.5:1 ratio on white)
+
+      **AC 4.1.4 Tests (Category icons display correctly):**
+      - Test CategoryChip: Render with Salary category, verify DollarSign icon displayed
+      - Test CategoryChip: Render with Food &amp; Dining, verify Utensils icon displayed
+      - Test icon size: Verify icons rendered at w-5 h-5 (20px)
+
+      **AC 4.1.5 Tests (Real-time category sync):**
+      - Test categoryStore.subscribeToCategories(): Verify onSnapshot subscription created
+      - Test real-time updates: Seed categories, subscribe, verify categories appear in store
+      - Test unsubscribe: Verify cleanup on unmount (unsubscribe function called)
+      - Integration test: Seed categories on "device 1", verify categories appear on "device 2" (Firebase Emulator)
+
+      **Additional Tests:**
+      - Test categoryStore.getCategoryById(): Verify selector returns correct category
+      - Test categoryStore.getIncomeCategories(): Verify selector filters by type='income'
+      - Test categoryStore.getExpenseCategories(): Verify selector filters by type='expense'
+      - Test DEFAULT_CATEGORIES: Verify array has exactly 15 entries, all required fields present
+      - Test bundle size: Verify Story 4.1 impact &lt;15 KB (15 icons × ~0.5 KB)
+    </ideas>
+  </tests>
+</story-context>
