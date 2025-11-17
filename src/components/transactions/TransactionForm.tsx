@@ -15,6 +15,7 @@ import { useState, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useTransactionStore } from '@/stores/transactionStore';
 import { useAuthStore } from '@/stores/authStore';
+import { useCategoryStore } from '@/stores/categoryStore';
 import type { CreateTransactionInput, Transaction } from '@/types/transaction';
 
 interface TransactionFormProps {
@@ -49,8 +50,13 @@ export function TransactionForm({
 }: TransactionFormProps) {
   const { addTransaction, updateTransaction, isSaving } = useTransactionStore();
   const { user } = useAuthStore();
+  const { getIncomeCategories, getExpenseCategories } = useCategoryStore();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  // Get categories from store
+  const incomeCategories = getIncomeCategories();
+  const expenseCategories = getExpenseCategories();
 
   const {
     register,
@@ -398,7 +404,32 @@ export function TransactionForm({
                     errors.category ? 'category-error' : undefined
                   }
                 >
-                  <option value="Uncategorized">Uncategorized</option>
+                  {/* Income categories */}
+                  {incomeCategories.length > 0 && (
+                    <optgroup label="Income">
+                      {incomeCategories.map((cat) => (
+                        <option key={cat.id} value={cat.name}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+
+                  {/* Expense categories */}
+                  {expenseCategories.length > 0 && (
+                    <optgroup label="Expense">
+                      {expenseCategories.map((cat) => (
+                        <option key={cat.id} value={cat.name}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+
+                  {/* Fallback if no categories loaded yet */}
+                  {incomeCategories.length === 0 && expenseCategories.length === 0 && (
+                    <option value="Uncategorized">Uncategorized</option>
+                  )}
                 </select>
                 {errors.category && (
                   <p
