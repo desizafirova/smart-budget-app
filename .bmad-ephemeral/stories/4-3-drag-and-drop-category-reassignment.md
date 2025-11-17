@@ -1,6 +1,6 @@
 # Story 4.3: Drag-and-Drop Category Reassignment
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -704,7 +704,7 @@ src/
 
 ### Context Reference
 
-<!-- Path(s) to story context XML will be added here by context workflow -->
+- `.bmad-ephemeral/stories/4-3-drag-and-drop-category-reassignment.context.xml` (Generated: 2025-11-17)
 
 ### Agent Model Used
 

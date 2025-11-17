@@ -1,0 +1,333 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>4.3</storyId>
+    <title>Drag-and-Drop Category Reassignment</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-17</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>.bmad-ephemeral/stories/4-3-drag-and-drop-category-reassignment.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to drag transactions to different categories</iWant>
+    <soThat>I can quickly reorganize my spending without editing each transaction individually</soThat>
+    <tasks>
+      <task id="1" acs="4.3.1,4.3.2">Implement HTML5 drag-and-drop for desktop</task>
+      <task id="2" acs="4.3.3">Create CategoryPickerModal component for mobile</task>
+      <task id="3" acs="4.3.3">Integrate modal trigger in TransactionListItem</task>
+      <task id="4" acs="4.3.4">Implement keyboard accessibility for drag-and-drop</task>
+      <task id="5" acs="4.3.5">Update TransactionStore with optimistic updates</task>
+      <task id="6" acs="4.3.6">Integrate with dashboard chart for real-time updates</task>
+      <task id="7" acs="4.3.1,4.3.2">Add visual polish and animations</task>
+      <task id="8" acs="4.3.1,4.3.2">Component tests for drag-and-drop</task>
+      <task id="9" acs="4.3.3">Component tests for CategoryPickerModal</task>
+      <task id="10" acs="all">Integration testing</task>
+      <task id="11" acs="all">End-to-end testing (Playwright)</task>
+      <task id="12" acs="4.3.4">Accessibility audit</task>
+      <task id="13" acs="all">TypeScript strict mode compliance</task>
+      <task id="14" acs="4.3.6">Performance validation - less than 500ms update latency</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="4.3.1" priority="high">
+      <title>Desktop drag-and-drop works</title>
+      <given>I'm viewing my transaction list on desktop</given>
+      <when>I drag a transaction card to a category label or section</when>
+      <then>
+        - Transaction's category is updated immediately in Firebase
+        - Transaction moves to the correct category group (if using grouped view)
+        - Change persists across page refreshes and devices
+        - Visual feedback confirms the action (animation, color change less than 500ms)
+      </then>
+    </criterion>
+
+    <criterion id="4.3.2" priority="high">
+      <title>Visual feedback during drag operation</title>
+      <given>I start dragging a transaction card</given>
+      <when>The drag operation is in progress</when>
+      <then>
+        - Transaction card becomes semi-transparent (opacity 0.5)
+        - Valid drop targets (category labels) highlight with border/background change
+        - When hovering over a category label, it shows visual indication
+        - Cursor shows appropriate drag cursor icon
+        - Invalid drop targets show "not-allowed" cursor
+      </then>
+    </criterion>
+
+    <criterion id="4.3.3" priority="high">
+      <title>Mobile touch alternative works</title>
+      <given>I'm on mobile or tablet (touch device)</given>
+      <when>I tap a transaction in the list</when>
+      <then>
+        - Category picker modal opens showing all categories
+        - Categories are displayed with their icon and color (using CategoryChip component)
+        - I can tap a category to reassign
+        - Transaction updates immediately
+        - Modal closes with confirmation feedback
+        - UI reflects the new category (badge color, grouped position)
+      </then>
+    </criterion>
+
+    <criterion id="4.3.4" priority="high">
+      <title>Keyboard accessibility (desktop)</title>
+      <given>I'm using keyboard-only navigation</given>
+      <when>I Tab to a transaction and press Space or Enter</when>
+      <then>
+        - Category reassignment mode activates
+        - Arrow keys navigate through category options
+        - Enter confirms the new category selection
+        - Escape cancels reassignment
+        - Focus returns to the transaction after completion
+        - Screen readers announce: "Category reassignment mode. Use arrow keys to select category, Enter to confirm, Escape to cancel"
+      </then>
+    </criterion>
+
+    <criterion id="4.3.5" priority="high">
+      <title>Optimistic UI updates</title>
+      <given>I reassign a transaction's category (drag-drop or modal)</given>
+      <when>The reassignment action is triggered</when>
+      <then>
+        - UI updates immediately (optimistic update)
+        - If Firebase write fails, the UI rolls back to previous state
+        - Error toast displays: "Failed to update category. Please try again."
+        - Transaction retains its original category on rollback
+      </then>
+    </criterion>
+
+    <criterion id="4.3.6" priority="high">
+      <title>Dashboard chart updates in real-time</title>
+      <given>I'm viewing the dashboard with category breakdown chart (Epic 5)</given>
+      <when>I reassign a transaction's category</when>
+      <then>
+        - Dashboard chart updates within 500ms
+        - Old category's segment shrinks
+        - New category's segment grows
+        - Animation is smooth (no jarring jumps)
+        - Chart legend updates with new totals
+      </then>
+    </criterion>
+
+    <criterion id="4.3.7" priority="low">
+      <title>Batch reassignment works (nice-to-have, not MVP-critical)</title>
+      <given>I select multiple transactions (checkbox or Cmd/Ctrl+Click)</given>
+      <when>I drag the selection to a category label OR use a "Change Category" action</when>
+      <then>
+        - All selected transactions update to the new category
+        - Firebase batch write updates all transactions atomically
+        - UI shows batch progress for more than 10 transactions
+        - Note: This AC is optional for MVP, can be deferred to Phase 2
+      </then>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-4.md</path>
+        <title>Epic Technical Specification: Intelligent Categorization</title>
+        <section>Workflows and Sequencing - Flow 3: Drag-and-Drop Category Reassignment</section>
+        <snippet>User drags transaction card (onDragStart event) - dataTransfer.setData('transactionId', tx.id). Visual feedback: Transaction card becomes semi-transparent. Drop on category label triggers Firebase update and UI refresh with animation under 500ms.</snippet>
+      </doc>
+
+      <doc>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-4.md</path>
+        <title>Epic Technical Specification: Intelligent Categorization</title>
+        <section>System Architecture Alignment - Story 4.3</section>
+        <snippet>Desktop: HTML5 Drag and Drop API for transaction cards to category labels. Mobile: Tap transaction to open category picker modal (touch-optimized). Accessibility: Keyboard alternative (Tab → Arrow keys → Enter to reassign).</snippet>
+      </doc>
+
+      <doc>
+        <path>.bmad-ephemeral/stories/tech-spec-epic-4.md</path>
+        <title>Epic Technical Specification: Intelligent Categorization</title>
+        <section>Non-Functional Requirements - Performance</section>
+        <snippet>Category Reassignment Target: less than 500ms from drag-drop to UI update (95th percentile). Implementation: Optimistic UI updates (immediate visual feedback), Firebase batch operations, Dashboard chart recalculation debounced to 500ms.</snippet>
+      </doc>
+
+      <doc>
+        <path>docs/epics.md</path>
+        <title>SmartBudget - Epic Breakdown</title>
+        <section>Epic 4: Story 4.3 - Drag-and-Drop Category Reassignment</section>
+        <snippet>Desktop: HTML5 Drag and Drop API. Mobile: Touch events for swipe gestures OR simple tap to category picker modal. Visual feedback: dragging shows ghost image, drop target highlights. Batch reassignment: nice-to-have, not MVP-critical. Accessibility: keyboard alternative for drag-and-drop (arrow keys + enter).</snippet>
+      </doc>
+
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>ADR-002: Tailwind CSS v4.1</section>
+        <snippet>Drag-and-Drop Visual Feedback: Use Tailwind utility classes for drag states: opacity-50, border-2, border-blue-500, bg-blue-50. Transition utilities: transition-all, duration-200, ease-in-out. Cursor utilities: cursor-grab, cursor-grabbing, cursor-not-allowed.</snippet>
+      </doc>
+
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR-3.3: Drag-and-Drop Category Assignment (Desktop)</section>
+        <snippet>Users can drag transaction cards to category labels to reassign. Visual feedback during drag (category highlights on hover). Acceptance Criteria: Drag transaction from list, drop on category label. Category updates immediately, dashboard refreshes.</snippet>
+      </doc>
+
+      <doc>
+        <path>.bmad-ephemeral/stories/4-2-smart-category-suggestions.md</path>
+        <title>Story 4.2: Smart Category Suggestions (Completed)</title>
+        <section>Dev Notes - Learnings from Previous Story</section>
+        <snippet>CategoryChip component available at src/components/categories/CategoryChip.tsx - Reusable badge with icon/color. CategoryStore (Zustand) at src/stores/categoryStore.ts provides category loading via getCategories(). TransactionStore to be extended with optimistic update logic. Firebase Security Rules already enforce userId-based access control.</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <artifact>
+        <path>src/components/transactions/TransactionItem.tsx</path>
+        <kind>component</kind>
+        <symbol>TransactionItem</symbol>
+        <lines>1-80</lines>
+        <reason>Existing transaction display component that will be modified to add drag-and-drop handlers (onDragStart, onDragEnd, onDrop) and keyboard accessibility (onKeyDown). Currently displays transaction with CategoryChip and action buttons.</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/components/categories/CategoryChip.tsx</path>
+        <kind>component</kind>
+        <symbol>CategoryChip</symbol>
+        <lines>1-50</lines>
+        <reason>Reusable category badge component with icon, name, and color. Will be reused in the new CategoryPickerModal for mobile. Already implements UX spec design (rounded corners, light background, proper padding).</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/stores/transactionStore.ts</path>
+        <kind>store</kind>
+        <symbol>useTransactionStore</symbol>
+        <lines>1-100</lines>
+        <reason>Zustand store managing transaction state. Contains updateTransaction method that will be extended with optimistic update logic and rollback capability for Story 4.3. Already implements real-time subscriptions via subscribeToTransactions.</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/stores/categoryStore.ts</path>
+        <kind>store</kind>
+        <symbol>useCategoryStore</symbol>
+        <lines>full-file</lines>
+        <reason>Zustand store managing category state. Will be used to load categories for CategoryPickerModal. Already implements real-time category sync and provides category list for the modal picker.</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/components/transactions/TransactionForm.tsx</path>
+        <kind>component</kind>
+        <symbol>TransactionForm</symbol>
+        <lines>full-file</lines>
+        <reason>Reference for Modal usage patterns and React Hook Form integration. Provides examples of form validation and category selection UI patterns that can be adapted for the CategoryPickerModal.</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/components/categories/CategorySuggestions.tsx</path>
+        <kind>component</kind>
+        <symbol>CategorySuggestions</symbol>
+        <lines>full-file</lines>
+        <reason>Reference for CategoryChip usage and category selection patterns. Shows how to display multiple categories with chips and handle selection callbacks.</reason>
+      </artifact>
+    </code>
+
+    <dependencies>
+      <node>
+        <package name="react" version="^19.2.0" />
+        <package name="react-dom" version="^19.2.0" />
+        <package name="zustand" version="^5.0.8" />
+        <package name="firebase" version="^12.4.0" />
+        <package name="lucide-react" version="^0.553.0" />
+        <package name="react-hook-form" version="^7.66.0" />
+        <package name="dayjs" version="^1.11.18" />
+        <package name="chart.js" version="^4.5.1" />
+        <package name="react-chartjs-2" version="^5.3.0" />
+      </node>
+      <devDependencies>
+        <package name="@testing-library/react" version="16.1" />
+        <package name="@testing-library/user-event" version="^14.6.1" />
+        <package name="@tailwindcss/vite" version="^4.1.17" />
+        <package name="vitest" version="latest" />
+      </devDependencies>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="pattern">Use HTML5 Drag and Drop API natively - no external drag-and-drop library needed to keep bundle size under 500KB budget</constraint>
+    <constraint type="pattern">Extend existing TransactionStore.updateTransaction() with optimistic update logic rather than creating new methods</constraint>
+    <constraint type="pattern">Reuse CategoryChip component from Story 4.1 in the CategoryPickerModal for consistency</constraint>
+    <constraint type="pattern">Reuse categoryStore.getCategories() to load categories for modal - do not duplicate category loading logic</constraint>
+    <constraint type="performance">Category reassignment must complete in less than 500ms (95th percentile) - use optimistic UI updates</constraint>
+    <constraint type="performance">Dashboard chart updates must trigger within 500ms of category change - debounce chart recalculation if needed</constraint>
+    <constraint type="accessibility">Keyboard alternative required for drag-and-drop - Tab, Arrow keys, Enter, Escape navigation per WCAG 2.1 Level AA</constraint>
+    <constraint type="accessibility">Screen reader announcements required for category reassignment mode activation, navigation, and completion</constraint>
+    <constraint type="accessibility">All interactive elements must have 44x44px minimum touch targets on mobile per WCAG guidelines</constraint>
+    <constraint type="testing">Component tests required for drag event handlers (onDragStart, onDragEnd, onDragOver, onDrop)</constraint>
+    <constraint type="testing">Integration tests required for optimistic update rollback on Firebase errors</constraint>
+    <constraint type="testing">E2E tests required for desktop drag-and-drop, mobile modal, and keyboard navigation flows</constraint>
+    <constraint type="bundle">Expected bundle impact: 5-8 KB (CategoryPickerModal + drag handlers) - post-story projection: 227-234 KB / 500 KB budget (45-47%)</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>TransactionStore.updateTransaction</name>
+      <kind>Zustand store method</kind>
+      <signature>updateTransaction: (userId: string, transactionId: string, updates: Partial&lt;Transaction&gt;) =&gt; Promise&lt;void&gt;</signature>
+      <path>src/stores/transactionStore.ts</path>
+      <description>Method to be extended with optimistic update logic: (1) Immediately update UI state, (2) Attempt Firebase write, (3) Rollback on error with toast notification</description>
+    </interface>
+
+    <interface>
+      <name>CategoryStore.categories</name>
+      <kind>Zustand store state</kind>
+      <signature>categories: Category[]</signature>
+      <path>src/stores/categoryStore.ts</path>
+      <description>Array of Category objects with id, name, type, icon, color. Used to populate CategoryPickerModal and provide category data for drag-and-drop targets</description>
+    </interface>
+
+    <interface>
+      <name>CategoryChip</name>
+      <kind>React component</kind>
+      <signature>CategoryChip({ category, size }: { category: Category; size: 'sm' | 'md' | 'lg' }) =&gt; JSX.Element</signature>
+      <path>src/components/categories/CategoryChip.tsx</path>
+      <description>Reusable category display component with icon and color. To be used in CategoryPickerModal for consistent visual representation</description>
+    </interface>
+
+    <interface>
+      <name>HTML5 DragEvent</name>
+      <kind>Browser API</kind>
+      <signature>React.DragEvent&lt;HTMLDivElement&gt;</signature>
+      <path>Built-in</path>
+      <description>Native browser drag event interface. dataTransfer.setData() to store transactionId, dataTransfer.getData() to retrieve on drop. effectAllowed='move', dropEffect='move' for visual feedback</description>
+    </interface>
+
+    <interface>
+      <name>CategoryPickerModal (to be created)</name>
+      <kind>React component</kind>
+      <signature>CategoryPickerModal({ isOpen, onClose, onSelectCategory, currentCategoryId, categories }: CategoryPickerModalProps) =&gt; JSX.Element</signature>
+      <path>src/components/categories/CategoryPickerModal.tsx</path>
+      <description>New modal component for mobile category selection. Grid layout with CategoryChip buttons, highlights current category, calls onSelectCategory callback on tap</description>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Use Vitest for unit and component tests. React Testing Library for component testing with user event simulation. Firebase Emulator for integration tests involving Firestore. Playwright for end-to-end tests across desktop and mobile viewports. All tests must maintain existing coverage standards and add coverage for new drag-and-drop functionality. Performance tests must validate less than 500ms update latency using performance.now() measurements. Accessibility tests using Axe DevTools and manual screen reader testing (NVDA/JAWS).
+    </standards>
+
+    <locations>
+      src/components/transactions/TransactionListItem.test.tsx
+      src/components/categories/CategoryPickerModal.test.tsx
+      src/stores/transactionStore.test.ts
+      tests/integration/drag-drop-category.test.ts
+      e2e/drag-drop.spec.ts
+      e2e/mobile-category-picker.spec.ts
+      e2e/keyboard-navigation.spec.ts
+    </locations>
+
+    <ideas>
+      <idea ac="4.3.1,4.3.2">Test drag event handlers: mock React.DragEvent, verify dataTransfer.setData called with transactionId, verify CSS classes applied/removed for visual feedback (opacity-50, border-2, border-blue-500)</idea>
+      <idea ac="4.3.3">Test CategoryPickerModal: render with categories, simulate tap on category button, verify onSelectCategory callback called with correct categoryId, verify modal closes</idea>
+      <idea ac="4.3.4">Test keyboard navigation: simulate Tab key to focus transaction, Enter to activate reassignment mode, ArrowDown/ArrowUp to navigate categories, Enter to confirm, verify updateTransaction called</idea>
+      <idea ac="4.3.5">Test optimistic update rollback: mock Firebase error in updateTransaction, verify UI updates immediately, verify rollback to original state on error, verify error toast displayed</idea>
+      <idea ac="4.3.6">Test dashboard chart integration: mock transaction update, verify chart data recalculation triggered, verify animation completes within 500ms using performance.now()</idea>
+      <idea ac="all">E2E desktop drag-and-drop: use Playwright to drag transaction element with [data-testid="transaction-{id}"] to category label [data-testid="category-label-{name}"], verify DOM updates</idea>
+      <idea ac="all">E2E mobile modal: set mobile viewport (375x667), tap transaction, verify modal visible, tap category chip, verify transaction updated and modal closed</idea>
+      <idea ac="4.3.4">Accessibility audit: run Axe DevTools, verify zero violations, test with NVDA screen reader for announcement accuracy, verify focus management and keyboard-only navigation</idea>
+    </ideas>
+  </tests>
+</story-context>
