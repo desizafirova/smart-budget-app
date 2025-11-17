@@ -7626,3 +7626,153 @@ User working through Firebase CLI setup on Windows (firebase-tools via npx). Nee
 **Status**: 
 - Story 4.2: ✅ Done
 - Story 4.3: 📝 Drafted (ready for context generation)
+
+---
+
+## Session: 2025-11-17 - Story Context Generation for Story 4.3
+
+**Agent**: SM (Scrum Master) - Bob
+**User**: Desi
+**Branch**: claude/bmad-bmm-module-01QAvyChfaUvvbnwQoWuU5Ej
+
+### Command Executed
+
+**`/bmad:bmm:agents:sm *story-context 4-3`** - Generated comprehensive technical context XML for Story 4.3 (Drag-and-Drop Category Reassignment)
+
+### Workflow Execution Summary
+
+**Workflow**: story-context
+**Story**: 4.3 - Drag-and-Drop Category Reassignment
+**Status Change**: drafted → ready-for-dev
+
+**Context File Generated**: `.bmad-ephemeral/stories/4-3-drag-and-drop-category-reassignment.context.xml`
+
+### Context Components
+
+**Story Metadata:**
+- Epic ID: 4
+- Story ID: 4.3
+- Title: Drag-and-Drop Category Reassignment
+- User Story: As a user, I want to drag transactions to different categories, so that I can quickly reorganize my spending without editing each transaction individually
+
+**Acceptance Criteria** (7):
+1. **AC 4.3.1** (high): Desktop drag-and-drop works - Transaction updates immediately in Firebase, visual feedback <500ms
+2. **AC 4.3.2** (high): Visual feedback during drag operation - Semi-transparent card, highlighted drop targets, appropriate cursors
+3. **AC 4.3.3** (high): Mobile touch alternative works - Category picker modal with CategoryChip display
+4. **AC 4.3.4** (high): Keyboard accessibility - Tab, Arrow keys, Enter, Escape navigation with screen reader announcements
+5. **AC 4.3.5** (high): Optimistic UI updates - Immediate update with rollback on Firebase error
+6. **AC 4.3.6** (high): Dashboard chart updates in real-time - Chart recalculates within 500ms
+7. **AC 4.3.7** (low): Batch reassignment works - Nice-to-have, deferred to Phase 2
+
+**Tasks** (14):
+1. Implement HTML5 drag-and-drop for desktop (AC: 4.3.1, 4.3.2)
+2. Create CategoryPickerModal component for mobile (AC: 4.3.3)
+3. Integrate modal trigger in TransactionListItem (AC: 4.3.3)
+4. Implement keyboard accessibility (AC: 4.3.4)
+5. Update TransactionStore with optimistic updates (AC: 4.3.5)
+6. Integrate with dashboard chart for real-time updates (AC: 4.3.6)
+7. Add visual polish and animations (AC: 4.3.1, 4.3.2)
+8. Component tests for drag-and-drop (AC: 4.3.1, 4.3.2)
+9. Component tests for CategoryPickerModal (AC: 4.3.3)
+10. Integration testing (AC: all)
+11. End-to-end testing with Playwright (AC: all)
+12. Accessibility audit (AC: 4.3.4)
+13. TypeScript strict mode compliance (AC: all)
+14. Performance validation - <500ms update latency (AC: 4.3.6)
+
+**Documentation Artifacts** (7):
+- `.bmad-ephemeral/stories/tech-spec-epic-4.md` (3 sections: Workflows/Sequencing, System Architecture, Non-Functional Requirements)
+- `docs/epics.md` (Epic 4: Story 4.3)
+- `docs/architecture.md` (ADR-002: Tailwind CSS)
+- `docs/PRD.md` (FR-3.3: Drag-and-Drop Category Assignment)
+- `.bmad-ephemeral/stories/4-2-smart-category-suggestions.md` (Previous story learnings)
+
+**Code Artifacts** (6):
+- `src/components/transactions/TransactionItem.tsx` - To be modified with drag handlers
+- `src/components/categories/CategoryChip.tsx` - To be reused in modal
+- `src/stores/transactionStore.ts` - To be extended with optimistic updates
+- `src/stores/categoryStore.ts` - To be used for category loading
+- `src/components/transactions/TransactionForm.tsx` - Reference for modal patterns
+- `src/components/categories/CategorySuggestions.tsx` - Reference for chip usage
+
+**Interfaces** (5):
+- TransactionStore.updateTransaction - Method to extend with optimistic logic
+- CategoryStore.categories - Array of Category objects for modal
+- CategoryChip - Reusable component for category display
+- HTML5 DragEvent - Native browser API for drag-and-drop
+- CategoryPickerModal (to be created) - New modal component for mobile
+
+**Constraints** (12):
+- Pattern: Use HTML5 Drag API natively (no external library, bundle-friendly)
+- Pattern: Extend existing TransactionStore.updateTransaction() method
+- Pattern: Reuse CategoryChip from Story 4.1
+- Pattern: Reuse categoryStore.getCategories()
+- Performance: <500ms category reassignment (95th percentile)
+- Performance: <500ms dashboard chart update
+- Accessibility: WCAG 2.1 Level AA keyboard navigation
+- Accessibility: Screen reader announcements required
+- Accessibility: 44x44px minimum touch targets on mobile
+- Testing: Component tests for drag event handlers
+- Testing: Integration tests for optimistic update rollback
+- Testing: E2E tests for desktop, mobile, keyboard flows
+- Bundle: 5-8 KB expected impact (227-234 KB / 500 KB budget post-story)
+
+**Dependencies**:
+- Node: react ^19.2.0, zustand ^5.0.8, firebase ^12.4.0, lucide-react ^0.553.0, react-hook-form ^7.66.0, chart.js ^4.5.1, react-chartjs-2 ^5.3.0
+- Dev: @testing-library/react 16.1, @testing-library/user-event ^14.6.1, @tailwindcss/vite ^4.1.17, vitest
+
+**Testing Standards**:
+- Vitest for unit and component tests
+- React Testing Library for component testing
+- Firebase Emulator for integration tests
+- Playwright for E2E tests (desktop + mobile)
+- Axe DevTools + manual screen reader testing (NVDA/JAWS)
+
+**Test Ideas** (8):
+1. Test drag event handlers with mock React.DragEvent
+2. Test CategoryPickerModal render and selection callback
+3. Test keyboard navigation (Tab, Enter, Arrow keys)
+4. Test optimistic update rollback with mocked Firebase error
+5. Test dashboard chart integration with performance.now()
+6. E2E desktop drag-and-drop with Playwright
+7. E2E mobile modal with viewport 375x667
+8. Accessibility audit with Axe + screen reader testing
+
+### Files Modified
+
+**Created** (1):
+- `.bmad-ephemeral/stories/4-3-drag-and-drop-category-reassignment.context.xml` - 336 lines of comprehensive technical context
+
+**Updated** (2):
+- `.bmad-ephemeral/stories/4-3-drag-and-drop-category-reassignment.md` - Status updated, context reference added
+- `.bmad-ephemeral/sprint-status.yaml` - Story status: drafted → ready-for-dev
+
+### Commit
+
+**Commit**: 18a3a0c - "feat: Generate Story 4.3 context and mark ready for dev"
+
+### Validation Results
+
+✅ Story fields (asA/iWant/soThat) captured
+✅ Acceptance criteria list matches story draft (7 criteria)
+✅ Tasks/subtasks captured (14 tasks with AC mappings)
+✅ Relevant docs included (7 documentation artifacts)
+✅ Relevant code references included (6 code artifacts)
+✅ Interfaces/API contracts extracted (5 interfaces)
+✅ Constraints include dev rules and patterns (12 constraints)
+✅ Dependencies detected from package.json
+✅ Testing standards and locations populated
+✅ XML structure follows template format
+
+**All validation criteria passed!**
+
+### Next Steps
+
+1. Review context file: `.bmad-ephemeral/stories/4-3-drag-and-drop-category-reassignment.context.xml`
+2. Run `dev-story` workflow to implement Story 4.3 using the generated context
+3. Generate context for additional drafted stories if needed
+
+**Status**: 
+- Story 4.3: 📋 Ready for Dev (context generated)
+- Context File: ✅ Generated and validated
+- Sprint Status: ✅ Updated
