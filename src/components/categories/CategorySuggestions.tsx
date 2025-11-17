@@ -30,8 +30,8 @@ interface CategorySuggestionsProps {
   /** Transaction description to analyze */
   description: string;
 
-  /** Callback when user clicks a suggestion */
-  onSelectCategory: (categoryName: string) => void;
+  /** Callback when user clicks a suggestion (Story 4.4: passes categoryId) */
+  onSelectCategory: (categoryId: string) => void;
 
   /** Optional debounce delay in ms (default: 300) */
   debounceMs?: number;
@@ -85,9 +85,9 @@ export function CategorySuggestions({
     return () => clearTimeout(timer);
   }, [description, debounceMs, loadSuggestions]);
 
-  // Handle suggestion click
+  // Handle suggestion click (Story 4.4: pass categoryId instead of name)
   const handleSuggestionClick = (category: Category) => {
-    onSelectCategory(category.name);
+    onSelectCategory(category.id);
   };
 
   // Don't render if description is empty
