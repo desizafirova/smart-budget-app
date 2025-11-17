@@ -7047,3 +7047,182 @@ Story status updated to "review" indicating implementation is complete and ready
 - Mark Story 4.1 as done/review
 - Run E2E testing for full AC validation
 - Draft Story 4.2 (Smart Category Suggestions)
+
+---
+
+## Session 32: Create Story 4.2 - Smart Category Suggestions
+
+**Date**: 2025-11-17
+**Agent**: SM (Scrum Master - Bob)
+**Branch**: `claude/create-story-4-2-01QBxGEMwb7bBF76f3VCdLwP`
+**Epic**: 4 - Intelligent Categorization
+
+---
+
+### Prompt 1
+
+**Phase**: Story Drafting
+
+**Purpose**: Generate comprehensive story document for Story 4.2 - Smart Category Suggestions
+
+**Prompt**:
+```
+/bmad:bmm:agents:sm *create-story story-4-2
+```
+
+**Task**:
+Execute create-story workflow in non-interactive mode to generate Story 4.2 based on Epic 4 tech spec, epics.md, architecture, and learnings from Story 4.1.
+
+**Output**:
+
+**Story Document Created**: `.bmad-ephemeral/stories/4-2-smart-category-suggestions.md` (791 lines)
+
+**Story Statement**:
+> As a user, I want the app to suggest categories based on my transaction description, so that I spend less time manually categorizing.
+
+**Acceptance Criteria** (6 comprehensive ACs):
+1. **AC 4.2.1**: Keyword-based suggestions appear in transaction form (<300ms, 1-3 clickable chips)
+2. **AC 4.2.2**: Static keyword matching for common merchants/terms (case-insensitive, fuzzy matching)
+3. **AC 4.2.3**: User learning system tracks category assignments (Firestore patterns collection)
+4. **AC 4.2.4**: Learned patterns prioritize user's preferences (count >= 3 threshold)
+5. **AC 4.2.5**: Suggestions debounced for performance (300ms after last keystroke)
+6. **AC 4.2.6**: Suggestions work offline (cached patterns + static keywords)
+
+**Tasks** (14 detailed tasks):
+- Task 1: Create static keyword dictionary (DEFAULT_KEYWORDS mapping)
+- Task 2: Implement suggestion engine module (matchKeywords, findLearnedPatterns, getSuggestedCategories)
+- Task 3: Extend CategoryService with suggestion operations
+- Task 4: Add UserAssignmentPattern type to category types
+- Task 5: Create CategorySuggestions component
+- Task 6: Integrate suggestions into TransactionForm
+- Task 7: Call recordCategoryAssignment on transaction save
+- Task 8: Update categoryStore with suggestion actions
+- Task 9: Add Firestore Security Rules for category-patterns
+- Task 10: TypeScript strict mode compliance
+- Task 11: Performance validation (<300ms suggestion latency)
+- Task 12: Unit and component tests
+- Task 13: Integration testing
+- Task 14: End-to-end testing
+
+**Technical Highlights**:
+- **Keyword Matching**: Static dictionary maps keywords to categories ("starbucks" → "Food & Dining")
+- **Fuzzy Matching**: Levenshtein distance algorithm for typo tolerance ("starbks" → "starbucks")
+- **User Learning**: Tracks patterns in `users/{userId}/category-patterns` collection
+- **Learned Pattern Prioritization**: After 3+ assignments, user's history takes precedence
+- **Performance**: <300ms latency (95th percentile), debounced input, in-memory caching
+- **Offline Support**: Works with cached patterns + static keywords (no network required)
+- **Integration**: React Hook Form `watch()` and `setValue()` for form integration
+- **Reused Components**: CategoryChip from Story 4.1, CategoryService extended, CategoryStore extended
+
+**New Files** (5):
+- src/config/keywords-seed.ts (~80 lines - keyword mappings)
+- src/utils/suggestions/category-suggestions.ts (~150 lines - suggestion engine)
+- src/utils/suggestions/category-suggestions.test.ts (~200 lines - unit tests)
+- src/components/categories/CategorySuggestions.tsx (~80 lines - React component)
+- src/components/categories/CategorySuggestions.test.tsx (~100 lines - component tests)
+
+**Modified Files** (5):
+- src/types/category.ts (+10 lines - UserAssignmentPattern interface)
+- src/services/categories.service.ts (+80 lines - getSuggestedCategories, recordCategoryAssignment)
+- src/services/categories.service.test.ts (+150 lines - new method tests)
+- src/stores/categoryStore.ts (+40 lines - userPatterns state/actions)
+- src/components/transactions/TransactionForm.tsx (+30 lines - CategorySuggestions integration)
+
+**Learnings from Story 4.1 Integrated**:
+- ✅ Reused CategoryService pattern (extended with 2 new methods)
+- ✅ Reused CategoryStore (Zustand) pattern (added userPatterns state)
+- ✅ Reused CategoryChip component for suggestion chips
+- ✅ Extended Category data model (added UserAssignmentPattern)
+- ✅ New Firebase collection: `users/{userId}/category-patterns`
+
+**Bundle Impact**:
+- Expected: +8-12 KB (suggestion engine + component)
+- Post-Story 4.2 projection: ~222-226 KB (~44-45% of 500KB budget)
+
+**Commit**:
+```
+docs: Generate Story 4.2 - Smart Category Suggestions
+
+Created comprehensive story document for Smart Category Suggestions feature:
+- Keyword-based suggestion engine with fuzzy matching
+- User learning system (tracks patterns, suggests after 3+ assignments)
+- <300ms performance requirement (debounced, cached)
+- CategorySuggestions React component with clickable chips
+- Integration with TransactionForm using React Hook Form
+- Firebase category-patterns collection for learning data
+- 14 detailed tasks with comprehensive testing strategy
+
+Updated sprint-status.yaml: 4-2-smart-category-suggestions (backlog → drafted)
+
+Epic: 4 (Intelligent Categorization)
+Story ID: 4.2
+Bundle Impact: +8-12 KB (projected ~44-45% of budget)
+```
+
+**Status Update**:
+- Updated `.bmad-ephemeral/sprint-status.yaml`: 4-2-smart-category-suggestions (backlog → drafted)
+- Story ready for next step: *story-context or *story-ready-for-dev
+
+**Notes**:
+Story 4.2 builds on Story 4.1's foundation by adding intelligent category suggestions. The implementation uses a two-tier approach: static keyword matching as fallback and learned patterns (after 3+ assignments) as primary. Critical performance requirement: <300ms suggestion latency (95th percentile). All patterns stored in new Firebase collection with real-time sync and offline support.
+
+---
+
+**Session 32 Summary**:
+
+**Completed**:
+- Generated Story 4.2 comprehensive story document (791 lines)
+- Documented 6 acceptance criteria with detailed technical requirements
+- Created 14 detailed tasks with comprehensive subtasks
+- Integrated learnings from Story 4.1 (CategoryService, CategoryStore, CategoryChip)
+- Defined new Firebase collection schema (category-patterns)
+- Specified performance requirements (<300ms latency, debounced, cached)
+- Committed and pushed to branch
+
+**Files Created** (1):
+- .bmad-ephemeral/stories/4-2-smart-category-suggestions.md
+
+**Files Modified** (1):
+- .bmad-ephemeral/sprint-status.yaml (4-2-smart-category-suggestions: backlog → drafted)
+
+**Technical Highlights**:
+- Static keyword dictionary for common merchants/terms
+- Fuzzy matching with Levenshtein distance for typo tolerance
+- User learning system with 3+ assignment threshold
+- <300ms suggestion latency requirement (critical for UX)
+- Debounced input (300ms) to prevent excessive Firebase queries
+- Offline support with cached patterns + static keywords
+- Integration with React Hook Form (watch/setValue)
+- Reused CategoryChip component from Story 4.1
+- Extended CategoryService and CategoryStore with suggestion logic
+- New UserAssignmentPattern type and Firestore collection
+
+**Key Algorithms**:
+- `matchKeywords()`: O(1) hash map lookup for static keywords
+- `findLearnedPatterns()`: Filters patterns with count >= 3, sorts by count DESC
+- `getSuggestedCategories()`: Prioritizes learned patterns, falls back to keywords, returns max 3
+
+**Performance Strategy**:
+- 300ms debounce on description input
+- In-memory caching of recent patterns (Zustand)
+- Firestore query indexed on description field
+- Offline persistence with cached patterns + static keywords
+
+**Testing Strategy**:
+- Unit tests: keyword matching, fuzzy matching, learned patterns, max 3 results
+- Component tests: CategorySuggestions rendering, debounce, onSelect callback
+- Integration tests: Full suggestion flow, learned pattern flow, offline mode
+- Performance tests: 100 iterations, p95 <300ms latency assertion
+- E2E tests: Keyword suggestions, user learning (3x assignment), offline support
+
+**Bundle Projection**:
+- Current: 213.84 KB gzipped
+- Story 4.2 impact: +8-12 KB
+- Post-4.2: ~222-226 KB (~44-45% of 500KB budget)
+
+**Next Steps**:
+- Run *story-context to generate technical context XML (recommended)
+- Or run *story-ready-for-dev to mark ready without context
+- Implement Story 4.2 following drafted specification
+- Ensure <300ms performance target met (critical)
+
