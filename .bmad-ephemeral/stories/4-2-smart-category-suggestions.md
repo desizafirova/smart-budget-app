@@ -67,8 +67,8 @@ So that I spend less time manually categorizing.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create static keyword dictionary** (AC: 4.2.2)
-  - [ ] Create `src/config/keywords-seed.ts` with DEFAULT_KEYWORDS mapping:
+- [x] **Task 1: Create static keyword dictionary** (AC: 4.2.2)
+  - [x] Create `src/config/keywords-seed.ts` with DEFAULT_KEYWORDS mapping:
     ```typescript
     export const DEFAULT_KEYWORDS: Record<string, string[]> = {
       'food-dining': ['starbucks', 'coffee', 'cafe', 'restaurant', 'mcdonalds', 'burger', 'pizza', 'groceries', 'grocery', 'supermarket', 'food', 'lunch', 'dinner', 'breakfast'],
@@ -81,9 +81,9 @@ So that I spend less time manually categorizing.
       'education': ['school', 'university', 'college', 'course', 'tuition', 'textbook', 'book', 'education'],
     };
     ```
-  - [ ] Map keyword slugs to category names (e.g., 'food-dining' → 'Food & Dining')
-  - [ ] Ensure all 15 default categories have keyword mappings (5 income + 10 expense)
-  - [ ] Create unit tests for keyword data structure validation
+  - [x] Map keyword slugs to category names (e.g., 'food-dining' → 'Food & Dining')
+  - [x] Ensure all 15 default categories have keyword mappings (5 income + 10 expense)
+  - [x] Create unit tests for keyword data structure validation
 
 - [ ] **Task 2: Implement suggestion engine module** (AC: 4.2.2, 4.2.4)
   - [ ] Create `src/utils/suggestions/category-suggestions.ts` with functions:
