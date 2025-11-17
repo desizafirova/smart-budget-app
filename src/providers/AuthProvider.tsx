@@ -13,6 +13,7 @@ import { authService } from '@/services/firebase/firebaseAuth';
 import { useAuthStore } from '@/stores/authStore';
 import { useCategoryStore } from '@/stores/categoryStore';
 import { categoryService } from '@/services/categories.service';
+import { migrateCategoryIds } from '@/services/migrations/migrateCategoryIds';
 import type { AuthError } from '@/types/errors';
 
 interface AuthProviderProps {
@@ -52,6 +53,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
             // Subscribe to real-time category updates
             subscribeToCategories(user.uid);
 
+            // Run data migration: convert old transactions from category names to IDs
+            // This is idempotent and safe to run on every sign-in
+            try {
+              const migratedCount = await migrateCategoryIds(user.uid);
+              if (migratedCount > 0) {
+                console.log(
+                  `[AuthProvider] Migrated ${migratedCount} transactions to use category IDs`
+                );
+              }
+            } catch (migrationError) {
+              // Log error but don't block app initialization
+              console.error('[AuthProvider] Migration failed:', migrationError);
+            }
+
             setLoading(false);
             setIsInitialized(true);
           } else {
@@ -70,6 +85,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
               // Subscribe to real-time category updates
               subscribeToCategories(anonymousUser.uid);
+
+              // Run data migration: convert old transactions from category names to IDs
+              try {
+                const migratedCount = await migrateCategoryIds(anonymousUser.uid);
+                if (migratedCount > 0) {
+                  console.log(
+                    `[AuthProvider] Migrated ${migratedCount} transactions for anonymous user`
+                  );
+                }
+              } catch (migrationError) {
+                console.error('[AuthProvider] Migration failed:', migrationError);
+              }
 
               setLoading(false);
               setIsInitialized(true);
@@ -108,7 +135,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
       unsubscribeFromCategories();
     };
-  }, [setUser, setLoading, setError, subscribeToCategories, unsubscribeFromCategories]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount - auth subscription handles all state changes
 
   // Show loading spinner while initializing auth
   if (!isInitialized) {

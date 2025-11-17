@@ -10,6 +10,7 @@ import { serverTimestamp } from 'firebase/firestore';
 import type { Transaction, CreateTransactionInput } from '@/types/transaction';
 import { getTransactionType } from '@/utils/transaction';
 import { databaseService } from '@/services/firebase/firebaseDatabase';
+import { transactionService } from '@/services/transactions.service';
 
 /**
  * Transaction store state interface
@@ -77,6 +78,16 @@ interface TransactionActions {
 
   /** Set the transaction currently being edited */
   setEditingTransaction: (transaction: Transaction | null) => void;
+
+  /**
+   * Reassign all transactions from one category to another
+   * Used when deleting a category with existing transactions
+   */
+  reassignCategory: (
+    userId: string,
+    oldCategoryId: string,
+    newCategoryId: string
+  ) => Promise<number>;
 }
 
 /**
@@ -168,7 +179,7 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
       userId,
       amount: input.amount,
       description: input.description,
-      category: input.category,
+      categoryId: input.categoryId,
       date: input.date,
       type: getTransactionType(input.amount),
       createdAt: new Date(), // Will be replaced with serverTimestamp
@@ -189,7 +200,7 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
         userId,
         amount: input.amount,
         description: input.description,
-        category: input.category,
+        categoryId: input.categoryId,
         date: input.date,
         type: getTransactionType(input.amount),
         createdAt: serverTimestamp(),
@@ -316,6 +327,49 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
         error instanceof Error
           ? error.message
           : 'Failed to delete transaction';
+
+      set({ error: errorMessage, isSaving: false });
+
+      // Re-throw error for caller to handle
+      throw new Error(errorMessage);
+    }
+  },
+
+  /**
+   * Reassign all transactions from one category to another
+   *
+   * Used when deleting a category with existing transactions.
+   * Delegates to transactionService for atomic batch operation.
+   * Real-time subscription will automatically reflect updates in the UI.
+   *
+   * @param userId - User ID
+   * @param oldCategoryId - Category ID to replace
+   * @param newCategoryId - New category ID to assign
+   * @returns Number of transactions reassigned
+   */
+  reassignCategory: async (
+    userId: string,
+    oldCategoryId: string,
+    newCategoryId: string
+  ) => {
+    set({ isSaving: true, error: null });
+
+    try {
+      // Call transaction service to perform batch reassignment
+      const count = await transactionService.reassignCategory(
+        userId,
+        oldCategoryId,
+        newCategoryId
+      );
+
+      set({ isSaving: false });
+      // Real-time subscription will automatically update transactions in state
+      return count;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to reassign category';
 
       set({ error: errorMessage, isSaving: false });
 

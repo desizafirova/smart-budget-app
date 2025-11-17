@@ -18,6 +18,7 @@ import type { Transaction } from '@/types/transaction';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { formatTransactionDate } from '@/utils/formatDate';
 import { AlertTriangle, X } from 'lucide-react';
+import { useCategoryStore } from '@/stores/categoryStore';
 
 interface DeleteConfirmationModalProps {
   /** Whether the modal is open */
@@ -45,6 +46,18 @@ export function DeleteConfirmationModal({
   isDeleting,
   error,
 }: DeleteConfirmationModalProps) {
+  const categories = useCategoryStore((state) => state.categories);
+
+  // Find category by ID (Story 4.4+) with backward compatibility for old transactions
+  // Try categoryId first (new format), fall back to category name (old format)
+  const category = transaction
+    ? transaction.categoryId
+      ? categories.find((cat) => cat.id === transaction.categoryId)
+      : (transaction as any).category
+        ? categories.find((cat) => cat.name === (transaction as any).category)
+        : null
+    : null;
+
   // Close modal on Escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -172,7 +185,7 @@ export function DeleteConfirmationModal({
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Category:</span>
                 <span className="text-sm font-medium text-gray-900">
-                  {transaction.category}
+                  {category?.name || 'Uncategorized'}
                 </span>
               </div>
               <div className="flex justify-between items-center">

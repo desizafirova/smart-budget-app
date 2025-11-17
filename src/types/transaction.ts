@@ -31,8 +31,12 @@ export interface Transaction {
   /** Transaction description (max 100 characters) */
   description: string;
 
-  /** Category name (initially "Uncategorized", Epic 4 will enhance) */
-  category: string;
+  /**
+   * Category ID reference (Story 4.4+)
+   * References categories/{categoryId} document
+   * Replaces deprecated 'category' string field
+   */
+  categoryId: string;
 
   /** Transaction date (defaults to today, user can edit) */
   date: Date;
@@ -58,8 +62,8 @@ export interface CreateTransactionInput {
   /** Transaction description (max 100 characters) */
   description: string;
 
-  /** Category name (default: "Uncategorized") */
-  category: string;
+  /** Category ID (references categories/{categoryId} document) */
+  categoryId: string;
 
   /** Transaction date (defaults to today) */
   date: Date;
@@ -76,8 +80,8 @@ export interface UpdateTransactionInput {
   /** Updated description */
   description?: string;
 
-  /** Updated category */
-  category?: string;
+  /** Updated category ID */
+  categoryId?: string;
 
   /** Updated date */
   date?: Date;

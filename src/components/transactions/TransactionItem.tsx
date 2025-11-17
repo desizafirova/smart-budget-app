@@ -74,8 +74,13 @@ export function TransactionItem({
     return () => touchQuery.removeEventListener('change', handleChange);
   }, []);
 
-  // Find category by name (transaction stores category name, not ID)
-  const category = categories.find((cat) => cat.name === transaction.category);
+  // Find category by ID (Story 4.4+) with backward compatibility for old transactions
+  // Try categoryId first (new format), fall back to category name (old format)
+  const category = transaction.categoryId
+    ? categories.find((cat) => cat.id === transaction.categoryId)
+    : (transaction as any).category
+      ? categories.find((cat) => cat.name === (transaction as any).category)
+      : undefined;
   const currentCategoryId = category?.id;
 
   // Visual styling based on transaction type
@@ -90,7 +95,7 @@ export function TransactionItem({
   const handleDragStart = (e: React.DragEvent<HTMLLIElement>) => {
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('application/x-transaction-id', transaction.id);
-    e.dataTransfer.setData('application/x-transaction-category', transaction.category);
+    e.dataTransfer.setData('application/x-transaction-categoryId', transaction.categoryId);
     setIsDragging(true);
   };
 
@@ -119,10 +124,10 @@ export function TransactionItem({
     }
 
     try {
-      // Update transaction with optimistic updates
+      // Update transaction with optimistic updates (Story 4.4: use categoryId)
       // TransactionStore will handle immediate UI update and rollback on error
       await updateTransaction(user.uid, transaction.id, {
-        category: newCategory.name,
+        categoryId: newCategoryId,
       });
 
       // Success - no toast needed, optimistic update already showed change
@@ -242,7 +247,7 @@ export function TransactionItem({
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
         `}
         role="listitem"
-        aria-label={`Transaction: ${transaction.description}, ${formatCurrency(transaction.amount)}, ${transaction.category}${isReassignMode ? '. Reassignment mode active' : ''}`}
+        aria-label={`Transaction: ${transaction.description}, ${formatCurrency(transaction.amount)}, ${category?.name || 'Uncategorized'}${isReassignMode ? '. Reassignment mode active' : ''}`}
       >
         {/* Transaction Icon and Details */}
         <div className="flex items-start gap-3 flex-1 min-w-0">
@@ -272,7 +277,7 @@ export function TransactionItem({
                 <CategoryChip category={category} size="sm" />
               ) : (
                 <span className="px-2 py-0.5 bg-gray-100 rounded-full text-gray-700 text-xs">
-                  {transaction.category}
+                  Uncategorized
                 </span>
               )}
               <span>•</span>

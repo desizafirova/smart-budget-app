@@ -1,6 +1,6 @@
 # Story 4.4: Custom Categories
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -649,4 +649,60 @@ claude-sonnet-4-5-20250929
 
 ### Completion Notes List
 
+**Story 4.4 Implementation Completed - Custom Categories** (Date: 2025-11-17)
+
+✅ **Core Implementation:**
+- Migrated Transaction schema from `category: string` (name) to `categoryId: string` (ID reference) - critical change for custom categories support
+- Created complete CRUD system for custom categories with real-time Firestore sync
+- Implemented atomic delete with transaction reassignment using Firebase writeBatch()
+- Added transaction count helper to prevent orphaned transactions
+
+✅ **UI Components Created:**
+- IconPicker: Curated Lucide icons organized by category with search
+- ColorPicker: WCAG AA compliant palette (15 colors) + custom hex input
+- AddCategoryModal: Create custom categories with validation (duplicate detection, 50-char limit)
+- EditCategoryModal: Update categories with type field locked (prevents data corruption)
+- DeleteCategoryModal: Smart delete with transaction reassignment (dropdown selection or simple confirmation)
+- CategoryManagement page: Responsive table (desktop) / cards (mobile) with full CRUD operations
+
+✅ **Service & Store Layer:**
+- Extended CategoryService with getTransactionCountByCategory() method
+- Created TransactionService with reassignCategory() for atomic batch updates
+- Extended CategoryStore with createCategory(), updateCategory(), deleteCategory(), getCategoryTransactionCount()
+- Extended TransactionStore with reassignCategory() wrapper
+
+✅ **Integration:**
+- Updated TransactionForm to use categoryId instead of category name
+- Category dropdown now shows custom categories alongside defaults
+- Smart suggestions work with custom categories automatically
+- CategoryChip displays custom categories with their icons and colors
+
+✅ **Data Integrity:**
+- Cannot change category type after creation (prevents budget calculation corruption)
+- Duplicate category names blocked (case-insensitive validation)
+- Delete with transactions requires reassignment (prevents orphaned data)
+- Pre-defined categories (isDefault: true) cannot be deleted
+
+✅ **TypeScript Compliance:**
+- Zero TypeScript errors - all code passes strict mode compilation
+- Proper type definitions for all new interfaces and components
+
 ### File List
+
+**New Files Created:**
+- src/components/ui/input.tsx
+- src/components/ui/IconPicker.tsx
+- src/components/ui/ColorPicker.tsx
+- src/components/categories/AddCategoryModal.tsx
+- src/components/categories/EditCategoryModal.tsx
+- src/components/categories/DeleteCategoryModal.tsx
+- src/features/categories/CategoryManagement.tsx
+- src/services/transactions.service.ts
+
+**Modified Files:**
+- src/types/transaction.ts (Updated Transaction interface: category → categoryId)
+- src/stores/transactionStore.ts (Added reassignCategory method, updated for categoryId)
+- src/stores/categoryStore.ts (Added CRUD methods: createCategory, updateCategory, deleteCategory, getCategoryTransactionCount)
+- src/services/categories.service.ts (Added getTransactionCountByCategory method, updated interface)
+- src/features/categories/Categories.tsx (Re-exported CategoryManagement)
+- src/components/transactions/TransactionForm.tsx (Updated to use categoryId throughout)
