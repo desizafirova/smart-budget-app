@@ -123,6 +123,14 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
    * Automatically updates store state when Firestore data changes
    */
   subscribeToCategories: (userId: string) => {
+    // Clean up existing subscription before creating a new one
+    const { unsubscribe: existingUnsubscribe } = get();
+    if (existingUnsubscribe) {
+      existingUnsubscribe();
+      // Note: We don't clear categories here to prevent flickering
+      set({ unsubscribe: null });
+    }
+
     // Set loading state
     set({ loading: true, error: null });
 
@@ -182,8 +190,10 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
       unsubscribe();
     }
 
-    // Clear state
-    set({ unsubscribe: null, categories: [], loading: false });
+    // Clear subscription reference
+    // Note: We intentionally keep categories in memory to prevent UI flickering
+    // Categories will be updated when a new subscription is created
+    set({ unsubscribe: null, loading: false });
   },
 
   /**
