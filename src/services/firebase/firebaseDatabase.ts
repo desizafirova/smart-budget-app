@@ -20,6 +20,7 @@ import {
   onSnapshot,
   addDoc,
   orderBy,
+  serverTimestamp,
 } from 'firebase/firestore';
 import type {
   WhereFilterOp,
@@ -83,6 +84,7 @@ class FirebaseDatabaseService implements IDatabaseService {
 
   /**
    * Update an existing document
+   * Automatically adds updatedAt timestamp to all updates
    */
   async updateDocument<T>(
     collectionName: string,
@@ -91,7 +93,12 @@ class FirebaseDatabaseService implements IDatabaseService {
   ): Promise<void> {
     try {
       const docRef = doc(db, collectionName, id);
-      await updateDoc(docRef, data as DocumentData);
+      // Merge updates with updatedAt server timestamp
+      const updates = {
+        ...data,
+        updatedAt: serverTimestamp(),
+      };
+      await updateDoc(docRef, updates as DocumentData);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       throw new Error(

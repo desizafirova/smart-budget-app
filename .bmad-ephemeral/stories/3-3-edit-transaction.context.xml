@@ -1,0 +1,634 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Story Context for Story 3.3: Edit Transaction
+Generated: 2025-11-16
+Story ID: 3.3
+Story Key: 3-3-edit-transaction
+
+This XML file contains all technical context needed for implementing Story 3.3.
+Includes: existing code, architecture patterns, previous story learnings, and references.
+-->
+
+<story-context>
+  <metadata>
+    <story-id>3.3</story-id>
+    <story-key>3-3-edit-transaction</story-key>
+    <epic>Epic 3: Transaction Management</epic>
+    <title>Edit Transaction</title>
+    <status>drafted</status>
+    <story-file>.bmad-ephemeral/stories/3-3-edit-transaction.md</story-file>
+  </metadata>
+
+  <user-story>
+    As a user,
+    I want to edit transaction details after creation,
+    so that I can correct mistakes or update information.
+  </user-story>
+
+  <implementation-approach>
+    <summary>
+      Story 3.3 extends existing components to support editing transactions.
+      Minimal new code required - primarily logic additions to existing files.
+    </summary>
+
+    <key-changes>
+      <change>Extend TransactionForm component to support edit mode (add mode prop, initialTransaction prop)</change>
+      <change>Add updateDocument() method to IDatabaseService interface</change>
+      <change>Implement updateDocument() in FirebaseDatabaseService using Firestore updateDoc()</change>
+      <change>Add updateTransaction() action to transactionStore</change>
+      <change>Add editingTransaction state to transactionStore</change>
+      <change>Implement handleEdit in Transactions.tsx to open form in edit mode</change>
+    </key-changes>
+
+    <files-to-modify>
+      <file>src/components/transactions/TransactionForm.tsx</file>
+      <file>src/services/database.ts</file>
+      <file>src/services/firebase/firebaseDatabase.ts</file>
+      <file>src/stores/transactionStore.ts</file>
+      <file>src/features/transactions/Transactions.tsx</file>
+    </files-to-modify>
+
+    <no-new-files>
+      Story 3.3 does not create any new files - it extends existing components only.
+    </no-new-files>
+  </implementation-approach>
+
+  <previous-story-learnings>
+    <learning-source>Story 3.2: View Transaction List (Status: done)</learning-source>
+
+    <key-patterns>
+      <pattern>
+        <name>TransactionForm Component</name>
+        <location>src/components/transactions/TransactionForm.tsx</location>
+        <notes>
+          - Already exists from Story 3.1
+          - Current mode: Create new transactions only
+          - **EXTEND for Story 3.3**: Add edit mode support
+          - Form validation already in place - reuse for edit mode
+          - Modal structure already defined - keep consistent UX
+        </notes>
+      </pattern>
+
+      <pattern>
+        <name>TransactionItem Edit Button</name>
+        <location>src/components/transactions/TransactionItem.tsx</location>
+        <notes>
+          - Edit button already wired with onEdit(transaction) callback
+          - Currently handled by stub in Transactions.tsx: console.log('Edit', t)
+          - **IMPLEMENT in Story 3.3**: Replace stub with real edit handler
+        </notes>
+      </pattern>
+
+      <pattern>
+        <name>Real-Time Subscription</name>
+        <location>src/stores/transactionStore.ts</location>
+        <notes>
+          - Story 3.2 set up real-time Firestore subscription
+          - subscribeToTransactions() uses onSnapshot() to listen for changes
+          - **Story 3.3 benefit**: Edit updates will automatically propagate to UI via existing subscription (no additional code needed!)
+        </notes>
+      </pattern>
+
+      <pattern>
+        <name>Zustand Store Action Pattern</name>
+        <notes>
+          - Async function with try/catch
+          - Set loading/error states (isSaving: true during operation)
+          - Use databaseService for Firestore operations
+          - Throw error for caller to handle
+        </notes>
+      </pattern>
+    </key-patterns>
+
+    <bundle-size-status>
+      <current>212.47 KB gzipped / 500 KB budget (42.5% used)</current>
+      <story-3-3-impact>~2-3 KB (minimal - mostly logic, reusing existing TransactionForm)</story-3-3-impact>
+      <post-3-3-projection>~214-216 KB (~43% of budget)</post-3-3-projection>
+    </bundle-size-status>
+  </previous-story-learnings>
+
+  <existing-code>
+    <component name="TransactionForm" path="src/components/transactions/TransactionForm.tsx">
+      <![CDATA[
+/**
+ * Transaction Form Modal Component
+ *
+ * Modal form for adding new transactions (income/expense).
+ * TO EXTEND FOR STORY 3.3: Add edit mode support
+ */
+
+import { useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import { useTransactionStore } from '@/stores/transactionStore';
+import { useAuthStore } from '@/stores/authStore';
+import type { CreateTransactionInput } from '@/types/transaction';
+
+interface TransactionFormProps {
+  /** Whether the modal is open */
+  isOpen: boolean;
+  /** Callback to close the modal */
+  onClose: () => void;
+  /** Callback when transaction is successfully added */
+  onSuccess?: () => void;
+  // TODO Story 3.3: Add mode prop
+  // mode?: 'create' | 'edit';
+  // initialTransaction?: Transaction;
+}
+
+export function TransactionForm({
+  isOpen,
+  onClose,
+  onSuccess,
+}: TransactionFormProps) {
+  const { addTransaction, isSaving } = useTransactionStore();
+  const { user } = useAuthStore();
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+    reset,
+    control,
+  } = useForm<TransactionFormData>({
+    mode: 'onChange',
+    defaultValues: {
+      amount: '',
+      description: '',
+      category: 'Uncategorized',
+      date: new Date().toISOString().split('T')[0],
+    },
+    // TODO Story 3.3: Use initialTransaction for edit mode defaults
+  });
+
+  const onSubmit = async (data: TransactionFormData) => {
+    // TODO Story 3.3: Check mode, call updateTransaction for edit mode
+    // Current: always calls addTransaction
+    await addTransaction(user.uid, input);
+  };
+
+  return (
+    // Modal with "Add Transaction" title
+    // TODO Story 3.3: Change title based on mode: "Edit Transaction" for edit mode
+  );
+}
+      ]]>
+      <extension-notes>
+        EXTEND this component for Story 3.3:
+        1. Add mode?: 'create' | 'edit' prop (default 'create')
+        2. Add initialTransaction?: Transaction prop
+        3. Update defaultValues to use initialTransaction when mode === 'edit'
+        4. Update modal title: "Edit Transaction" when mode === 'edit'
+        5. Update onSubmit to call updateTransaction() when mode === 'edit'
+        6. Update success message: "Transaction updated" when mode === 'edit'
+      </extension-notes>
+    </component>
+
+    <component name="TransactionItem" path="src/components/transactions/TransactionItem.tsx">
+      <![CDATA[
+/**
+ * TransactionItem Component
+ *
+ * Edit button callback already implemented - no changes needed for Story 3.3
+ */
+
+export function TransactionItem({
+  transaction,
+  onEdit,
+  onDelete,
+}: TransactionItemProps) {
+  return (
+    <li>
+      {/* ... transaction display ... */}
+
+      {/* Action Buttons */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => onEdit(transaction)}
+          aria-label="Edit transaction"
+        >
+          <Edit2 size={18} />
+        </button>
+        {/* ... delete button ... */}
+      </div>
+    </li>
+  );
+}
+      ]]>
+      <no-changes-needed>
+        Edit button already calls onEdit(transaction) callback.
+        No changes needed in TransactionItem for Story 3.3.
+      </no-changes-needed>
+    </component>
+
+    <service name="IDatabaseService" path="src/services/database.ts">
+      <![CDATA[
+/**
+ * Database Service Interface
+ *
+ * TO EXTEND FOR STORY 3.3: Add updateDocument method
+ */
+
+export interface IDatabaseService {
+  createDocument<T>(collection: string, data: T): Promise<string>;
+  getDocument<T>(collection: string, id: string): Promise<T | null>;
+
+  // TODO Story 3.3: Add updateDocument method
+  // updateDocument<T>(collection: string, id: string, data: Partial<T>): Promise<void>;
+
+  deleteDocument(collection: string, id: string): Promise<void>;
+  queryDocuments<T>(collection: string, where?: QueryFilter[]): Promise<T[]>;
+  subscribeToCollection<T>(collection: string, callback: (docs: T[]) => void): () => void;
+  subscribeToUserTransactions<T>(userId: string, callback: (transactions: T[]) => void): () => void;
+}
+      ]]>
+      <extension-notes>
+        ADD updateDocument method to interface:
+
+        /**
+         * Update an existing document
+         * @param collection Collection name
+         * @param id Document ID
+         * @param data Partial document data to update
+         * @returns Promise resolving when update is complete
+         */
+        updateDocument&lt;T&gt;(collection: string, id: string, data: Partial&lt;T&gt;): Promise&lt;void&gt;;
+      </extension-notes>
+    </service>
+
+    <service name="FirebaseDatabaseService" path="src/services/firebase/firebaseDatabase.ts">
+      <![CDATA[
+/**
+ * Firebase Database Service Implementation
+ *
+ * TO EXTEND FOR STORY 3.3: Implement updateDocument method
+ */
+
+import {
+  collection, doc, getDoc, updateDoc, deleteDoc,
+  query, where, getDocs, onSnapshot, addDoc, orderBy,
+} from 'firebase/firestore';
+import { db } from './firebaseConfig';
+import type { IDatabaseService } from '@/services/database';
+
+class FirebaseDatabaseService implements IDatabaseService {
+  // ... existing methods: createDocument, getDocument, deleteDocument, etc. ...
+
+  /**
+   * Update an existing document
+   * NOTE: This method already exists! See lines 87-101 in actual file.
+   */
+  async updateDocument<T>(
+    collectionName: string,
+    id: string,
+    data: Partial<T>
+  ): Promise<void> {
+    try {
+      const docRef = doc(db, collectionName, id);
+      await updateDoc(docRef, data as DocumentData);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(
+        `Failed to update document ${id} in ${collectionName}: ${message}`
+      );
+    }
+  }
+}
+      ]]>
+      <important-note>
+        **CRITICAL**: The updateDocument() method ALREADY EXISTS in FirebaseDatabaseService!
+        It is already implemented at lines 87-101 of the actual file.
+
+        Story 3.3 needs to:
+        1. Import serverTimestamp from Firebase SDK (if not already imported)
+        2. Modify updateDocument to merge { updatedAt: serverTimestamp() } with the updates
+
+        Example modification:
+        ```typescript
+        async updateDocument<T>(collectionName: string, id: string, data: Partial<T>): Promise<void> {
+          try {
+            const docRef = doc(db, collectionName, id);
+            const updates = {
+              ...data,
+              updatedAt: serverTimestamp(), // Add updatedAt timestamp
+            };
+            await updateDoc(docRef, updates as DocumentData);
+          } catch (error: unknown) {
+            // ... error handling ...
+          }
+        }
+        ```
+      </important-note>
+    </service>
+
+    <store name="transactionStore" path="src/stores/transactionStore.ts">
+      <![CDATA[
+/**
+ * Transaction Store (Zustand)
+ *
+ * TO EXTEND FOR STORY 3.3: Add updateTransaction action and editingTransaction state
+ */
+
+import { create } from 'zustand';
+import { serverTimestamp } from 'firebase/firestore';
+import type { Transaction, CreateTransactionInput } from '@/types/transaction';
+import { getTransactionType } from '@/utils/transaction';
+import { databaseService } from '@/services/firebase/firebaseDatabase';
+
+interface TransactionState {
+  transactions: Transaction[];
+  isLoading: boolean;
+  isSaving: boolean;
+  error: string | null;
+  unsubscribe: (() => void) | null;
+  // TODO Story 3.3: Add editingTransaction state
+  // editingTransaction: Transaction | null;
+}
+
+interface TransactionActions {
+  addTransaction: (userId: string, input: CreateTransactionInput) => Promise<void>;
+  setTransactions: (transactions: Transaction[]) => void;
+  setLoading: (loading: boolean) => void;
+  setSaving: (saving: boolean) => void;
+  setError: (error: string | null) => void;
+  clearTransactions: () => void;
+  subscribeToTransactions: (userId: string) => void;
+  unsubscribeFromTransactions: () => void;
+
+  // TODO Story 3.3: Add actions
+  // setEditingTransaction: (transaction: Transaction | null) => void;
+  // updateTransaction: (transactionId: string, updates: Partial<Transaction>) => Promise<void>;
+}
+
+export const useTransactionStore = create<TransactionStore>((set, get) => ({
+  // Initial state
+  transactions: [],
+  isLoading: false,
+  isSaving: false,
+  error: null,
+  unsubscribe: null,
+
+  // Existing actions: addTransaction, subscribeToTransactions, etc.
+
+  // TODO Story 3.3: Implement updateTransaction action
+  // Pattern to follow (similar to addTransaction):
+  // updateTransaction: async (transactionId: string, updates: Partial<Transaction>) => {
+  //   set({ isSaving: true, error: null });
+  //   try {
+  //     const userId = get().user?.uid; // Get from authStore
+  //     if (!userId) throw new Error('User not authenticated');
+  //
+  //     await databaseService.updateDocument(
+  //       `users/${userId}/transactions`,
+  //       transactionId,
+  //       updates
+  //     );
+  //
+  //     set({ isSaving: false });
+  //     // Real-time subscription will update transactions array automatically
+  //   } catch (error) {
+  //     set({ isSaving: false, error: error.message });
+  //     throw error;
+  //   }
+  // }
+}));
+      ]]>
+      <extension-notes>
+        ADD to transactionStore for Story 3.3:
+
+        1. editingTransaction: Transaction | null state
+        2. setEditingTransaction(transaction: Transaction | null) action
+        3. updateTransaction(transactionId: string, updates: Partial&lt;Transaction&gt;) action
+
+        Follow the pattern from addTransaction:
+        - Set isSaving: true at start
+        - Use try/catch for error handling
+        - Call databaseService.updateDocument()
+        - Set isSaving: false when done
+        - Let real-time subscription update UI (no manual state update needed)
+      </extension-notes>
+    </store>
+
+    <page name="Transactions" path="src/features/transactions/Transactions.tsx">
+      <![CDATA[
+/**
+ * Transactions Page
+ *
+ * TO EXTEND FOR STORY 3.3: Implement handleEdit to open TransactionForm in edit mode
+ */
+
+export default function Transactions() {
+  const [showTransactionForm, setShowTransactionForm] = useState(false);
+  const { transactions, isLoading, subscribeToTransactions, unsubscribeFromTransactions } =
+    useTransactionStore();
+
+  // Stub handler (Story 3.2)
+  const handleEdit = (transaction: Transaction) => {
+    console.log('Edit transaction:', transaction);
+    // TODO Story 3.3: Open TransactionForm in edit mode with initial values
+  };
+
+  return (
+    <div>
+      <TransactionList
+        transactions={transactions}
+        isLoading={isLoading}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
+
+      <TransactionForm
+        isOpen={showTransactionForm}
+        onClose={() => setShowTransactionForm(false)}
+        onSuccess={handleTransactionSuccess}
+        // TODO Story 3.3: Pass mode and initialTransaction props
+      />
+    </div>
+  );
+}
+      ]]>
+      <extension-notes>
+        IMPLEMENT handleEdit for Story 3.3:
+
+        const handleEdit = (transaction: Transaction) => {
+          transactionStore.setEditingTransaction(transaction);
+          setShowTransactionForm(true);
+        };
+
+        UPDATE TransactionForm rendering:
+        - Check if editingTransaction exists in store
+        - Pass mode="edit" when editing, mode="create" when adding
+        - Pass initialTransaction={transactionStore.editingTransaction} when editing
+        - On modal close, reset editing state: transactionStore.setEditingTransaction(null)
+      </extension-notes>
+    </page>
+
+    <types name="Transaction Types" path="src/types/transaction.ts">
+      <![CDATA[
+/**
+ * Transaction Type Definitions
+ */
+
+export type TransactionType = 'income' | 'expense';
+
+export interface Transaction {
+  id: string;
+  userId: string;
+  amount: number;
+  description: string;
+  category: string;
+  date: Date;
+  type: TransactionType;
+  createdAt: Date;
+  updatedAt: Date; // IMPORTANT: Must update this on edit!
+}
+
+export interface CreateTransactionInput {
+  amount: number;
+  description: string;
+  category: string;
+  date: Date;
+}
+
+export interface UpdateTransactionInput {
+  amount?: number;
+  description?: string;
+  category?: string;
+  date?: Date;
+}
+      ]]>
+      <important-note>
+        The UpdateTransactionInput interface already exists!
+        Use this type for the updates parameter in updateTransaction action.
+      </important-note>
+    </types>
+  </existing-code>
+
+  <architecture-patterns>
+    <pattern name="Firebase Update Pattern">
+      <description>How to update Firestore documents with serverTimestamp</description>
+      <code-example>
+        <![CDATA[
+import { updateDoc, doc, serverTimestamp } from 'firebase/firestore';
+
+const transactionRef = doc(db, `users/${userId}/transactions`, transactionId);
+await updateDoc(transactionRef, {
+  amount: -75.50,
+  description: "Grocery shopping - updated",
+  category: "Food & Dining",
+  date: new Date("2025-11-17"),
+  updatedAt: serverTimestamp() // Firestore server timestamp
+});
+        ]]>
+      </code-example>
+      <notes>
+        - Use serverTimestamp() for updatedAt field (not new Date())
+        - Only update fields provided in updates object (partial update)
+        - Real-time listeners will automatically receive the update
+      </notes>
+    </pattern>
+
+    <pattern name="Zustand Store Action Pattern">
+      <description>Standard pattern for async actions in Zustand stores</description>
+      <code-example>
+        <![CDATA[
+updateTransaction: async (transactionId: string, updates: Partial<Transaction>) => {
+  set({ isSaving: true, error: null });
+  try {
+    const userId = get().user?.uid;
+    if (!userId) throw new Error('User not authenticated');
+
+    await databaseService.updateDocument(
+      `users/${userId}/transactions`,
+      transactionId,
+      updates
+    );
+
+    set({ isSaving: false });
+    // Real-time subscription will update transactions array automatically
+  } catch (error) {
+    set({ isSaving: false, error: error.message });
+    throw error;
+  }
+}
+        ]]>
+      </code-example>
+      <notes>
+        - Set loading state at start (isSaving: true)
+        - Use try/catch for error handling
+        - Call database service for persistence
+        - Set loading state to false when done
+        - Throw error for caller to handle
+        - Don't manually update transactions array (real-time subscription handles it)
+      </notes>
+    </pattern>
+
+    <pattern name="Concurrent Edit Handling (MVP)">
+      <description>Last-write-wins strategy for concurrent edits</description>
+      <notes>
+        - No optimistic locking or conflict resolution in MVP
+        - If two devices edit simultaneously, last update to reach Firestore wins
+        - Real-time listeners ensure both devices eventually see the final state
+        - Phase 2 enhancement: Add version field for optimistic concurrency control
+      </notes>
+    </pattern>
+  </architecture-patterns>
+
+  <performance-requirements>
+    <requirement>
+      <name>Transaction Update Performance</name>
+      <target>&lt;2 seconds from "Save" click to UI update</target>
+      <measurement>Performance monitoring logs 95th percentile save time</measurement>
+      <acceptance>95% of updates complete in &lt;2 seconds</acceptance>
+    </requirement>
+
+    <requirement>
+      <name>Real-Time Update Propagation</name>
+      <target>&lt;500ms for list update after Firestore change</target>
+      <notes>Firestore onSnapshot typically delivers updates in 100-300ms</notes>
+    </requirement>
+  </performance-requirements>
+
+  <testing-guidance>
+    <unit-tests>
+      <test>transactionStore.updateTransaction(): Mock databaseService, verify updateDocument called with correct params</test>
+      <test>transactionStore.updateTransaction(): Test isSaving state set during update</test>
+      <test>transactionStore.updateTransaction(): Test error handling when update fails</test>
+      <test>FirebaseDatabaseService.updateDocument(): Mock Firestore updateDoc, verify correct document updated</test>
+      <test>FirebaseDatabaseService.updateDocument(): Verify updatedAt set with serverTimestamp()</test>
+    </unit-tests>
+
+    <component-tests>
+      <test>TransactionForm (edit mode): Render with mode="edit" and initialTransaction, verify fields pre-populated</test>
+      <test>TransactionForm (edit mode): Submit form, verify updateTransaction called (not addTransaction)</test>
+      <test>TransactionForm (edit mode): Click Cancel, verify modal closes without calling updateTransaction</test>
+      <test>TransactionForm (edit mode): Submit with invalid data, verify validation errors shown</test>
+      <test>Transactions.tsx: Click edit button on TransactionItem, verify TransactionForm opens in edit mode</test>
+    </component-tests>
+
+    <integration-tests>
+      <test>Full edit flow: Sign in → View transactions → Click edit → Modify amount → Save → Verify list updated</test>
+      <test>Real-time sync: Edit transaction on device 1 → Verify update appears on device 2</test>
+      <test>Cancel edit: Open edit modal → Make changes → Click Cancel → Verify no changes saved</test>
+    </integration-tests>
+  </testing-guidance>
+
+  <acceptance-criteria-summary>
+    <criteria id="AC 3.3.1">Edit transaction interface - Modal opens with pre-filled form</criteria>
+    <criteria id="AC 3.3.2">Update transaction - Save to Firestore with updatedAt timestamp</criteria>
+    <criteria id="AC 3.3.3">Validation on edit - Required fields, error messages</criteria>
+    <criteria id="AC 3.3.4">Cancel edit operation - Close without saving</criteria>
+    <criteria id="AC 3.3.5">Real-time update reflection - &lt;500ms performance</criteria>
+    <criteria id="AC 3.3.6">Concurrent edit handling - Last-write-wins for MVP</criteria>
+  </acceptance-criteria-summary>
+
+  <references>
+    <epic-reference>docs/epics.md#Epic-3 - Story 3.3</epic-reference>
+    <prd-reference>docs/PRD.md - FR-2.2 Edit Transaction</prd-reference>
+    <architecture-reference>docs/architecture.md - Decision 1 (Firebase)</architecture-reference>
+    <previous-story>.bmad-ephemeral/stories/3-2-view-transaction-list.md</previous-story>
+    <story-file>.bmad-ephemeral/stories/3-3-edit-transaction.md</story-file>
+    <firebase-docs>https://firebase.google.com/docs/firestore/manage-data/add-data#update-data</firebase-docs>
+  </references>
+</story-context>

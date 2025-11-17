@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context id="3-4-delete-transaction" version="1.0">
+
+  <!-- Story Metadata -->
+  <metadata>
+    <epic-id>3</epic-id>
+    <story-id>4</story-id>
+    <story-title>Delete Transaction</story-title>
+    <story-status>drafted</story-status>
+    <story-key>3-4-delete-transaction</story-key>
+  </metadata>
+
+  <!-- User Story -->
+  <user-story>
+    <as-a>user</as-a>
+    <i-want>to delete transactions</i-want>
+    <so-that>I can remove mistakes or irrelevant entries</so-that>
+  </user-story>
+
+  <!-- Acceptance Criteria -->
+  <acceptance-criteria>
+    <criterion id="AC 3.4.1" title="Delete transaction interface">
+      <given>I have existing transactions in the list</given>
+      <when>I click/tap the delete button on a transaction</when>
+      <then>a confirmation modal opens asking "Delete this transaction? This cannot be undone."</then>
+      <and>the modal shows Delete and Cancel buttons</and>
+      <and>the transaction details are visible in the modal for context</and>
+    </criterion>
+
+    <criterion id="AC 3.4.2" title="Delete transaction">
+      <given>I have the delete confirmation modal open</given>
+      <when>I click the "Delete" button to confirm</when>
+      <then>the transaction is permanently removed from the Firestore database</then>
+      <and>the transaction disappears immediately from the transaction list</and>
+      <and>I see a success confirmation toast: "Transaction deleted"</and>
+      <and>the modal closes automatically</and>
+    </criterion>
+
+    <criterion id="AC 3.4.3" title="Cancel delete operation">
+      <given>I have the delete confirmation modal open</given>
+      <when>I click the "Cancel" button or the X close button</when>
+      <then>the modal closes without deleting the transaction</then>
+      <and>the transaction remains unchanged in the database</and>
+      <and>the transaction list shows the original transaction</and>
+    </criterion>
+
+    <criterion id="AC 3.4.4" title="Real-time deletion reflection">
+      <given>I have successfully deleted a transaction</given>
+      <when>the deletion is completed in Firestore</when>
+      <then>the transaction list updates immediately via the real-time subscription (established in Story 3.2)</then>
+      <and>the dashboard (if visible) recalculates its charts and summary card to reflect the deletion</and>
+      <and>the update appears in &lt;500ms (per PRD performance requirement)</and>
+    </criterion>
+
+    <criterion id="AC 3.4.5" title="Delete button availability">
+      <given>I have existing transactions</given>
+      <when>I view the transaction list</when>
+      <then>each transaction item shows a delete button/icon (Trash2 icon from Lucide)</then>
+      <and>the delete button is clearly visible and accessible</and>
+      <and>the delete button is distinguishable from the edit button</and>
+    </criterion>
+
+    <criterion id="AC 3.4.6" title="Error handling">
+      <given>I attempt to delete a transaction</given>
+      <when>the deletion fails (e.g., network error, permission denied)</when>
+      <then>I see an error message: "Failed to delete transaction. Please try again."</then>
+      <and>the transaction remains in the list</and>
+      <and>the modal remains open for retry or cancel</and>
+    </criterion>
+  </acceptance-criteria>
+
+  <!-- Tasks -->
+  <tasks>
+    <task id="1" acs="3.4.2, 3.4.6" status="pending">
+      Extend transactionStore with delete functionality
+    </task>
+    <task id="2" acs="3.4.2" status="pending">
+      Verify IDatabaseService has delete method (already exists)
+    </task>
+    <task id="3" acs="3.4.2, 3.4.4" status="pending">
+      Verify deleteDocument in FirebaseDatabaseService (already exists)
+    </task>
+    <task id="4" acs="3.4.1, 3.4.3, 3.4.6" status="pending">
+      Create DeleteConfirmationModal component
+    </task>
+    <task id="5" acs="3.4.5" status="pending">
+      Verify delete button in TransactionItem (already wired)
+    </task>
+    <task id="6" acs="3.4.1, 3.4.2, 3.4.3" status="pending">
+      Implement onDelete handler in Transactions page
+    </task>
+    <task id="7" acs="All" status="pending">
+      End-to-end testing
+    </task>
+    <task id="8" acs="All" status="pending">
+      TypeScript strict mode compliance
+    </task>
+    <task id="9" acs="All" status="pending">
+      Bundle size validation
+    </task>
+  </tasks>
+
+  <!-- Artifacts -->
+  <artifacts>
+
+    <!-- Documentation Artifacts -->
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic 3: Transaction Management - Story 3.4</title>
+        <section>Story 3.4: Delete Transaction</section>
+        <snippet>Delete transaction with confirmation step. Permanent removal from BaaS database. Confirmation modal: "Delete this transaction? This cannot be undone." No undo in MVP. Defer soft delete with deletedAt flag to Phase 2.</snippet>
+      </doc>
+
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document - FR-2.3</title>
+        <section>FR-2.3: Delete Transaction</section>
+        <snippet>Users can delete transactions with confirmation. Deleted transactions are permanently removed (no undo in MVP). Delete button shows confirmation: "Delete this transaction? This cannot be undone." After confirmation, transaction removed from database. Dashboard recalculates instantly. Performance: deletion &lt;2s, UI update &lt;500ms.</snippet>
+      </doc>
+
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Decision 1: Firebase BaaS</title>
+        <section>Firestore Delete Pattern</section>
+        <snippet>Use deleteDoc from Firebase SDK. Pattern: const transactionRef = doc(db, `users/${userId}/transactions`, transactionId); await deleteDoc(transactionRef);</snippet>
+      </doc>
+
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Decision 8: Icon Library</title>
+        <section>Lucide Icons - Delete Icon</section>
+        <snippet>Use Trash2 icon from Lucide React for delete actions. Destructive action styling (red color).</snippet>
+      </doc>
+
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Destructive Action Buttons</section>
+        <snippet>Style: Solid background (Error Red #ef4444), white text. Usage: Irreversible actions (Delete). Example: "Delete Transaction" in confirmation dialog. Confirmation dialog required before destructive actions with clear warning message.</snippet>
+      </doc>
+    </docs>
+
+    <!-- Code Artifacts -->
+    <code>
+      <artifact>
+        <path>src/stores/transactionStore.ts</path>
+        <kind>store</kind>
+        <symbol>useTransactionStore</symbol>
+        <lines>88-264</lines>
+        <reason>Transaction store needs deleteTransaction action added. Follow pattern from updateTransaction (lines 233-263): async function with isSaving state, error handling, calls databaseService.deleteDocument(). Real-time subscription will update UI automatically after deletion.</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/services/database.ts</path>
+        <kind>interface</kind>
+        <symbol>IDatabaseService.deleteDocument</symbol>
+        <lines>51-56</lines>
+        <reason>deleteDocument method already exists in interface. Signature: deleteDocument(collection: string, id: string): Promise&lt;void&gt;. Documents: "Permanently deletes specified document". No changes needed - just verify it exists.</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/services/firebase/firebaseDatabase.ts</path>
+        <kind>service</kind>
+        <symbol>FirebaseDatabaseService.deleteDocument</symbol>
+        <lines>110-123</lines>
+        <reason>deleteDocument already implemented using Firebase deleteDoc(). Includes error handling with descriptive messages. No changes needed - just verify implementation exists and follows pattern.</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/components/transactions/TransactionItem.tsx</path>
+        <kind>component</kind>
+        <symbol>TransactionItem</symbol>
+        <lines>101-108</lines>
+        <reason>Delete button already exists and calls onDelete(transaction.id) callback. Uses Trash2 icon from Lucide. Hover state changes to red (hover:text-red-600 hover:bg-red-50). No changes needed - just verify button exists.</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/features/transactions/Transactions.tsx</path>
+        <kind>page</kind>
+        <symbol>Transactions.handleDelete</symbol>
+        <lines>47-50</lines>
+        <reason>handleDelete stub exists with console.log and TODO comment. Needs implementation: set deletingTransaction state, open DeleteConfirmationModal. Follow pattern from handleEdit (lines 42-45).</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/components/transactions/TransactionForm.tsx</path>
+        <kind>component</kind>
+        <symbol>TransactionForm</symbol>
+        <lines>1-100</lines>
+        <reason>Reference for modal structure patterns: isOpen prop, onClose callback, overlay/backdrop, keyboard navigation (Esc to close), ARIA labels. DeleteConfirmationModal should follow similar patterns but simpler (no form fields, just confirmation).</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/utils/formatCurrency.ts</path>
+        <kind>utility</kind>
+        <symbol>formatCurrency</symbol>
+        <lines>all</lines>
+        <reason>Use to format transaction amount in DeleteConfirmationModal for context display.</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/utils/formatDate.ts</path>
+        <kind>utility</kind>
+        <symbol>formatTransactionDate</symbol>
+        <lines>all</lines>
+        <reason>Use to format transaction date in DeleteConfirmationModal for context display.</reason>
+      </artifact>
+
+      <artifact>
+        <path>src/types/transaction.ts</path>
+        <kind>types</kind>
+        <symbol>Transaction</symbol>
+        <lines>all</lines>
+        <reason>Transaction type definition for DeleteConfirmationModal props. Includes id, userId, amount, description, category, date, type, createdAt, updatedAt fields.</reason>
+      </artifact>
+    </code>
+
+    <!-- Dependencies -->
+    <dependencies>
+      <node>
+        <package name="firebase" version="^12.4.0">Firestore deleteDoc function</package>
+        <package name="lucide-react" version="^0.553.0">Trash2 icon for delete button</package>
+        <package name="zustand" version="^5.0.8">State management for transaction store</package>
+        <package name="react" version="^19.2.0">React framework</package>
+        <package name="react-dom" version="^19.2.0">React DOM rendering</package>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <!-- Interfaces -->
+  <interfaces>
+    <interface>
+      <name>IDatabaseService.deleteDocument</name>
+      <kind>method</kind>
+      <signature>deleteDocument(collection: string, id: string): Promise&lt;void&gt;</signature>
+      <path>src/services/database.ts</path>
+      <notes>Already implemented in FirebaseDatabaseService. Uses Firebase deleteDoc(). No changes needed.</notes>
+    </interface>
+
+    <interface>
+      <name>TransactionStore.deleteTransaction</name>
+      <kind>store action</kind>
+      <signature>deleteTransaction: (userId: string, transactionId: string) =&gt; Promise&lt;void&gt;</signature>
+      <path>src/stores/transactionStore.ts</path>
+      <notes>NEEDS TO BE ADDED. Follow pattern from updateTransaction: set isSaving state, call databaseService.deleteDocument(), handle errors, real-time subscription updates UI automatically.</notes>
+    </interface>
+
+    <interface>
+      <name>DeleteConfirmationModal Props</name>
+      <kind>component props</kind>
+      <signature>
+        interface DeleteConfirmationModalProps {
+          isOpen: boolean;
+          onClose: () =&gt; void;
+          onConfirm: () =&gt; void;
+          transaction: Transaction | null;
+          isDeleting: boolean;
+          error: string | null;
+        }
+      </signature>
+      <path>src/components/transactions/DeleteConfirmationModal.tsx</path>
+      <notes>NEW COMPONENT. Modal for delete confirmation. Shows transaction details, warning message, Delete (red) and Cancel buttons, loading state, error message.</notes>
+    </interface>
+  </interfaces>
+
+  <!-- Constraints -->
+  <constraints>
+    <constraint type="architecture">
+      Follow Zustand store action pattern: async function with try/catch, set isSaving: true at start, set isSaving: false at end, set error on failure, throw error for caller to handle.
+    </constraint>
+
+    <constraint type="architecture">
+      Real-time subscription established in Story 3.2 will automatically update UI after deletion. No need to manually update state in deleteTransaction action.
+    </constraint>
+
+    <constraint type="architecture">
+      Firestore collection path: users/{userId}/transactions/{transactionId}. Use databaseService.deleteDocument() abstraction, not direct Firebase calls in store.
+    </constraint>
+
+    <constraint type="ux">
+      Destructive actions require confirmation modal. Use Error Red (#ef4444) for Delete button background, white text. Clear warning message: "Delete this transaction? This cannot be undone."
+    </constraint>
+
+    <constraint type="ux">
+      Modal must support keyboard navigation: Tab between buttons, Esc to close, Enter to confirm when Delete button focused.
+    </constraint>
+
+    <constraint type="ux">
+      Display transaction details in confirmation modal for context: formatted amount, description, date. Use formatCurrency() and formatTransactionDate() utilities.
+    </constraint>
+
+    <constraint type="performance">
+      Transaction deletion must complete in &lt;2 seconds (from Delete click to Firestore completion). UI update must appear in &lt;500ms via real-time subscription.
+    </constraint>
+
+    <constraint type="bundle">
+      Story 3.4 expected impact: ~2-3 KB (small modal component, delete logic). Current: 212.47 KB gzipped / 500 KB budget. Target after Story 3.4: ~214-216 KB gzipped (43% of budget).
+    </constraint>
+
+    <constraint type="testing">
+      Unit tests: Mock databaseService, verify deleteDocument called with correct params, test isSaving state, test error handling. Component tests: Render DeleteConfirmationModal, test Delete/Cancel callbacks, test error display, test loading state.
+    </constraint>
+
+    <constraint type="accessibility">
+      Delete button must have aria-label="Delete transaction". Modal must have role="dialog", aria-labelledby for title, aria-describedby for warning message. Focus trap within modal when open.
+    </constraint>
+
+    <constraint type="mvp-scope">
+      No undo functionality in MVP (permanent deletion). No soft delete with deletedAt flag (defer to Phase 2). No swipe gesture for mobile (defer to Phase 2). Focus on core delete with confirmation.
+    </constraint>
+  </constraints>
+
+  <!-- Tests -->
+  <tests>
+    <standards>
+      Use Vitest for unit tests, @testing-library/react for component tests. Mock Firebase services. Test happy path, error cases, edge cases. Ensure TypeScript strict mode compliance (zero errors on npm run build).
+    </standards>
+
+    <locations>
+      <location>tests/unit/stores/transactionStore.test.ts</location>
+      <location>tests/unit/components/DeleteConfirmationModal.test.tsx</location>
+      <location>tests/integration/transactions/delete-flow.test.ts</location>
+    </locations>
+
+    <ideas>
+      <idea ac="3.4.2">Test deleteTransaction action calls databaseService.deleteDocument with correct collection and transactionId</idea>
+      <idea ac="3.4.2">Test deleteTransaction sets isSaving: true during deletion, resets to false on completion</idea>
+      <idea ac="3.4.6">Test deleteTransaction handles errors gracefully, sets error message, throws error</idea>
+      <idea ac="3.4.1">Test DeleteConfirmationModal renders with transaction details (amount, description, date)</idea>
+      <idea ac="3.4.1">Test DeleteConfirmationModal shows warning message "Delete this transaction? This cannot be undone."</idea>
+      <idea ac="3.4.2">Test Delete button click calls onConfirm callback</idea>
+      <idea ac="3.4.3">Test Cancel button click calls onClose callback</idea>
+      <idea ac="3.4.6">Test error message displayed when error prop provided</idea>
+      <idea ac="3.4.2">Test Delete button disabled while isDeleting is true</idea>
+      <idea ac="3.4.1">Test modal closes on Esc key press</idea>
+    </ideas>
+  </tests>
+
+  <!-- Integration Points -->
+  <integration-points>
+    <point story="3.1">
+      TransactionForm modal patterns: overlay backdrop, isOpen state, onClose callback, keyboard navigation (Esc to close), ARIA labels for accessibility. Reuse these patterns in DeleteConfirmationModal.
+    </point>
+
+    <point story="3.2">
+      Real-time Firestore subscription already active via subscribeToTransactions(). After deletion, onSnapshot listener will automatically update transactions array in store. No additional code needed for real-time UI updates.
+    </point>
+
+    <point story="3.3">
+      Store action pattern from updateTransaction: async function, set isSaving: true/false, handle errors with try/catch, throw error for caller. DeleteTransaction should follow identical pattern.
+    </point>
+
+    <point epic="2">
+      Authenticated user UID from useAuthStore().user.uid. Required for building Firestore collection path: users/{userId}/transactions.
+    </point>
+
+    <point epic="5" future="true">
+      Dashboard charts (if visible) will recalculate automatically when transaction deleted via real-time subscription. No special handling needed in Story 3.4.
+    </point>
+  </integration-points>
+
+  <!-- Previous Story Learnings -->
+  <previous-story-learnings story="3-3-edit-transaction" status="done">
+    <learning category="existing-code">
+      Delete button already wired in TransactionItem.tsx (lines 101-108). Calls onDelete(transaction.id) callback. Uses Trash2 icon. Hover state changes to red. No changes needed - already complete.
+    </learning>
+
+    <learning category="existing-code">
+      handleDelete stub exists in Transactions.tsx (lines 47-50) with console.log and TODO comment. Ready to be implemented following handleEdit pattern (lines 42-45).
+    </learning>
+
+    <learning category="database-service">
+      deleteDocument() method already exists in IDatabaseService interface (src/services/database.ts lines 51-56) and implemented in FirebaseDatabaseService (src/services/firebase/firebaseDatabase.ts lines 110-123). Uses Firebase deleteDoc(). No changes needed - just call it from store.
+    </learning>
+
+    <learning category="real-time-subscription">
+      Story 3.2 established real-time Firestore subscription via subscribeToTransactions(). Uses onSnapshot() to listen for all changes (create, update, delete). After deleteTransaction completes, subscription will automatically update UI. No additional real-time code needed.
+    </learning>
+
+    <learning category="store-pattern">
+      updateTransaction() action from Story 3.3 provides perfect pattern for deleteTransaction(): set isSaving: true, call databaseService method, set isSaving: false, handle errors, throw for caller. Follow this exact pattern.
+    </learning>
+
+    <learning category="modal-patterns">
+      TransactionForm (Story 3.1) and edit mode (Story 3.3) establish modal patterns: isOpen prop, onClose callback, overlay backdrop, keyboard navigation (Esc), ARIA labels. DeleteConfirmationModal should follow these patterns but be simpler (no form fields, just confirmation).
+    </learning>
+
+    <learning category="firestore-timestamps">
+      Story 3.3 fixed Firestore Timestamp handling with robust date conversion. DeleteConfirmationModal will display transaction.date - use same conversion pattern if needed (check for .toDate() method).
+    </learning>
+
+    <learning category="bundle-size">
+      Current: 212.47 KB gzipped / 500 KB budget (42.5%). Story 3.3 added 0 KB due to tree-shaking. Story 3.4 expected: ~2-3 KB for DeleteConfirmationModal component. Target: ~214-216 KB (43% of budget).
+    </learning>
+
+    <learning category="format-utilities">
+      formatCurrency() and formatTransactionDate() utilities already exist and are used throughout app. Use these in DeleteConfirmationModal to display transaction amount and date for user context.
+    </learning>
+
+    <learning category="files-modified">
+      Story 3.3 modified: transactionStore.ts, firebaseDatabase.ts, TransactionForm.tsx, Transactions.tsx. Story 3.4 will modify: transactionStore.ts (add deleteTransaction), Transactions.tsx (implement handleDelete), CREATE: DeleteConfirmationModal.tsx.
+    </learning>
+  </previous-story-learnings>
+
+  <!-- Implementation Notes -->
+  <implementation-notes>
+    <note priority="high">
+      NEW COMPONENT: Create src/components/transactions/DeleteConfirmationModal.tsx. Much simpler than TransactionForm - no form fields, just confirmation UI with transaction details, warning message, Delete (red) and Cancel buttons.
+    </note>
+
+    <note priority="high">
+      ADD ACTION: transactionStore.deleteTransaction(userId, transactionId). Follow updateTransaction pattern exactly: set isSaving, call databaseService.deleteDocument, handle errors, throw for caller.
+    </note>
+
+    <note priority="medium">
+      IMPLEMENT: Transactions.tsx handleDelete function. Replace console.log with: setDeletingTransaction(transaction), setShowDeleteModal(true). Add confirmDelete function to call deleteTransaction and close modal on success.
+    </note>
+
+    <note priority="medium">
+      STATE MANAGEMENT: Add deletingTransaction and showDeleteModal state to Transactions page. Similar to editingTransaction and showTransactionForm from Story 3.3.
+    </note>
+
+    <note priority="low">
+      VERIFY ONLY: database.ts and firebaseDatabase.ts already have deleteDocument implemented (lines 51-56 and 110-123 respectively). No changes needed. TransactionItem.tsx delete button already wired (lines 101-108). No changes needed.
+    </note>
+
+    <note priority="low">
+      UX PATTERN: DeleteConfirmationModal destructive button styling: bg-red-600 hover:bg-red-700 text-white. Cancel button: secondary style (border-gray-300). Follow UX design spec for destructive actions.
+    </note>
+
+    <note priority="low">
+      PERFORMANCE: Real-time subscription from Story 3.2 handles UI update automatically after deletion. No optimistic updates needed (unlike addTransaction). Keep it simple - just call deleteDocument and let subscription handle the rest.
+    </note>
+
+    <note priority="low">
+      TESTING: Manual test checklist in story file lines 392-406. Automated tests: unit tests for deleteTransaction action, component tests for DeleteConfirmationModal, integration tests for full delete flow.
+    </note>
+  </implementation-notes>
+
+</story-context>

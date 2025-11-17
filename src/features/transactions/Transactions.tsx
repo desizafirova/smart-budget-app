@@ -1,18 +1,32 @@
 import { useState, useEffect } from 'react';
 import { TransactionForm } from '@/components/transactions/TransactionForm';
 import { TransactionList } from '@/components/transactions/TransactionList';
+import { DeleteConfirmationModal } from '@/components/transactions/DeleteConfirmationModal';
 import { useTransactionStore } from '@/stores/transactionStore';
 import { useAuthStore } from '@/stores/authStore';
 import type { Transaction } from '@/types/transaction';
 
 export default function Transactions() {
   const [showTransactionForm, setShowTransactionForm] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingTransaction, setDeletingTransaction] =
+    useState<Transaction | null>(null);
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('Transaction added');
 
   // Get current user and transaction store
   const user = useAuthStore((state) => state.user);
-  const { transactions, isLoading, subscribeToTransactions, unsubscribeFromTransactions } =
-    useTransactionStore();
+  const {
+    transactions,
+    isLoading,
+    isSaving,
+    error,
+    editingTransaction,
+    setEditingTransaction,
+    deleteTransaction,
+    subscribeToTransactions,
+    unsubscribeFromTransactions,
+  } = useTransactionStore();
 
   // Subscribe to real-time transaction updates on mount
   useEffect(() => {
@@ -27,20 +41,42 @@ export default function Transactions() {
   }, [user?.uid, subscribeToTransactions, unsubscribeFromTransactions]);
 
   const handleTransactionSuccess = () => {
-    // Show success toast
+    // Show success toast for add/edit
+    setToastMessage('Transaction saved');
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   };
 
-  // Stub handlers for Edit and Delete (will be implemented in Stories 3.3 and 3.4)
+  // Edit handler: Set transaction for editing and open modal
   const handleEdit = (transaction: Transaction) => {
-    console.log('Edit transaction:', transaction);
-    // TODO Story 3.3: Open TransactionForm in edit mode with initial values
+    setEditingTransaction(transaction);
+    setShowTransactionForm(true);
   };
 
-  const handleDelete = (transactionId: string) => {
-    console.log('Delete transaction:', transactionId);
-    // TODO Story 3.4: Show DeleteConfirmationModal
+  // Delete handler: Set transaction for deletion and open confirmation modal
+  const handleDelete = (transaction: Transaction) => {
+    setDeletingTransaction(transaction);
+    setShowDeleteModal(true);
+  };
+
+  // Confirm delete: Call deleteTransaction action and close modal on success
+  const confirmDelete = async () => {
+    if (!deletingTransaction || !user?.uid) return;
+
+    try {
+      await deleteTransaction(user.uid, deletingTransaction.id);
+      // Success: close modal and clear state
+      setShowDeleteModal(false);
+      setDeletingTransaction(null);
+      // Show success toast
+      setToastMessage('Transaction deleted');
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    } catch (error) {
+      // Error is handled by store and displayed in modal
+      // Modal stays open for retry
+      console.error('Delete transaction failed:', error);
+    }
   };
 
   return (
@@ -74,8 +110,26 @@ export default function Transactions() {
       {/* Transaction Form Modal */}
       <TransactionForm
         isOpen={showTransactionForm}
-        onClose={() => setShowTransactionForm(false)}
+        onClose={() => {
+          setShowTransactionForm(false);
+          setEditingTransaction(null);
+        }}
         onSuccess={handleTransactionSuccess}
+        mode={editingTransaction ? 'edit' : 'create'}
+        initialTransaction={editingTransaction || undefined}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeletingTransaction(null);
+        }}
+        onConfirm={confirmDelete}
+        transaction={deletingTransaction}
+        isDeleting={isSaving}
+        error={error}
       />
 
       {/* Success Toast */}
@@ -95,9 +149,7 @@ export default function Transactions() {
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            <p className="text-sm font-medium text-green-800">
-              Transaction added
-            </p>
+            <p className="text-sm font-medium text-green-800">{toastMessage}</p>
           </div>
         </div>
       )}
