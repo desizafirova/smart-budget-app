@@ -287,6 +287,16 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
         throw new Error('Cannot change category type after creation');
       }
 
+      // Validate: Cannot change isDefault flag (data integrity)
+      if (updates.isDefault !== undefined) {
+        throw new Error('Cannot change category default status');
+      }
+
+      // Validate: Cannot change userId (security)
+      if (updates.userId !== undefined) {
+        throw new Error('Cannot change category ownership');
+      }
+
       await categoryService.updateCategory(userId, categoryId, updates);
       // Real-time subscription (onSnapshot) will update categories automatically
     } catch (error) {
@@ -318,6 +328,14 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
     reassignToCategoryId?: string
   ) => {
     try {
+      // Validate: Cannot delete pre-defined categories (AC 4.4.6)
+      const { categories } = get();
+      const category = categories.find((cat) => cat.id === categoryId);
+
+      if (category?.isDefault) {
+        throw new Error('Cannot delete pre-defined categories. You can edit them instead.');
+      }
+
       // Check if category has transactions
       const transactionCount = await categoryService.getTransactionCountByCategory(
         userId,
