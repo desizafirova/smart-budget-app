@@ -61,9 +61,9 @@ development_status:
 
   # Epic 4: Intelligent Categorization (4 stories)
   epic-4: contexted
-  4-1-pre-defined-category-system: review
+  4-1-pre-defined-category-system: done
   4-2-smart-category-suggestions: review
-  4-3-drag-and-drop-category-reassignment: review
+  4-3-drag-and-drop-category-reassignment: done
   4-4-custom-categories: done
   epic-4-retrospective: optional
 
