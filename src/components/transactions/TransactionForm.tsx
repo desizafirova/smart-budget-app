@@ -35,7 +35,7 @@ interface TransactionFormProps {
 interface TransactionFormData {
   amount: string; // String for input, converted to number
   description: string;
-  category: string;
+  categoryId: string; // Category ID reference
   date: string; // ISO date string from input
 }
 
@@ -78,7 +78,7 @@ export function TransactionForm({
         ? {
             amount: String(initialTransaction.amount),
             description: initialTransaction.description,
-            category: initialTransaction.category,
+            categoryId: initialTransaction.categoryId,
             date: (() => {
               // Handle Firestore Timestamp, Date, or other date formats
               const dateValue = initialTransaction.date;
@@ -104,7 +104,7 @@ export function TransactionForm({
         : {
             amount: '',
             description: '',
-            category: 'Uncategorized',
+            categoryId: categories.length > 0 ? categories[0].id : '', // Default to first category
             date: new Date().toISOString().split('T')[0], // Today's date
           },
   });
@@ -141,7 +141,7 @@ export function TransactionForm({
       reset({
         amount: String(initialTransaction.amount),
         description: initialTransaction.description,
-        category: initialTransaction.category,
+        categoryId: initialTransaction.categoryId,
         date: convertDateToString(initialTransaction.date),
       });
     } else if (mode === 'create') {
@@ -149,7 +149,7 @@ export function TransactionForm({
       reset({
         amount: '',
         description: '',
-        category: 'Uncategorized',
+        categoryId: categories.length > 0 ? categories[0].id : '',
         date: new Date().toISOString().split('T')[0],
       });
     }
@@ -159,7 +159,7 @@ export function TransactionForm({
     reset({
       amount: '',
       description: '',
-      category: 'Uncategorized',
+      categoryId: categories.length > 0 ? categories[0].id : '',
       date: new Date().toISOString().split('T')[0],
     });
     setSubmitError(null);
@@ -168,8 +168,8 @@ export function TransactionForm({
   };
 
   // Handle category suggestion click
-  const handleSelectCategory = (categoryName: string) => {
-    setValue('category', categoryName, {
+  const handleSelectCategory = (categoryId: string) => {
+    setValue('categoryId', categoryId, {
       shouldValidate: true,
       shouldDirty: true,
     });
@@ -189,7 +189,7 @@ export function TransactionForm({
       const transactionData = {
         amount,
         description: data.description.trim(),
-        category: data.category,
+        categoryId: data.categoryId,
         date: new Date(data.date),
       };
 
@@ -203,14 +203,12 @@ export function TransactionForm({
       }
 
       // Record category assignment for learning (fire-and-forget)
-      // Find category ID from category name
-      const selectedCategory = categories.find((c) => c.name === data.category);
-      if (selectedCategory && data.description.trim()) {
+      if (data.categoryId && data.description.trim()) {
         // Don't await - this is fire-and-forget
         recordCategoryAssignment(
           user.uid,
           data.description.trim(),
-          selectedCategory.id
+          data.categoryId
         ).catch((err) => {
           // Log error but don't block UI
           console.error('Failed to record category assignment:', err);
@@ -434,19 +432,19 @@ export function TransactionForm({
                   id="category"
                   disabled={isSaving || submitSuccess}
                   className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:opacity-50"
-                  {...register('category', {
+                  {...register('categoryId', {
                     required: 'Category is required',
                   })}
-                  aria-invalid={errors.category ? 'true' : 'false'}
+                  aria-invalid={errors.categoryId ? 'true' : 'false'}
                   aria-describedby={
-                    errors.category ? 'category-error' : undefined
+                    errors.categoryId ? 'category-error' : undefined
                   }
                 >
                   {/* Income categories */}
                   {incomeCategories.length > 0 && (
                     <optgroup label="Income">
                       {incomeCategories.map((cat) => (
-                        <option key={cat.id} value={cat.name}>
+                        <option key={cat.id} value={cat.id}>
                           {cat.name}
                         </option>
                       ))}
@@ -457,7 +455,7 @@ export function TransactionForm({
                   {expenseCategories.length > 0 && (
                     <optgroup label="Expense">
                       {expenseCategories.map((cat) => (
-                        <option key={cat.id} value={cat.name}>
+                        <option key={cat.id} value={cat.id}>
                           {cat.name}
                         </option>
                       ))}
@@ -466,16 +464,16 @@ export function TransactionForm({
 
                   {/* Fallback if no categories loaded yet */}
                   {incomeCategories.length === 0 && expenseCategories.length === 0 && (
-                    <option value="Uncategorized">Uncategorized</option>
+                    <option value="">Select a category</option>
                   )}
                 </select>
-                {errors.category && (
+                {errors.categoryId && (
                   <p
                     id="category-error"
                     className="mt-1 text-sm text-red-600"
                     role="alert"
                   >
-                    {errors.category.message}
+                    {errors.categoryId.message}
                   </p>
                 )}
               </div>

@@ -11,6 +11,7 @@ import type { Unsubscribe } from 'firebase/firestore';
 import { db } from '@/services/firebase/firebaseConfig';
 import type { Category } from '@/types/category';
 import { categoryService } from '@/services/categories.service';
+import { transactionService } from '@/services/transactions.service';
 
 /**
  * Category store state interface
@@ -66,6 +67,32 @@ interface CategoryActions {
     description: string,
     categoryId: string
   ) => Promise<void>;
+
+  /** Create a new custom category */
+  createCategory: (
+    userId: string,
+    category: Omit<Category, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
+  ) => Promise<void>;
+
+  /** Update an existing category */
+  updateCategory: (
+    userId: string,
+    categoryId: string,
+    updates: Partial<Category>
+  ) => Promise<void>;
+
+  /** Delete a category (optionally reassigning transactions) */
+  deleteCategory: (
+    userId: string,
+    categoryId: string,
+    reassignToCategoryId?: string
+  ) => Promise<void>;
+
+  /** Get count of transactions using a category */
+  getCategoryTransactionCount: (
+    userId: string,
+    categoryId: string
+  ) => Promise<number>;
 }
 
 /**
@@ -212,5 +239,129 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
     categoryId: string
   ) => {
     await categoryService.recordCategoryAssignment(userId, description, categoryId);
+  },
+
+  /**
+   * Create a new custom category
+   *
+   * Delegates to categoryService.createCategory() for Firestore persistence.
+   * Real-time subscription will automatically update store state.
+   *
+   * @param userId - User ID creating the category
+   * @param category - Category data (without id, userId, timestamps)
+   */
+  createCategory: async (
+    userId: string,
+    category: Omit<Category, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
+  ) => {
+    try {
+      await categoryService.createCategory(userId, category);
+      // Real-time subscription (onSnapshot) will update categories automatically
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to create category';
+      set({ error: errorMessage });
+      throw new Error(errorMessage);
+    }
+  },
+
+  /**
+   * Update an existing category
+   *
+   * Prevents changing category type after creation (data integrity constraint).
+   * Delegates to categoryService.updateCategory() for Firestore persistence.
+   * Real-time subscription will automatically update store state.
+   *
+   * @param userId - User ID owning the category
+   * @param categoryId - Category ID to update
+   * @param updates - Partial category data to update
+   */
+  updateCategory: async (
+    userId: string,
+    categoryId: string,
+    updates: Partial<Category>
+  ) => {
+    try {
+      // Validate: Cannot change category type after creation
+      if (updates.type !== undefined) {
+        throw new Error('Cannot change category type after creation');
+      }
+
+      await categoryService.updateCategory(userId, categoryId, updates);
+      // Real-time subscription (onSnapshot) will update categories automatically
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to update category';
+      set({ error: errorMessage });
+      throw new Error(errorMessage);
+    }
+  },
+
+  /**
+   * Delete a category
+   *
+   * If category has transactions and reassignToCategoryId is provided,
+   * reassigns all transactions to the new category before deleting.
+   * If category has transactions and reassignToCategoryId is NOT provided, throws error.
+   *
+   * Uses atomic operations:
+   * 1. Reassign transactions (if needed) - transactionService.reassignCategory()
+   * 2. Delete category - categoryService.deleteCategory()
+   *
+   * @param userId - User ID owning the category
+   * @param categoryId - Category ID to delete
+   * @param reassignToCategoryId - Optional: Category ID to reassign transactions to
+   */
+  deleteCategory: async (
+    userId: string,
+    categoryId: string,
+    reassignToCategoryId?: string
+  ) => {
+    try {
+      // Check if category has transactions
+      const transactionCount = await categoryService.getTransactionCountByCategory(
+        userId,
+        categoryId
+      );
+
+      // If transactions exist and no reassignment specified, throw error
+      if (transactionCount > 0 && !reassignToCategoryId) {
+        throw new Error(
+          `Category has ${transactionCount} transactions. Please specify reassignment category.`
+        );
+      }
+
+      // If reassignment needed, reassign transactions first
+      if (transactionCount > 0 && reassignToCategoryId) {
+        await transactionService.reassignCategory(
+          userId,
+          categoryId,
+          reassignToCategoryId
+        );
+      }
+
+      // Delete category
+      await categoryService.deleteCategory(userId, categoryId);
+      // Real-time subscription (onSnapshot) will update categories automatically
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to delete category';
+      set({ error: errorMessage });
+      throw new Error(errorMessage);
+    }
+  },
+
+  /**
+   * Get count of transactions using a category
+   *
+   * Used to determine if category can be safely deleted or if user
+   * needs to reassign transactions first.
+   *
+   * @param userId - User ID
+   * @param categoryId - Category ID to check
+   * @returns Number of transactions using this category
+   */
+  getCategoryTransactionCount: async (userId: string, categoryId: string) => {
+    return await categoryService.getTransactionCountByCategory(userId, categoryId);
   },
 }));

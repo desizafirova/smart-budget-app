@@ -91,6 +91,19 @@ export interface ICategoryService {
     description: string,
     categoryId: string
   ): Promise<void>;
+
+  /**
+   * Get count of transactions using a specific category
+   * Used for delete validation (warn user if category has transactions)
+   *
+   * @param userId - User ID
+   * @param categoryId - Category ID to check
+   * @returns Number of transactions using this category
+   */
+  getTransactionCountByCategory(
+    userId: string,
+    categoryId: string
+  ): Promise<number>;
 }
 
 /**
@@ -372,6 +385,44 @@ class CategoryService implements ICategoryService {
       // This prevents pattern recording from blocking transaction save
       const message = error instanceof Error ? error.message : 'Unknown error';
       console.error(`Failed to record category assignment: ${message}`);
+    }
+  }
+
+  /**
+   * Get count of transactions using a specific category
+   *
+   * Used to determine if category can be safely deleted or if user
+   * needs to reassign transactions first.
+   *
+   * @param userId - User ID
+   * @param categoryId - Category ID to check
+   * @returns Number of transactions using this category
+   */
+  async getTransactionCountByCategory(
+    userId: string,
+    categoryId: string
+  ): Promise<number> {
+    try {
+      const transactionsRef = collection(db, `users/${userId}/transactions`);
+
+      // Query all transactions with this categoryId
+      // Uses categoryId field introduced in Story 4.4
+      const q = query(transactionsRef);
+      const snapshot = await getDocs(q);
+
+      // Filter transactions by categoryId
+      let count = 0;
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.categoryId === categoryId) {
+          count++;
+        }
+      });
+
+      return count;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to get transaction count: ${message}`);
     }
   }
 }
