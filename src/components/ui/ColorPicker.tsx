@@ -124,7 +124,7 @@ export function ColorPicker({
 
       {/* Color palette grid */}
       <div className="grid grid-cols-5 gap-2 mb-4">
-        {COLOR_PALETTE.map(({ name, hex, description }) => {
+        {COLOR_PALETTE.map(({ name, hex }) => {
           const isSelected = value.toLowerCase() === hex.toLowerCase();
 
           return (

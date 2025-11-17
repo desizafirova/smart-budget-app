@@ -98,7 +98,7 @@ export default function CategoryManagement() {
         className="w-8 h-8 rounded-full flex items-center justify-center"
         style={{ backgroundColor: color }}
       >
-        <IconComponent className="w-4 h-4 text-white" aria-hidden="true" />
+        <IconComponent className="w-4 h-4 text-white" aria-hidden={true} />
       </div>
     );
   };

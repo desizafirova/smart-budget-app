@@ -39,8 +39,8 @@ export function AddCategoryModal({
   const modalRef = useRef<HTMLDivElement>(null);
   const [name, setName] = useState('');
   const [type, setType] = useState<'income' | 'expense'>('expense');
-  const [icon, setIcon] = useState(DEFAULT_ICONS.expense);
-  const [color, setColor] = useState(DEFAULT_COLORS.expense);
+  const [icon, setIcon] = useState<string>(DEFAULT_ICONS.expense);
+  const [color, setColor] = useState<string>(DEFAULT_COLORS.expense);
   const [errors, setErrors] = useState<{ name?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
