@@ -48,9 +48,14 @@ export function DeleteConfirmationModal({
 }: DeleteConfirmationModalProps) {
   const categories = useCategoryStore((state) => state.categories);
 
-  // Find category by ID (Story 4.4: transactions now store categoryId)
+  // Find category by ID (Story 4.4+) with backward compatibility for old transactions
+  // Try categoryId first (new format), fall back to category name (old format)
   const category = transaction
-    ? categories.find((cat) => cat.id === transaction.categoryId)
+    ? transaction.categoryId
+      ? categories.find((cat) => cat.id === transaction.categoryId)
+      : (transaction as any).category
+        ? categories.find((cat) => cat.name === (transaction as any).category)
+        : null
     : null;
 
   // Close modal on Escape key

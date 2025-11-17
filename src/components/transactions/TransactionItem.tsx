@@ -74,8 +74,13 @@ export function TransactionItem({
     return () => touchQuery.removeEventListener('change', handleChange);
   }, []);
 
-  // Find category by ID (Story 4.4: transactions now store categoryId)
-  const category = categories.find((cat) => cat.id === transaction.categoryId);
+  // Find category by ID (Story 4.4+) with backward compatibility for old transactions
+  // Try categoryId first (new format), fall back to category name (old format)
+  const category = transaction.categoryId
+    ? categories.find((cat) => cat.id === transaction.categoryId)
+    : (transaction as any).category
+      ? categories.find((cat) => cat.name === (transaction as any).category)
+      : undefined;
   const currentCategoryId = category?.id;
 
   // Visual styling based on transaction type
