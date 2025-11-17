@@ -1,0 +1,354 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>4</storyId>
+    <title>Custom Categories</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-17</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>.bmad-ephemeral/stories/4-4-custom-categories.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>to create my own custom categories</iWant>
+    <soThat>I can organize transactions in ways that match my unique budgeting needs beyond the pre-defined options</soThat>
+    <tasks>
+      <task id="1">Design category management UI</task>
+      <task id="2">Create CategoryManagement page component</task>
+      <task id="3">Create AddCategoryModal component</task>
+      <task id="4">Extend CategoryStore with CRUD operations (createCategory, updateCategory, deleteCategory)</task>
+      <task id="5">Extend CategoryService with CRUD methods</task>
+      <task id="6">Extend TransactionService with reassignCategory method for batch updates</task>
+      <task id="7">Create EditCategoryModal component</task>
+      <task id="8">Create DeleteCategoryModal component with transaction reassignment logic</task>
+      <task id="9">Update transaction entry UI to show custom categories</task>
+      <task id="10">Update smart suggestion algorithm for custom categories</task>
+      <task id="11">Add IconPicker component (Lucide icons)</task>
+      <task id="12">Add ColorPicker component (WCAG AA compliant palette)</task>
+      <task id="13">Update CategoryChip to handle custom categories</task>
+      <task id="14-23">Component tests, integration tests, E2E tests, accessibility audit, TypeScript compliance, performance validation, bundle size check</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <ac id="4.4.1">
+      <description>Create custom category with name, type (income/expense), optional icon and color</description>
+      <details>
+        - User creates custom category via category management UI
+        - Saved to Firestore: users/{userId}/categories/{categoryId}
+        - Data structure: {userId, categoryId, name, type, icon, color, isDefault: false, createdAt, updatedAt}
+        - Appears in transaction dropdown alongside pre-defined categories
+      </details>
+    </ac>
+    <ac id="4.4.2">
+      <description>Custom category appears in transaction entry</description>
+      <details>
+        - Custom categories load from categoryStore.getCategories()
+        - Displayed in dropdown alongside pre-defined categories
+        - Optional: Group visually (Custom vs Pre-defined section headers)
+        - Can be selected like pre-defined categories
+      </details>
+    </ac>
+    <ac id="4.4.3">
+      <description>Custom categories work in smart suggestions</description>
+      <details>
+        - After 3+ uses, custom category suggested based on description keywords
+        - Learning algorithm treats custom categories same as pre-defined (isDefault flag ignored in suggestions)
+        - Suggestion engine returns max 3 suggestions prioritizing learned patterns
+      </details>
+    </ac>
+    <ac id="4.4.4">
+      <description>Edit custom category (name, icon, color - type locked)</description>
+      <details>
+        - Edit modal pre-populates with current category data
+        - Can update: name, icon, color
+        - Cannot change: type (income/expense) - field disabled after creation
+        - All transactions using category reflect updated name/icon/color immediately
+        - UI updates across dashboard, transaction list, chips
+      </details>
+    </ac>
+    <ac id="4.4.5">
+      <description>Delete custom category with transaction reassignment warning</description>
+      <details>
+        - If no transactions: Simple confirmation, immediate delete
+        - If transactions exist: Warning modal with two options:
+          1. Reassign to [dropdown of categories] (default, recommended)
+          2. Delete and mark transactions as Uncategorized
+        - Batch update uses Firebase writeBatch() for atomicity
+        - All affected transactions update in single transaction
+      </details>
+    </ac>
+    <ac id="4.4.6">
+      <description>Cannot delete pre-defined categories (isDefault: true)</description>
+      <details>
+        - Delete button hidden/disabled for categories where isDefault === true
+        - Edit allowed (user can customize icons/colors of defaults)
+        - Pre-defined categories always remain in system
+      </details>
+    </ac>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>SmartBudget Product Requirements Document</title>
+        <section>FR-3.4: Custom Categories</section>
+        <snippet>Users can create custom categories. Custom category requires: name, type (income/expense). Optional: icon, color. Custom categories appear in suggestion system alongside defaults. User can create unlimited custom categories.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>SmartBudget Epic Breakdown</title>
+        <section>Epic 4: Story 4.4 - Custom Categories</section>
+        <snippet>Technical Notes: "+ Add Category" button in category management UI. Form: name (required), type (required), icon (optional), color (optional). BaaS schema: {userId, categoryId, name, type, icon, color, isDefault: false}. Deleting category with transactions: warn user, optionally reassign to "Uncategorized". No limit on custom categories for MVP.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>SmartBudget Technical Architecture</title>
+        <section>ADR-001: Firebase Backend-as-a-Service</section>
+        <snippet>Firebase Firestore for data storage. User data structure: users/{userId}/categories/{categoryId}. Supports real-time sync with onSnapshot(). Security rules enforce userId-based access control.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>SmartBudget Technical Architecture</title>
+        <section>ADR-003: Zustand State Management</section>
+        <snippet>Zustand v5.0.8 for global state. Category state managed in categoryStore.ts with real-time Firestore sync. Minimal bundle impact (~1KB). Selector-based re-renders prevent unnecessary updates.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>SmartBudget Technical Architecture</title>
+        <section>ADR-002: Tailwind CSS Styling</section>
+        <snippet>Tailwind CSS v4.1 for UI styling. Use utility classes for modals, forms, color swatches. Mobile-first responsive design. Zero runtime overhead (pure CSS).</snippet>
+      </doc>
+      <doc>
+        <path>.bmad-ephemeral/stories/4-3-drag-and-drop-category-reassignment.md</path>
+        <title>Story 4.3: Drag-and-Drop Category Reassignment</title>
+        <section>Dev Agent Record - Completion Notes</section>
+        <snippet>CategoryStore pattern established with Zustand. CategoryService provides ICategoryService interface. CategoryChip component displays categories with icon/color. CategoryPickerModal for mobile selection. Bundle size: ~215 KB gzipped (43% of 500 KB budget).</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/stores/categoryStore.ts</path>
+        <kind>store</kind>
+        <symbol>useCategoryStore</symbol>
+        <lines>1-217</lines>
+        <reason>EXTEND: Add createCategory(), updateCategory(), deleteCategory() methods. Existing methods: subscribeToCategories(), getCategoryById(), getIncomeCategories(), getExpenseCategories(), getSuggestedCategories(), recordCategoryAssignment().</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/categories.service.ts</path>
+        <kind>service</kind>
+        <symbol>ICategoryService</symbol>
+        <lines>38-94</lines>
+        <reason>EXTEND: ICategoryService interface already defines createCategory(), updateCategory(), deleteCategory() signatures. Implement these methods (currently only getCategories() and seedDefaultCategories() exist).</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/categories.service.ts</path>
+        <kind>service</kind>
+        <symbol>CategoryService (implementation)</symbol>
+        <lines>99-383</lines>
+        <reason>EXTEND: Implement createCategory() using addDoc(), updateCategory() using updateDoc(), deleteCategory() using deleteDoc(). Add getTransactionCountByCategory() helper for delete warning.</reason>
+      </artifact>
+      <artifact>
+        <path>src/types/category.ts</path>
+        <kind>type</kind>
+        <symbol>Category</symbol>
+        <lines>13-40</lines>
+        <reason>REUSE: Category interface defines complete entity structure. NewCategory type (Omit&lt;Category, 'id' | 'userId' | 'createdAt' | 'updatedAt'&gt;) for create operations.</reason>
+      </artifact>
+      <artifact>
+        <path>src/types/category.ts</path>
+        <kind>type</kind>
+        <symbol>NewCategory</symbol>
+        <lines>46</lines>
+        <reason>REUSE: Input type for createCategory() - omits auto-generated fields (id, userId, timestamps).</reason>
+      </artifact>
+      <artifact>
+        <path>src/components/categories/CategoryChip.tsx</path>
+        <kind>component</kind>
+        <symbol>CategoryChip</symbol>
+        <lines>all</lines>
+        <reason>REUSE: Displays category with icon and color. Already reads icon and color from category object. Custom categories will use same component automatically.</reason>
+      </artifact>
+      <artifact>
+        <path>src/components/categories/CategoryPickerModal.tsx</path>
+        <kind>component</kind>
+        <symbol>CategoryPickerModal</symbol>
+        <lines>all</lines>
+        <reason>REUSE: Mobile category selection modal. Custom categories will appear in picker automatically when loaded from categoryStore.</reason>
+      </artifact>
+      <artifact>
+        <path>src/stores/transactionStore.ts</path>
+        <kind>store</kind>
+        <symbol>useTransactionStore</symbol>
+        <lines>1-100</lines>
+        <reason>EXTEND: Add reassignCategory(userId, oldCategoryId, newCategoryId) method for batch transaction updates when deleting categories. Use Firebase writeBatch() for atomicity.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <ecosystem name="Node.js (package.json)">
+        <package name="firebase" version="^12.4.0">Firestore CRUD: addDoc(), updateDoc(), deleteDoc(), writeBatch(), getDocs(), query(), where()</package>
+        <package name="zustand" version="^5.0.8">State management for categoryStore, transactionStore</package>
+        <package name="react-router" version="^7.9.6">New route: /categories for CategoryManagement page</package>
+        <package name="react-hook-form" version="^7.66.0">Form validation for AddCategoryModal, EditCategoryModal</package>
+        <package name="lucide-react" version="^0.553.0">Icon library for IconPicker component</package>
+        <package name="tailwindcss" version="4.1">UI styling for modals, forms, color swatches</package>
+        <package name="vitest" version="2.0">Unit and component testing</package>
+        <package name="@testing-library/react" version="16.1">Component testing with React Testing Library</package>
+        <package name="playwright" version="1.50">End-to-end testing for full CRUD flows</package>
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>
+      <rule>Cannot change category type (income/expense) after creation</rule>
+      <rationale>Prevents data corruption. Changing type would invalidate historical transaction categorization (e.g., expense → income would corrupt budget calculations).</rationale>
+      <enforcement>Disable type field in EditCategoryModal. Throw error if updateCategory() receives type change.</enforcement>
+    </constraint>
+    <constraint>
+      <rule>Use Firebase writeBatch() for atomic delete with reassignment</rule>
+      <rationale>Ensures all-or-nothing update when deleting category and reassigning transactions. Prevents partial state where category deleted but some transactions not reassigned.</rationale>
+      <enforcement>In deleteCategory(), if reassignToCategoryId provided, use writeBatch to update all transactions + delete category in single atomic operation.</enforcement>
+    </constraint>
+    <constraint>
+      <rule>Cannot delete pre-defined categories (isDefault: true)</rule>
+      <rationale>Pre-defined categories are core to the product. Deleting would break seeding logic and user expectations.</rationale>
+      <enforcement>Hide/disable delete button in UI where category.isDefault === true. Service layer should also validate (defensive programming).</enforcement>
+    </constraint>
+    <constraint>
+      <rule>Color picker must use WCAG AA compliant colors (4.5:1 contrast ratio)</rule>
+      <rationale>Accessibility requirement from PRD. Users with visual impairments must be able to distinguish categories.</rationale>
+      <enforcement>ColorPicker component provides curated palette of 10-15 accessible colors tested for contrast. Custom hex input optional but warns if contrast fails.</enforcement>
+    </constraint>
+    <constraint>
+      <rule>Bundle size must remain &lt;500KB gzipped after adding category management UI</rule>
+      <rationale>Performance requirement from architecture. Story 4.4 expected impact: ~8-12 KB. Post-implementation: ~235-246 KB (~47-49% of budget).</rationale>
+      <enforcement>Run production build after implementation. Measure with webpack bundle analyzer. Optimize if exceeds target (e.g., lazy load modals, tree-shake icon library).</enforcement>
+    </constraint>
+    <constraint>
+      <rule>Category dropdown render time must be &lt;100ms with 50+ categories</rule>
+      <rationale>Performance target for transaction entry. Users should not experience lag when opening category dropdown.</rationale>
+      <enforcement>Measure render time with performance.now(). If &gt;100ms with 50+ categories, implement virtualization (react-window).</enforcement>
+    </constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>ICategoryService</name>
+      <kind>TypeScript interface</kind>
+      <signature>
+interface ICategoryService {
+  seedDefaultCategories(userId: string): Promise&lt;void&gt;;
+  getCategories(userId: string): Promise&lt;Category[]&gt;;
+  createCategory(userId: string, category: NewCategory): Promise&lt;Category&gt;;
+  updateCategory(userId: string, categoryId: string, updates: Partial&lt;Category&gt;): Promise&lt;void&gt;;
+  deleteCategory(userId: string, categoryId: string): Promise&lt;void&gt;;
+  getSuggestedCategories(userId: string, description: string): Promise&lt;Category[]&gt;;
+  recordCategoryAssignment(userId: string, description: string, categoryId: string): Promise&lt;void&gt;;
+}
+      </signature>
+      <path>src/services/categories.service.ts:38-94</path>
+    </interface>
+    <interface>
+      <name>CategoryStore (Zustand)</name>
+      <kind>Zustand store interface</kind>
+      <signature>
+interface CategoryStore {
+  // State
+  categories: Category[];
+  loading: boolean;
+  error: string | null;
+
+  // Actions (existing)
+  subscribeToCategories(userId: string): void;
+  unsubscribeFromCategories(): void;
+  getCategoryById(id: string): Category | undefined;
+  getIncomeCategories(): Category[];
+  getExpenseCategories(): Category[];
+
+  // Actions (TO ADD in Story 4.4)
+  createCategory(userId: string, category: NewCategory): Promise&lt;void&gt;;
+  updateCategory(userId: string, categoryId: string, updates: Partial&lt;Category&gt;): Promise&lt;void&gt;;
+  deleteCategory(userId: string, categoryId: string, reassignToCategoryId?: string): Promise&lt;void&gt;;
+  getCategoryTransactionCount(userId: string, categoryId: string): Promise&lt;number&gt;;
+}
+      </signature>
+      <path>src/stores/categoryStore.ts:18-74</path>
+    </interface>
+    <interface>
+      <name>TransactionStore.reassignCategory (TO ADD)</name>
+      <kind>Zustand store method</kind>
+      <signature>
+reassignCategory: async (
+  userId: string,
+  oldCategoryId: string,
+  newCategoryId: string
+) => Promise&lt;void&gt;
+// Implementation: Use Firebase writeBatch() to update all transactions
+// where categoryId === oldCategoryId to newCategoryId
+      </signature>
+      <path>src/stores/transactionStore.ts (to be added)</path>
+    </interface>
+    <interface>
+      <name>React Router: /categories route</name>
+      <kind>Client-side route</kind>
+      <signature>
+{
+  path: '/categories',
+  element: &lt;CategoryManagement /&gt;,
+  // Protected route: requires authentication
+}
+      </signature>
+      <path>src/main.tsx or src/App.tsx (router configuration)</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing framework: Vitest 2.0 for unit and component tests. @testing-library/react 16.1 for component testing with accessible queries. Playwright 1.50 for end-to-end testing. Mock Firebase with Firestore emulator for deterministic integration tests. Target: ≥80% code coverage for CRUD methods. Performance benchmarks: <100ms category dropdown render, <500ms chart update after category change. Accessibility: Axe DevTools for automated a11y checks, manual keyboard navigation and screen reader testing (NVDA/JAWS).
+    </standards>
+    <locations>
+      <location>src/features/categories/*.test.tsx</location>
+      <location>src/components/categories/*.test.tsx</location>
+      <location>src/stores/__tests__/categoryStore.test.ts</location>
+      <location>src/services/__tests__/categories.service.test.ts</location>
+      <location>e2e/category-management.spec.ts</location>
+    </locations>
+    <ideas>
+      <idea ac="4.4.1">
+        Unit test: categoryStore.createCategory() saves to Firestore with correct data structure (name, type, icon, color, isDefault: false).
+        Component test: AddCategoryModal form validation (required fields, duplicate names, max length).
+        Integration test: Create custom "Freelance" category → Verify Firestore document exists.
+      </idea>
+      <idea ac="4.4.2">
+        Component test: Transaction entry dropdown loads custom categories from categoryStore.
+        E2E test: Create custom category → Add transaction → Select custom category → Verify transaction saved.
+      </idea>
+      <idea ac="4.4.3">
+        Integration test: Create custom "Freelance" → Use 3 times → Type "freelance" → Verify suggestion appears.
+        Unit test: Suggestion algorithm treats custom categories (isDefault: false) same as pre-defined.
+      </idea>
+      <idea ac="4.4.4">
+        Component test: EditCategoryModal pre-populates data, type field disabled.
+        Unit test: categoryStore.updateCategory() throws error if type change attempted.
+        E2E test: Edit custom category name → Verify transactions reflect new name.
+      </idea>
+      <idea ac="4.4.5">
+        Component test: DeleteCategoryModal shows warning if transactions exist, simple confirmation if none.
+        Integration test: Create 2 transactions with custom category → Delete category with reassignment → Verify batch update atomic.
+        Unit test: categoryStore.deleteCategory() calls transactionStore.reassignCategory() when reassignToCategoryId provided.
+      </idea>
+      <idea ac="4.4.6">
+        Component test: Delete button hidden for categories where isDefault === true.
+        E2E test: Navigate to /categories → Verify default categories have no delete button.
+      </idea>
+      <idea ac="All">
+        Performance test: Measure category dropdown render time with 50 custom categories (target: <100ms).
+        Accessibility test: Keyboard navigation through modals (Tab, Enter, Escape), screen reader announcements.
+        Bundle size test: Verify total bundle <500KB gzipped after Story 4.4 (expected: ~235-246 KB).
+      </idea>
+    </ideas>
+  </tests>
+</story-context>
