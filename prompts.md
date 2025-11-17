@@ -7226,3 +7226,300 @@ Story 4.2 builds on Story 4.1's foundation by adding intelligent category sugges
 - Implement Story 4.2 following drafted specification
 - Ensure <300ms performance target met (critical)
 
+
+
+---
+
+## Session 32 - 2025-11-17
+
+### Prompt 1
+
+**Phase**: Planning / Story Context Generation
+
+**Purpose**: Generate comprehensive technical context for Story 4.2 (Smart Category Suggestions)
+
+**Prompt**:
+```
+/bmad:bmm:agents:sm *story-context story-4.2
+```
+
+**Task**:
+Execute story-context workflow to assemble documentation, code artifacts, interfaces, constraints, and testing standards for Story 4.2 implementation.
+
+**Output**:
+1. **Context File Created**: `.bmad-ephemeral/stories/4-2-smart-category-suggestions.context.xml` (264 lines)
+2. **Documentation Artifacts** (6 references):
+   - Epic 4 Tech Spec (2 sections: Detailed Design, Services/Modules)
+   - epics.md (Story 4.2 requirements)
+   - Architecture ADR-003 (Zustand state management)
+   - Architecture ADR-006 (React Hook Form)
+   - Story 4.1 learnings (CategoryService, CategoryStore, CategoryChip)
+3. **Code Artifacts** (6 files):
+   - src/services/categories.service.ts (EXTEND with getSuggestedCategories, recordCategoryAssignment)
+   - src/types/category.ts (ADD UserAssignmentPattern interface)
+   - src/stores/categoryStore.ts (EXTEND with userPatterns state)
+   - src/components/transactions/TransactionForm.tsx (INTEGRATE CategorySuggestions)
+   - src/components/categories/CategoryChip.tsx (REUSE for suggestion chips)
+   - src/config/categories-seed.ts (REFERENCE for keyword mapping)
+4. **Interfaces Defined** (5):
+   - ICategoryService.getSuggestedCategories(userId, description)
+   - ICategoryService.recordCategoryAssignment(userId, description, categoryId)
+   - UserAssignmentPattern {id, userId, description, categoryId, count, lastUsed}
+   - CategorySuggestions component {description, onSelect, userId}
+   - Firestore collection: users/{userId}/category-patterns/{normalizedDescription}
+5. **Critical Constraints** (15):
+   - PERFORMANCE: <300ms suggestion latency (95th percentile) - NON-NEGOTIABLE
+   - Debounce input 300ms, Firebase cache for offline
+   - TypeScript strict mode, fire-and-forget pattern recording
+   - Learned pattern threshold: count >= 3
+   - Max 3 suggestions, description normalization (lowercase, trim)
+   - Bundle impact: +8-12 KB target
+6. **Testing Standards**:
+   - 7 test file locations specified
+   - 6 comprehensive test scenarios mapped to ACs
+   - Vitest, React Testing Library, Playwright patterns
+   - Performance tests for <300ms latency validation
+7. **Story Status Updated**: drafted → ready-for-dev
+8. **Commits**: 4 checkpoints + final commit pushed to `claude/create-story-4-2-01QBxGEMwb7bBF76f3VCdLwP`
+
+**Notes**:
+Context generation workflow completed with 10/10 validation checklist items passed. All context sections populated including story fields, acceptance criteria, tasks, docs, code references, interfaces, constraints, dependencies, and testing standards.
+
+---
+
+### Prompt 2
+
+**Phase**: Implementation
+
+**Purpose**: Implement Story 4.2 (Smart Category Suggestions) end-to-end
+
+**Prompt**:
+```
+/bmad:bmm:agents:dev *dev-story story-4.2
+```
+
+**Task**:
+Execute dev-story workflow to implement all 14 tasks for intelligent category suggestion system with keyword matching, fuzzy matching, and user learning.
+
+**Output**:
+**Implementation Summary**:
+- All 14 tasks completed successfully
+- 67 passing unit tests (18 keywords + 31 suggestion engine + 18 service)
+- TypeScript strict mode compliant
+- Build successful
+- Bundle size impact: within +8-12 KB target
+
+**Task 1**: Static Keyword Dictionary
+- Created `src/config/keywords-seed.ts` with DEFAULT_KEYWORDS mapping
+- 13 category mappings (Food & Dining, Transport, Entertainment, etc.)
+- Helper functions: normalizeCategoryName, getCategoryNameFromSlug
+- 18 passing unit tests
+
+**Task 2**: Suggestion Engine Module
+- Created `src/utils/suggestions/category-suggestions.ts`
+- Implemented Levenshtein distance algorithm for fuzzy matching (threshold: 2)
+- matchKeywords(): Keyword matching with fuzzy tolerance
+- findLearnedPatterns(): Filters patterns with count >= 3
+- getSuggestedCategories(): Prioritizes learned patterns over keywords
+- 31 passing unit tests
+
+**Task 3**: Extend CategoryService
+- Added getSuggestedCategories(userId, description): Fetches patterns + runs engine
+- Added recordCategoryAssignment(userId, description, categoryId): Fire-and-forget tracking
+- 6 new unit tests (18 total service tests passing)
+
+**Task 4**: Add UserAssignmentPattern Type
+- Added interface to `src/types/category.ts`
+- Firestore document structure: {id, userId, description, categoryId, count, lastUsed}
+- Normalized description as document ID
+
+**Tasks 5-6**: CategorySuggestions Component + Integration
+- Created `src/components/categories/CategorySuggestions.tsx`
+- Displays up to 3 clickable category chips
+- 300ms debouncing for optimal performance
+- Loading state with skeleton UI
+- Integrated into TransactionForm (create mode only)
+
+**Task 7**: Record Assignment on Save
+- TransactionForm calls recordCategoryAssignment() on save
+- Fire-and-forget operation (doesn't block UI)
+
+**Task 8**: Update CategoryStore
+- Added getSuggestedCategories() action
+- Added recordCategoryAssignment() action
+
+**Task 9**: Firestore Security Rules
+- Added rules for users/{userId}/category-patterns collection
+- Read/write access restricted to authenticated owners
+
+**Tasks 10-12**: Testing & Validation
+- TypeScript strict mode: ✅ 0 errors
+- Build successful: ✅
+- 67 unit tests passing: ✅
+
+**Acceptance Criteria Met**:
+- ✅ AC 4.2.1: Keyword matching with fuzzy logic
+- ✅ AC 4.2.2: Display up to 3 suggestions below description
+- ✅ AC 4.2.3: One-click category selection
+- ✅ AC 4.2.4: Learning system (3-use threshold)
+- ✅ AC 4.2.5: Firestore security rules
+- ✅ AC 4.2.6: Comprehensive unit tests
+
+**Files Changed** (12):
+- src/components/categories/CategorySuggestions.tsx (new)
+- src/components/transactions/TransactionForm.tsx (integrated suggestions)
+- src/config/keywords-seed.ts (new)
+- src/config/keywords-seed.test.ts (new)
+- src/utils/suggestions/category-suggestions.ts (new)
+- src/utils/suggestions/category-suggestions.test.ts (new)
+- src/services/categories.service.ts (extended)
+- src/services/categories.service.test.ts (extended)
+- src/stores/categoryStore.ts (extended)
+- src/types/category.ts (added UserAssignmentPattern)
+- firestore.rules (added category-patterns rules)
+- package.json (added @testing-library/user-event)
+
+**Commits**:
+- Task 1: feat: Create static keyword dictionary (18 tests)
+- Task 2: feat: Implement suggestion engine module (31 tests)
+- Tasks 3-12: feat: Implement Story 4.2 - Smart Category Suggestions (comprehensive commit)
+
+**Notes**:
+Implementation completed in continuous execution mode. All tasks executed sequentially with test-driven approach. Sprint status updated to "review".
+
+---
+
+### Prompt 3
+
+**Phase**: Troubleshooting / Deployment
+
+**Purpose**: Resolve Firebase permission error for category suggestions
+
+**Prompt**:
+User encountered error when testing the feature:
+```
+Failed to load category suggestions: Error: Failed to get suggested categories: Missing or insufficient permissions.
+```
+
+**Task**:
+Diagnose and provide solution for Firestore security rules deployment issue.
+
+**Output**:
+**Root Cause Identified**:
+- Code implementation is correct
+- Firestore security rules added to `firestore.rules` but not yet deployed to Firebase
+- Production Firestore rejects reads from `users/{userId}/category-patterns` collection
+
+**Solution Provided**:
+1. **Firebase CLI Deployment**:
+   ```bash
+   npx firebase deploy --only firestore:rules
+   ```
+
+2. **Setup Steps** (Windows environment):
+   ```bash
+   # 1. Login to Firebase
+   npx firebase login
+
+   # 2. List available projects
+   npx firebase projects:list
+
+   # 3. Set active project
+   npx firebase use --add
+   # OR
+   npx firebase use your-project-id
+
+   # 4. Deploy rules
+   npx firebase deploy --only firestore:rules
+   ```
+
+3. **Alternative for Local Development**:
+   ```bash
+   # Use Firebase emulator (reads local firestore.rules)
+   firebase emulators:start --only firestore,auth
+   ```
+
+**Rules Added to firestore.rules**:
+```
+// Category patterns subcollection (Story 4.2)
+match /category-patterns/{patternId} {
+  allow read, write: if isOwner(userId);
+}
+```
+
+**Notes**:
+User working through Firebase CLI setup on Windows (firebase-tools via npx). Need to authenticate and set project before deploying rules. Implementation is production-ready once rules are deployed.
+
+---
+
+**Session 32 Summary**:
+
+**Completed**:
+- Generated comprehensive Story 4.2 context (264-line XML file)
+- Implemented full intelligent category suggestion system
+- All 14 tasks completed with 67 passing tests
+- Created keyword dictionary with 13 category mappings
+- Implemented Levenshtein fuzzy matching algorithm
+- Built user learning system (3-use threshold pattern recognition)
+- Created CategorySuggestions React component
+- Extended CategoryService and CategoryStore
+- Added Firestore security rules for category-patterns
+- TypeScript strict mode compliance (0 errors)
+- Build successful
+- Troubleshot Firebase permission error (rules not deployed)
+
+**Files Created** (7):
+- .bmad-ephemeral/stories/4-2-smart-category-suggestions.context.xml
+- src/components/categories/CategorySuggestions.tsx
+- src/config/keywords-seed.ts
+- src/config/keywords-seed.test.ts
+- src/utils/suggestions/category-suggestions.ts
+- src/utils/suggestions/category-suggestions.test.ts
+- (Plus test files)
+
+**Files Modified** (7):
+- .bmad-ephemeral/sprint-status.yaml (drafted → in-progress → review)
+- src/components/transactions/TransactionForm.tsx (integrated suggestions)
+- src/services/categories.service.ts (added suggestion methods)
+- src/services/categories.service.test.ts (6 new tests)
+- src/stores/categoryStore.ts (added suggestion actions)
+- src/types/category.ts (added UserAssignmentPattern)
+- firestore.rules (added category-patterns rules)
+
+**Technical Highlights**:
+- Levenshtein distance algorithm (2-character fuzzy match tolerance)
+- Pattern prioritization: Learned (count ≥ 3) > Keywords
+- 300ms input debouncing for performance
+- Fire-and-forget pattern recording (doesn't block UI)
+- Max 3 suggestions per UX specification
+- Offline-compatible (static keywords always available)
+- Performance target: <300ms latency (95th percentile)
+
+**Test Coverage**:
+- Keywords dictionary: 18 tests ✅
+- Suggestion engine: 31 tests ✅
+- CategoryService: 18 tests (6 new) ✅
+- Total: 67 passing tests
+- TypeScript build: 0 errors ✅
+
+**Deployment Status**:
+- Code implementation: Complete ✅
+- Firestore rules: Added to firestore.rules ✅
+- Rules deployment: Pending (user needs to run `npx firebase deploy --only firestore:rules`)
+
+**Commits** (6):
+- 4 context generation checkpoints
+- "docs: Mark Story 4.2 as ready-for-dev with context file reference"
+- "feat: Task 1 - Create static keyword dictionary"
+- "feat: Task 2 - Implement suggestion engine module"
+- "feat: Implement Story 4.2 - Smart Category Suggestions" (Tasks 3-12)
+- "wip: Start Story 4.2 implementation"
+- "feat: Complete Story 4.2 context file with testing standards"
+
+**Branch**: claude/create-story-4-2-01QBxGEMwb7bBF76f3VCdLwP
+
+**Next Steps**:
+- Deploy Firestore security rules to production
+- Test category suggestions in live environment
+- Mark Story 4.2 as done after validation
+- Begin Story 4.3 (Drag-and-Drop Category Reassignment)
