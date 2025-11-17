@@ -1,0 +1,79 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>4.2</storyId>
+    <title>Smart Category Suggestions</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-17</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>.bmad-ephemeral/stories/4-2-smart-category-suggestions.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>the app to suggest categories based on my transaction description</iWant>
+    <soThat>I spend less time manually categorizing</soThat>
+    <tasks>
+      - Task 1: Create static keyword dictionary (AC: 4.2.2)
+      - Task 2: Implement suggestion engine module (AC: 4.2.2, 4.2.4)
+      - Task 3: Extend CategoryService with suggestion operations (AC: 4.2.3, 4.2.4)
+      - Task 4: Add UserAssignmentPattern type to category types (AC: 4.2.3)
+      - Task 5: Create CategorySuggestions component (AC: 4.2.1, 4.2.5)
+      - Task 6: Integrate suggestions into TransactionForm (AC: 4.2.1)
+      - Task 7: Call recordCategoryAssignment on transaction save (AC: 4.2.3)
+      - Task 8: Update categoryStore with suggestion actions (AC: 4.2.4)
+      - Task 9: Add Firestore Security Rules for category-patterns (AC: 4.2.3)
+      - Task 10: TypeScript strict mode compliance (AC: All)
+      - Task 11: Performance validation - &lt;300ms suggestion latency (AC: 4.2.5)
+      - Task 12: Unit and component tests (AC: All)
+      - Task 13: Integration testing (AC: All)
+      - Task 14: End-to-end testing (AC: All)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    AC 4.2.1: Keyword-based suggestions appear in transaction form
+    - System suggests 1-3 relevant categories as clickable chips below description field
+    - Suggestions appear within 300ms of typing (95th percentile)
+    - Chips display category icon and name using CategoryChip component
+    - Tapping a suggestion chip auto-selects the category in the form
+
+    AC 4.2.2: Static keyword matching works for common merchants/terms
+    - Keyword dictionary maps terms to categories: "starbucks"→"Food &amp; Dining", "uber"→"Transport", etc.
+    - Keyword matching is case-insensitive
+    - Partial matches work with fuzzy matching (e.g., "starbks" matches "starbucks")
+
+    AC 4.2.3: User learning system tracks category assignments
+    - System records assignments in Firestore: users/{userId}/category-patterns/{normalizedDescription}
+    - Pattern document: {userId, description, categoryId, count: 1, lastUsed: Date}
+    - If pattern exists, increment count and update lastUsed
+    - Operation completes in background (doesn't block transaction save)
+
+    AC 4.2.4: Learned patterns prioritize user's preferences
+    - After 3+ assignments, suggestion engine prioritizes learned pattern over static keywords
+    - Learned category appears first in suggestion list
+
+    AC 4.2.5: Suggestions are debounced for performance
+    - Suggestion engine waits 300ms after last keystroke before running
+    - Prevents excessive Firebase queries
+    - User experience feels responsive (no lag)
+
+    AC 4.2.6: Suggestions work offline
+    - Suggestions appear using cached user patterns + static keyword dictionary
+    - New pattern assignments queue for sync when back online
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>{{docs_artifacts}}</docs>
+    <code>{{code_artifacts}}</code>
+    <dependencies>{{dependencies_artifacts}}</dependencies>
+  </artifacts>
+
+  <constraints>{{constraints}}</constraints>
+  <interfaces>{{interfaces}}</interfaces>
+  <tests>
+    <standards>{{test_standards}}</standards>
+    <locations>{{test_locations}}</locations>
+    <ideas>{{test_ideas}}</ideas>
+  </tests>
+</story-context>
