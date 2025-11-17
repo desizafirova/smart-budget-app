@@ -58,14 +58,14 @@ export function TransactionItem({
   const [selectedCategoryIndex, setSelectedCategoryIndex] = useState(0);
 
   // Detect if device supports touch (mobile/tablet)
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  // Use lazy initializer to avoid setState in effect
+  const [isTouchDevice, setIsTouchDevice] = useState(() => {
+    return window.matchMedia('(pointer: coarse)').matches;
+  });
 
   useEffect(() => {
-    // Detect touch device using pointer media query
-    const touchQuery = window.matchMedia('(pointer: coarse)');
-    setIsTouchDevice(touchQuery.matches);
-
     // Listen for changes (e.g., connecting external mouse)
+    const touchQuery = window.matchMedia('(pointer: coarse)');
     const handleChange = (e: MediaQueryListEvent) => {
       setIsTouchDevice(e.matches);
     };
